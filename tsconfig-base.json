@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "lib": ["esnext", "DOM"],
+    "target": "es2017",
+    "module": "commonjs",
+    "rootDir": ".",
+    "outDir": "./dist",
+    "moduleResolution": "node",
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "forceConsistentCasingInFileNames": true,    
+    "experimentalDecorators": true,
+    "allowJs": true,
+    "sourceMap": true,
+    "esModuleInterop": true,
+    
+    //"strict": true /* Enable all strict type-checking options. */,
+    //"alwaysStrict": true /* Parse in strict mode and emit "use strict" for each source file. */,
+    "strictNullChecks": false, // Disabled because of bug in azure-maps-rest
+  }, 
+}
