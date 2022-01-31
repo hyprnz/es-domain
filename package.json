@@ -1,0 +1,35 @@
+{
+  "name": "iot-domain-model",
+  "version": 0,
+  "private": true,
+  "author": {
+    "name": "Blair Jacobs"
+  },
+  "licenses": [
+    {
+      "type": "MIT"
+    }
+  ],
+  "description": "node implementation of pollin8 iot domain model",
+  "scripts": {
+    "build": "tsc -p ./tsconfig.json",
+    "compile": "tsc -p ./tsconfig.json",
+    "clean": "rm -fr dist/** && rimraf build/** ",
+    "test:micro": "jest --testPathPattern=\\.micro\\.test\\.ts$",
+    "test:integration": "jest --testPathPattern=\\.integration\\.test\\.ts$",
+    "test:ci": "npm run test:micro --  --ci --watchAll=false --reporters=default --reporters=jest-junit"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "@types/jest": "~27.0.1",
+    "@types/node": "~16.4.14",
+    "@types/uuid": "~8.3.1",
+    "jest": "~27.3.1",
+    "jest-junit": "~13.0.0",
+    "mismatched": "~2.9.0",
+    "thespian": "~2.9.0",
+    "ts-jest": "~27.0.7",
+    "ts-node": "~10.4.0",
+    "typescript": "~4.4.4"
+  }
+}
