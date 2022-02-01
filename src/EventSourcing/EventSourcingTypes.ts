@@ -17,7 +17,7 @@ export interface IAggregateRoot{
   readonly changeVersion: number
   
 
-  loadFromHistory(events: Array<IEntityEvent>)
+  loadFromHistory(events: Array<IEntityEvent>): void
   uncommittedChanges(): Array<IEntityEvent>
   markChangesAsCommitted(version: number): void
 }
