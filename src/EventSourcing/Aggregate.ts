@@ -9,7 +9,7 @@ export abstract class Aggregate implements IAggregate {
   id: Uuid.UUID
   private handlers = new Map<string, { handlers: Array<EventHandler> }>()
 
-  constructor(private parent: IParentAggregateRoot) {
+  constructor(protected parent: IParentAggregateRoot) {
     // Uninitialised, we are going to load an exisitng 
     this.id = Uuid.EmptyUUID
   }
