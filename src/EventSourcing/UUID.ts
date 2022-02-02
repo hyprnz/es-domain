@@ -1,3 +1,6 @@
+import { v4 as uuidv4 } from 'uuid'
+
+// Havr a look at ts-essentials
 declare const validUUID: unique symbol;
 const nullUUID = "00000000-0000-0000-0000-000000000000"
 export type UUID = string & {[validUUID]: true}
@@ -13,3 +16,10 @@ export function assertValidUUID(input: string): asserts input is UUID {
 
 assertValidUUID(nullUUID)
 export const EmptyUUID: UUID =  nullUUID
+
+
+export function createV4(): UUID {
+  const uuid = uuidv4()
+  assertValidUUID(uuid)
+  return uuid
+}

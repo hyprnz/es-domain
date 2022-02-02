@@ -19,7 +19,9 @@
     "test:integration": "jest --testPathPattern=\\.integration\\.test\\.ts$",
     "test:ci": "npm run test:micro --  --ci --watchAll=false --reporters=default --reporters=jest-junit"
   },
-  "dependencies": {},
+  "dependencies": {
+    "uuid": "~8.3.2"
+  },
   "devDependencies": {
     "@types/jest": "~27.0.1",
     "@types/node": "~16.4.14",

@@ -2,8 +2,9 @@ import * as Uuid from './UUID'
 
 export interface IChangeEvent
 {
+    readonly id: Uuid.UUID
     readonly eventType: string
-    readonly aggregateId : Uuid.UUID
+    readonly aggregateRootId : Uuid.UUID
 }
 
 export interface IEntityEvent
@@ -20,4 +21,15 @@ export interface IAggregateRoot{
   loadFromHistory(events: Array<IEntityEvent>): void
   uncommittedChanges(): Array<IEntityEvent>
   markChangesAsCommitted(version: number): void
+}
+
+export interface IAggregate {
+  readonly id: Uuid.UUID
+  applyChangeEvent(event: IEntityEvent): void
+}
+
+
+export interface IParentAggregateRoot {
+  id() : Uuid.UUID,
+  addChangeEvent(event: IChangeEvent): void
 }

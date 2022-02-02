@@ -1,9 +1,9 @@
 import * as Uuid from './UUID'
 import { AggregateError } from './AggregateError'
-import { IChangeEvent, IAggregateRoot, IEntityEvent } from './EventSourcingTypes'
+import { IChangeEvent, IAggregateRoot, IEntityEvent, IParentAggregateRoot } from './EventSourcingTypes'
 
 const UNINITIALISED_AGGREGATE_VERSION = -1
-export type EventHandler = <T extends IChangeEvent>(evt: T) => void
+export type EventHandler<T = any> = <T extends IChangeEvent>(evt: T) => void
 
 export abstract class AggregateRoot implements IAggregateRoot{
   
@@ -13,11 +13,17 @@ export abstract class AggregateRoot implements IAggregateRoot{
   private version: number
   private changes: Array<IEntityEvent> = []
   private handlers = new Map<string, {handlers:Array<EventHandler>}>()
+  protected thisAsParent: IParentAggregateRoot 
 
-  constructor(id?: Uuid.UUID){
+  constructor(){
     // Uninitialised, we are going to load an exisitng 
     this.id = Uuid.EmptyUUID
     this.version = UNINITIALISED_AGGREGATE_VERSION
+
+    this.thisAsParent = {
+      id: () => this.id,
+      addChangeEvent: this.applyChange
+    }
   }
 
   loadFromHistory(history: IEntityEvent[]): void{
@@ -49,7 +55,7 @@ export abstract class AggregateRoot implements IAggregateRoot{
   }
 
   /** Register event handlers */
-  protected registerHandler(eventType:string, handler: EventHandler){
+  protected registerHandler<T>(eventType:string, handler: EventHandler){
     const exists = this.handlers.has(eventType)
     if(exists) this.handlers.get(eventType).handlers.push(handler)
     else this.handlers.set(eventType, {handlers: [handler]})
