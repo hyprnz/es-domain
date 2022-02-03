@@ -1,5 +1,5 @@
-import { Entity } from "../EventSourcing/Aggregate";
-import { IParentAggregateRoot } from "../EventSourcing/EventSourcingTypes";
+import { Entity, EventHandler, StaticEventHandler } from "../EventSourcing/Aggregate";
+import { IChangeEvent, IParentAggregateRoot } from "../EventSourcing/EventSourcingTypes";
 import * as Uuid from '../EventSourcing/UUID'
 import { AlarmArmedEvent, AlarmCreatedEvent, AlarmDisarmedEvent, AlarmTriggeredEvent, DeviceDomainError } from "./events/deviceEvents";
 
@@ -12,14 +12,14 @@ export class Alarm extends Entity {
   constructor(parent: IParentAggregateRoot, id?: Uuid.UUID){
     super(parent)
 
-    this.registerHandler(AlarmCreatedEvent.eventType, (evt) => {AlarmCreatedEvent.assertIsAlarmCreatedEvent(evt), super.id = evt.alarmId})
-    this.registerHandler(AlarmDisarmedEvent.eventType, () => this.isArmed = false)
-    this.registerHandler(AlarmArmedEvent.eventType, (evt) => { 
-      AlarmArmedEvent.assertIsAlarmArmedEvent(evt); 
-      this.isArmed = true; 
-      this.threshold = evt.threshold
-    })
-    this.registerHandler(AlarmTriggeredEvent.eventType, () => this.isTriggered = true)
+    // this.registerHandler(AlarmCreatedEvent.eventType, (evt) => {AlarmCreatedEvent.assertIsAlarmCreatedEvent(evt), this.id = evt.alarmId})
+    // this.registerHandler(AlarmDisarmedEvent.eventType, () => this.isArmed = false)
+    // this.registerHandler(AlarmArmedEvent.eventType, (evt) => { 
+    //   AlarmArmedEvent.assertIsAlarmArmedEvent(evt); 
+    //   this.isArmed = true; 
+    //   this.threshold = evt.threshold
+    // })
+    // this.registerHandler(AlarmTriggeredEvent.eventType, () => this.isTriggered = true)
 
     if(id){
       // This is a new object
@@ -52,4 +52,23 @@ export class Alarm extends Entity {
     return true
   }
 
+  toString() {return  'Alarm'}
+
+  protected override makeEventHandler(evt: IChangeEvent) : () => void | undefined{
+    const handler = Alarm.eventHandlers[evt.eventType]
+    return handler 
+      ? () => handler.forEach(x => x.call(this, this, evt))
+      : undefined
+  }
+  
+  static readonly eventHandlers: Record<string, Array<StaticEventHandler<Alarm>>> = {
+    [AlarmCreatedEvent.eventType]: [(alarm, evt) => {AlarmCreatedEvent.assertIsAlarmCreatedEvent(evt), alarm.id = evt.entityId}],
+    [AlarmDisarmedEvent.eventType]: [(alarm) => alarm.isArmed = false],
+    [AlarmArmedEvent.eventType]: [(alarm, evt) => {
+      AlarmArmedEvent.assertIsAlarmArmedEvent(evt)
+      alarm.isArmed = true; 
+      alarm.threshold = evt.threshold
+    }],
+    [AlarmTriggeredEvent.eventType]:[(alarm, evt) => alarm.isTriggered = true]
+  }
 }

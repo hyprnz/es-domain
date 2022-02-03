@@ -1,8 +1,8 @@
 import * as Uuid from './UUID'
 import { AggregateError } from './AggregateError'
-import { IChangeEvent, IAggregateRoot, IEntityEvent, IParentAggregateRoot } from './EventSourcingTypes'
+import { IChangeEvent, IAggregateRoot, IEntityEvent, IParentAggregateRoot, UNINITIALISED_AGGREGATE_VERSION } from './EventSourcingTypes'
 
-const UNINITIALISED_AGGREGATE_VERSION = -1
+
 export type EventHandler<T = any> = <T extends IChangeEvent>(evt: T) => void
 
 export abstract class AggregateRoot implements IAggregateRoot{
@@ -12,7 +12,7 @@ export abstract class AggregateRoot implements IAggregateRoot{
 
   private version: number
   private changes: Array<IEntityEvent> = []
-  private handlers = new Map<string, {handlers:Array<EventHandler>}>()
+  // private handlers = new Map<string, {handlers:Array<EventHandler>}>()
   protected thisAsParent: IParentAggregateRoot 
 
   constructor(){
@@ -22,7 +22,10 @@ export abstract class AggregateRoot implements IAggregateRoot{
 
     this.thisAsParent = {
       id: () => this.id,
-      addChangeEvent: this.applyChange
+      addChangeEvent: (evt) => this.changes.push({
+        event:evt, 
+        version: UNINITIALISED_AGGREGATE_VERSION
+      })
     }
   }
 
@@ -54,12 +57,13 @@ export abstract class AggregateRoot implements IAggregateRoot{
     return `AggregateRoot ${typeof this}]:${this.id}, Version:${this.changeVersion}`
   }
 
-  /** Register event handlers */
-  protected registerHandler<T>(eventType:string, handler: EventHandler){
-    const exists = this.handlers.has(eventType)
-    if(exists) this.handlers.get(eventType).handlers.push(handler)
-    else this.handlers.set(eventType, {handlers: [handler]})
-  }
+  // /** Register event handlers */
+  // protected registerHandler<T>(eventType:string, handler: EventHandler){
+  //   const boundHandler = handler.bind(this)
+  //   const exists = this.handlers.has(eventType)
+  //   if(exists) this.handlers.get(eventType).handlers.push(boundHandler)
+  //   else this.handlers.set(eventType, {handlers: [boundHandler]})
+  // }
 
   /** Applies a new chnage to the Domain Object */
   protected applyChange(evt: IChangeEvent){
@@ -72,9 +76,11 @@ export abstract class AggregateRoot implements IAggregateRoot{
   
   /** Actions an event on the domain object */
   private applyEvent(evt: IChangeEvent){
-    const eventHandler = this.handlers.get(evt.eventType)
-    if(!eventHandler) throw new AggregateError( typeof this, `Event Handlers not found for eventType:${evt.eventType}`) 
-    eventHandler.handlers.forEach(handler => handler(evt))    
+    const eventHandler = this.makeEventHandler(evt)
+    if(!eventHandler) throw new AggregateError( this.toString(), `AggregateRoot Event Handlers not found for eventType:${evt.eventType}`) 
+    eventHandler()    
   }
+
+  protected abstract makeEventHandler(evt: IChangeEvent) : () => void | undefined
 }
 
