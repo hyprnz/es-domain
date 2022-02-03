@@ -4,14 +4,15 @@ import { IChangeEvent, IAggregateRoot, IEntityEvent, IParentAggregateRoot, IAggr
 
 export type EventHandler = <T extends IChangeEvent>(evt: T) => void
 
-export abstract class Aggregate implements IAggregate {
-
+export abstract class Entity implements IAggregate {
   id: Uuid.UUID
+  protected readonly parentId: Uuid.UUID
   private handlers = new Map<string, { handlers: Array<EventHandler> }>()
 
-  constructor(protected parent: IParentAggregateRoot) {
+  constructor(private parent: IParentAggregateRoot) {
     // Uninitialised, we are going to load an exisitng 
     this.id = Uuid.EmptyUUID
+    this.parentId = parent.id()
   }
 
   applyChangeEvent(evt: IEntityEvent): void {
