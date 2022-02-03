@@ -53,13 +53,13 @@ export class Alarm extends Entity {
   }
   
   static readonly eventHandlers: Record<string, Array<StaticEventHandler<Alarm>>> = {
-    [AlarmCreatedEvent.eventType]: [(alarm, evt) => {AlarmCreatedEvent.assertIsAlarmCreatedEvent(evt), alarm.id = evt.entityId}],
+    [AlarmCreatedEvent.eventType]: [(alarm, evt) => alarm.id = evt.entityId],
     [AlarmDisarmedEvent.eventType]: [(alarm) => alarm.isArmed = false],
-    [AlarmArmedEvent.eventType]: [(alarm, evt) => {
-      AlarmArmedEvent.assertIsAlarmArmedEvent(evt)
+    [AlarmArmedEvent.eventType]: [(alarm, evt: AlarmArmedEvent) => {
+      // AlarmArmedEvent.assertIsAlarmArmedEvent(evt)
       alarm.isArmed = true; 
       alarm.threshold = evt.threshold
     }],
-    [AlarmTriggeredEvent.eventType]:[(alarm, evt) => alarm.isTriggered = true]
+    [AlarmTriggeredEvent.eventType]:[(alarm) => alarm.isTriggered = true]
   }
 }
