@@ -1,4 +1,4 @@
-import { Entity, EventHandler, StaticEventHandler } from "../EventSourcing/Aggregate";
+import { Entity, EventHandler, StaticEventHandler } from "../EventSourcing/Entity";
 import { IChangeEvent, IParentAggregateRoot } from "../EventSourcing/EventSourcingTypes";
 import * as Uuid from '../EventSourcing/UUID'
 import { AlarmArmedEvent, AlarmCreatedEvent, AlarmDisarmedEvent, AlarmTriggeredEvent, DeviceDomainError } from "./events/deviceEvents";
@@ -11,15 +11,6 @@ export class Alarm extends Entity {
 
   constructor(parent: IParentAggregateRoot, id?: Uuid.UUID){
     super(parent)
-
-    // this.registerHandler(AlarmCreatedEvent.eventType, (evt) => {AlarmCreatedEvent.assertIsAlarmCreatedEvent(evt), this.id = evt.alarmId})
-    // this.registerHandler(AlarmDisarmedEvent.eventType, () => this.isArmed = false)
-    // this.registerHandler(AlarmArmedEvent.eventType, (evt) => { 
-    //   AlarmArmedEvent.assertIsAlarmArmedEvent(evt); 
-    //   this.isArmed = true; 
-    //   this.threshold = evt.threshold
-    // })
-    // this.registerHandler(AlarmTriggeredEvent.eventType, () => this.isTriggered = true)
 
     if(id){
       // This is a new object

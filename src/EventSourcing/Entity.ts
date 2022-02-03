@@ -21,16 +21,8 @@ export abstract class Entity implements IAggregate {
   }
 
   toString() {
-    return `AggregateEntity ${typeof this}]:${this.id}, Parent:${this.parent.id}`
+    return `Entity ${this.id}, Parent:${this.parent.id}`
   }
-
-  /** Register event handlers */
-  // protected registerHandler(eventType: string, handler: EventHandler) {
-  //   const boundHandler = handler.bind(this)
-  //   const exists = this.handlers.has(eventType)
-  //   if (exists) this.handlers.get(eventType).handlers.push(boundHandler)
-  //   else this.handlers.set(eventType, { handlers: [boundHandler] })
-  // }
 
   /** Applies a new chnage to the Domain Object */
   protected applyChange(evt: IChangeEvent): void {

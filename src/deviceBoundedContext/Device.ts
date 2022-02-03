@@ -2,21 +2,13 @@ import { AggregateRoot } from "../EventSourcing/AggregateRoot"
 import { AlarmCreatedEvent, DeviceCreatedEvent } from "./events/deviceEvents"
 import * as Uuid from '../EventSourcing/UUID'
 import { Alarm } from "./Alarm"
-import { StaticEventHandler } from "../EventSourcing/Aggregate"
+import { StaticEventHandler } from "../EventSourcing/Entity"
 import { IChangeEvent } from "../EventSourcing/EventSourcingTypes"
 
 export class Device extends AggregateRoot {
   private alarms: Array<Alarm> = []
   constructor(id?: Uuid.UUID) {
     super()
-
-    // this.registerHandler(DeviceCreatedEvent.eventType, evt => this.id = evt.aggregateRootId)
-    // this.registerHandler(AlarmCreatedEvent.eventType, evt => {
-    //   AlarmCreatedEvent.assertIsAlarmCreatedEvent(evt)
-    //   const alarm = new Alarm(this.thisAsParent, evt.alarmId)
-    //   this.alarms.push(alarm)
-    // })
-
     if (id) {
       // This is a new object
       this.applyChange(new DeviceCreatedEvent(id, id))
