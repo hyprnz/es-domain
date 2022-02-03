@@ -1,11 +1,11 @@
 import * as Uuid from './UUID'
 import { AggregateError } from './AggregateError'
-import { IChangeEvent, IAggregateRoot, IEntityEvent, IParentAggregateRoot, IAggregate } from './EventSourcingTypes'
+import { IChangeEvent, IParentAggregateRoot, IEntityAggregate } from './EventSourcingTypes'
 
 export type EventHandler = <T extends IChangeEvent>(evt: T) => void
 export type StaticEventHandler<E> = (entity: E, evt: IChangeEvent) => void
 
-export abstract class Entity implements IAggregate {
+export abstract class Entity implements IEntityAggregate {
   id: Uuid.UUID
   protected readonly parentId: Uuid.UUID
   // private handlers = new Map<string, { handlers: Array<EventHandler> }>()

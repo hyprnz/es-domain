@@ -25,7 +25,7 @@ export interface IAggregateRoot{
   markChangesAsCommitted(version: number): void
 }
 
-export interface IAggregate {
+export interface IEntityAggregate {
   readonly id: Uuid.UUID
   applyChangeEvent(event: IChangeEvent): void
 }

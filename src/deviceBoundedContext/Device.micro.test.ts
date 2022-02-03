@@ -2,7 +2,8 @@ import * as Uuid from '../EventSourcing/UUID'
 import { Device } from "./Device"
 import { assertThat, match } from "mismatched";
 import * as deviceEvents from './events/deviceEvents'
-import { IChangeEvent, IEntityEvent, UNINITIALISED_AGGREGATE_VERSION } from '../EventSourcing/EventSourcingTypes';
+import { IEntityAggregate, IChangeEvent, IEntityEvent, UNINITIALISED_AGGREGATE_VERSION, IAggregateRoot } from '../EventSourcing/EventSourcingTypes';
+import { AlarmTriggeredEvent } from './events/deviceEvents';
 
 describe('Device', () => {
 
@@ -45,17 +46,28 @@ describe('Device', () => {
       device.markChangesAsCommitted(events.length-1)
 
       assertThat(events).is(match.array.length(3))
+      assertThat(events).is([
+        makeEntityEventMatcher(new deviceEvents.DeviceCreatedEvent(deviceId, deviceId), 0),
+        makeEntityEventMatcher(new deviceEvents.AlarmCreatedEvent(deviceId, alarmId), 1),
+        makeEntityEventMatcher(new deviceEvents.AlarmArmedEvent(deviceId, alarmId, 20), 2),
+      ])
 
       const hydratedDevice = new Device()
       hydratedDevice.loadFromHistory(events)
-      assertThat(hydratedDevice).is(device)      
+      assertThat(hydratedDevice).is(makeEntityMatcher(device))   
+            
+      hydratedDevice.telemetryReceived(21)
+      const uncomitted = hydratedDevice.uncommittedChanges()
+      assertThat(uncomitted).is([makeEntityEventMatcher(new AlarmTriggeredEvent(hydratedDevice.id, alarm.id), 3)])
     })
   })
 
   const makeEventMatcher = <T extends IChangeEvent>(event: T): IChangeEvent => {
     return { ...event, id: match.any() }
   }
-  const makeEntityEventMatcher = <T extends IChangeEvent>(event: T, version: number): IEntityEvent => {
+  const makeEntityEventMatcher = <T extends IChangeEvent>(event: T, version: number = UNINITIALISED_AGGREGATE_VERSION): IEntityEvent => {
     return { event: makeEventMatcher(event), version }
   }
+
+  const makeEntityMatcher = (entity: IEntityAggregate | IAggregateRoot ) => match.obj.has({id: entity.id})
 })

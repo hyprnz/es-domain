@@ -21,6 +21,11 @@ export class Device extends AggregateRoot {
     return new Alarm(this.thisAsParent, id)    
   }
 
+  // AggregateRoot performs aggregated actions on its children
+  telemetryReceived(value: number): void{
+    this.alarms.forEach(x => x.isAlarmTriggered(value))
+  }
+
   toString() {return  "DeviceAggregateRoot"}
 
   
