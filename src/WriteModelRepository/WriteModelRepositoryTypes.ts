@@ -3,5 +3,5 @@ import { UUID } from "../EventSourcing/UUID";
 
 export interface IWriteModelRepositroy {
   save<T extends IAggregateRoot>(aggregateRoot: T) : Promise<number>
-  load<T extends IAggregateRoot>(id: UUID, activator: () => T) : T
+  load<T extends IAggregateRoot>(id: UUID, activator: () => T) : Promise<T>
 }

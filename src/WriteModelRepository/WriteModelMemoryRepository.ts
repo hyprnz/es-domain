@@ -7,8 +7,8 @@ import { IWriteModelRepositroy } from "./WriteModelRepositoryTypes";
 
 
 export class WriteModelMemoryRepository implements IWriteModelRepositroy {
-  eventEmitter = new EventEmitter();
-  store = new Map<UUID, Array<IEntityEvent>>()
+  private readonly eventEmitter = new EventEmitter();
+  private readonly store = new Map<UUID, Array<IEntityEvent>>()
 
   constructor(){}
 
@@ -45,14 +45,14 @@ export class WriteModelMemoryRepository implements IWriteModelRepositroy {
     return Promise.resolve(changes.length)
   }
 
-  load<T extends IAggregateRoot>(id: UUID, activator: () => T): T {
+  load<T extends IAggregateRoot>(id: UUID, activator: () => T): Promise<T> {
     const found = this.store.has(id)
     if(!found) throw new WriteModelRepositoryError(activator.name, `Failed to load aggregate id:${id}: NOT FOUND`)
 
     const aggregate = activator()
     const events = this.store.get(id)
     aggregate.loadFromHistory(events)
-    return aggregate
+    return Promise.resolve(aggregate)
   }
 
   subscribeToChanges(handler: (changes: Array<IEntityEvent>) => void ){
