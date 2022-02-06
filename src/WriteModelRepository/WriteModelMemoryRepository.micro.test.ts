@@ -1,14 +1,13 @@
 import * as Uuid from '../EventSourcing/UUID'
-import {Device, Alarm} from '../deviceBoundedContext'
-import * as deviceEvents from '../deviceBoundedContext/events/deviceEvents'
+import {Device} from '../deviceBoundedContext'
 import { WriteModelMemoryRepository } from './WriteModelMemoryRepository'
 import { assertThat, match } from 'mismatched'
-import { write } from 'fs'
+import { IWriteModelRepositroy } from './WriteModelRepositoryTypes'
 describe("WriteModelMemoryRepository", ()=>{
   it("stores events", async ()=>{
     const deviceId = Uuid.createV4()
     const alarmId = Uuid.createV4()
-    const writeModelRepo = new WriteModelMemoryRepository()
+    const writeModelRepo: IWriteModelRepositroy = new WriteModelMemoryRepository()
 
     const device = new Device(deviceId)
     device.addAlarm(alarmId)
@@ -27,7 +26,7 @@ describe("WriteModelMemoryRepository", ()=>{
   it("loads events", async ()=>{
     const deviceId = Uuid.createV4()
     const alarmId = Uuid.createV4()
-    const writeModelRepo = new WriteModelMemoryRepository()
+    const writeModelRepo: IWriteModelRepositroy = new WriteModelMemoryRepository()
 
     const device = new Device(deviceId)
     device.addAlarm(alarmId)
