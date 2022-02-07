@@ -27,10 +27,11 @@ export class WriteModelMemoryRepository implements IWriteModelRepositroy {
       const firstUncommitedChangeVersion = changes[0].version
 
       if(commitedVersion !== firstUncommitedChangeVersion){
-        throw new WriteModelRepositoryError(
-          typeof aggregateRoot, 
+        const error =  new WriteModelRepositoryError(
+          "AggregateRoot", 
           `Optimistic concurrency error, expected event version:${commitedVersion} but received ${firstUncommitedChangeVersion}, Suggested solution is to retry`
         )
+        return Promise.reject(error)
       }
     }
 

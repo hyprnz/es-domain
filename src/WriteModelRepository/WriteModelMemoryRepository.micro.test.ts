@@ -37,4 +37,27 @@ describe("WriteModelMemoryRepository", ()=>{
 
     assertThat(uncomittedEvents).is(loadedUncommited)
   })
+
+  it('detects concurrency', async()=>{
+    const deviceId = Uuid.createV4()
+    const alarmId = Uuid.createV4()
+    const writeModelRepo: IWriteModelRepositroy = new WriteModelMemoryRepository()
+
+    const device = new Device(deviceId)
+    device.addAlarm(alarmId)
+    writeModelRepo.save(device)
+
+
+    const anotherDevice = await writeModelRepo.load(device.id, () => new Device())
+    
+    device.addAlarm(Uuid.createV4())
+    anotherDevice.addAlarm(Uuid.createV4())
+
+    await writeModelRepo.save(device)
+    await writeModelRepo.save(anotherDevice)
+      .then(
+        () => fail("Expected and Optimistic concurrency error here!!"),
+        e => assertThat(e.message).is(`Error:AggregateRoot, Optimistic concurrency error, expected event version:3 but received 2, Suggested solution is to retry`)
+      )
+  })
 })
