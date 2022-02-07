@@ -6,8 +6,8 @@ import { AlarmArmedEvent, AlarmCreatedEvent, AlarmDisarmedEvent, AlarmTriggeredE
 export class Alarm extends Entity {
   
   private isArmed: boolean = false
-  private threshold: number;
-  private isTriggered: boolean;
+  private threshold: number = 0;
+  private isTriggered: boolean = false;
 
   constructor(parent: IParentAggregateRoot, id?: Uuid.UUID){
     super(parent)
@@ -45,7 +45,7 @@ export class Alarm extends Entity {
 
   toString() {return  'Alarm'}
 
-  protected override makeEventHandler(evt: IChangeEvent) : () => void | undefined{
+  protected override makeEventHandler(evt: IChangeEvent) : (() => void) | undefined {
     const handler = Alarm.eventHandlers[evt.eventType]
     return handler 
       ? () => handler.forEach(x => x.call(this, this, evt))
@@ -55,8 +55,8 @@ export class Alarm extends Entity {
   static readonly eventHandlers: Record<string, Array<StaticEventHandler<Alarm>>> = {
     [AlarmCreatedEvent.eventType]: [(alarm, evt) => alarm.id = evt.entityId],
     [AlarmDisarmedEvent.eventType]: [(alarm) => alarm.isArmed = false],
-    [AlarmArmedEvent.eventType]: [(alarm, evt: AlarmArmedEvent) => {
-      // AlarmArmedEvent.assertIsAlarmArmedEvent(evt)
+    [AlarmArmedEvent.eventType]: [(alarm, evt) => {
+      AlarmArmedEvent.assertIsAlarmArmedEvent(evt)
       alarm.isArmed = true; 
       alarm.threshold = evt.threshold
     }],

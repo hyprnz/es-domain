@@ -3,6 +3,7 @@ import {Device} from '../deviceBoundedContext'
 import { WriteModelMemoryRepository } from './WriteModelMemoryRepository'
 import { assertThat, match } from 'mismatched'
 import { IWriteModelRepositroy } from './WriteModelRepositoryTypes'
+import { IEntityEvent } from '../EventSourcing/EventSourcingTypes'
 describe("WriteModelMemoryRepository", ()=>{
   it("stores events", async ()=>{
     const deviceId = Uuid.createV4()
@@ -13,7 +14,7 @@ describe("WriteModelMemoryRepository", ()=>{
     device.addAlarm(alarmId)
     const uncomittedEvents = device.uncommittedChanges()
     
-    const emittedEvents = []
+    const emittedEvents: Array<IEntityEvent> = []
     writeModelRepo.subscribeToChanges(changes => changes.forEach(x => emittedEvents.push(x)))
     
     const countEvents = await writeModelRepo.save(device)

@@ -37,6 +37,6 @@ export abstract class Entity implements IEntityAggregate {
     eventHandler()
   }
 
-  protected abstract makeEventHandler(evt: IChangeEvent) : () => void
+  protected abstract makeEventHandler(evt: IChangeEvent) : (() => void) | undefined
 }
 

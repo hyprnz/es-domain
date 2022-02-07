@@ -29,7 +29,7 @@ export class Device extends AggregateRoot {
   toString() {return  "DeviceAggregateRoot"}
 
   
-  protected override makeEventHandler(evt: IChangeEvent) : () => void | undefined{
+  protected override makeEventHandler(evt: IChangeEvent) : (() => void) | undefined{
     const handler = Device.eventHandlers[evt.eventType]    
     if(handler) return () => handler.forEach(x => x.call(this, this, evt))
 

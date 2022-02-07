@@ -17,12 +17,12 @@ export class WriteModelMemoryRepository implements IWriteModelRepositroy {
     if(changes.length === 0) return Promise.resolve(0)
 
         
-    const found = this.store.has(aggregateRoot.id)
-
+    const commitedEvents = this.store.get(aggregateRoot.id)
+    const found = !!commitedEvents
     if(found){
       // Optionally do some event vaidation , usefull for test systems
       // [1] Optomistic concurrency
-      const commitedEvents = this.store.get(aggregateRoot.id)
+      
       const commitedVersion = commitedEvents[commitedEvents.length-1].version + 1
       const firstUncommitedChangeVersion = changes[0].version
 
@@ -37,7 +37,7 @@ export class WriteModelMemoryRepository implements IWriteModelRepositroy {
 
 
     // Insert vs update
-    if(found) this.store.get(aggregateRoot.id).push(...changes)
+    if(found) commitedEvents.push(...changes)
     else this.store.set(aggregateRoot.id, changes)
 
     const lastChange = changes[changes.length-1]
@@ -47,11 +47,11 @@ export class WriteModelMemoryRepository implements IWriteModelRepositroy {
   }
 
   load<T extends IAggregateRoot>(id: UUID, activator: () => T): Promise<T> {
-    const found = this.store.has(id)
+    const events = this.store.get(id)
+    const found = !!events
     if(!found) throw new WriteModelRepositoryError(activator.name, `Failed to load aggregate id:${id}: NOT FOUND`)
 
     const aggregate = activator()
-    const events = this.store.get(id)
     aggregate.loadFromHistory(events)
     return Promise.resolve(aggregate)
   }

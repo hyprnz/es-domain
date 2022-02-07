@@ -81,6 +81,6 @@ export abstract class AggregateRoot implements IAggregateRoot{
     eventHandler()    
   }
 
-  protected abstract makeEventHandler(evt: IChangeEvent) : () => void | undefined
+  protected abstract makeEventHandler(evt: IChangeEvent) : (() => void) | undefined
 }
 

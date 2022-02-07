@@ -16,5 +16,5 @@ export interface IWriteModelRepositroy {
   /** Subscribe to events that are being commited to persistence, this can be used to feed events 
    * to down stream services to create other side effects such as Projections
    * @argument handler A callback function that will receive an array of changes (Unit of work) related to a single aggregate.*/  
-  subscribeToChanges(handler: (changes: Array<IEntityEvent>) => void )
+  subscribeToChanges(handler: (changes: Array<IEntityEvent>) => void ): void
 }
