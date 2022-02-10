@@ -5,7 +5,7 @@ import { Alarm } from "./Alarm"
 import { StaticEventHandler } from "../EventSourcing/Entity"
 import { IChangeEvent } from "../EventSourcing/EventSourcingTypes"
 
-export class Device extends AggregateRoot {
+export class DeviceAggregateRoot extends AggregateRoot {
   private alarms: Array<Alarm> = []
   constructor(id?: Uuid.UUID) {
     super()
@@ -30,7 +30,7 @@ export class Device extends AggregateRoot {
 
   
   protected override makeEventHandler(evt: IChangeEvent) : (() => void) | undefined{
-    const handler = Device.eventHandlers[evt.eventType]    
+    const handler = DeviceAggregateRoot.eventHandlers[evt.eventType]    
     if(handler) return () => handler.forEach(x => x.call(this, this, evt))
 
     const child = this.alarms.find(x =>x.id === evt.entityId)
@@ -39,7 +39,7 @@ export class Device extends AggregateRoot {
     return undefined    
   }
   
-  static readonly eventHandlers: Record<string, Array<StaticEventHandler<Device>>> = {
+  private static readonly eventHandlers: Record<string, Array<StaticEventHandler<DeviceAggregateRoot>>> = {
     [DeviceCreatedEvent.eventType]: [(device, evt) => device.id = evt.aggregateRootId],
     [AlarmCreatedEvent.eventType]: [(device, evt) => {
       const alarm = new Alarm(device.thisAsParent)

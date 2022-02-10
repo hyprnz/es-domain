@@ -1,3 +1,4 @@
+import { Alarm } from "..";
 import { IChangeEvent } from "../../EventSourcing/EventSourcingTypes";
 import * as Uuid from "../../EventSourcing/UUID";
 
@@ -13,8 +14,7 @@ export class DeviceDomainError  extends Error {
 }
 abstract class AbstractChangeEvent implements IChangeEvent{
   readonly id: Uuid.UUID;
-  abstract get eventType():string
-  constructor(public readonly aggregateRootId: Uuid.UUID, readonly entityId: Uuid.UUID){
+  constructor(public eventType:string, public readonly aggregateRootId: Uuid.UUID, readonly entityId: Uuid.UUID){
     this.id = Uuid.createV4()
   }
 }
@@ -24,9 +24,9 @@ export class DeviceCreatedEvent implements IChangeEvent {
   readonly id: Uuid.UUID;
   readonly eventType : string
 
-  constructor(public aggregateRootId: Uuid.UUID, readonly entityId: Uuid.UUID){
-    this.id = Uuid.createV4()
+  constructor(public readonly aggregateRootId: Uuid.UUID, readonly entityId: Uuid.UUID){
     this.eventType = DeviceCreatedEvent.eventType
+    this.id = Uuid.createV4()
   }
 }
 
@@ -52,9 +52,8 @@ export class AlarmCreatedEvent implements IChangeEvent {
 
 export class AlarmArmedEvent extends AbstractChangeEvent {
   static readonly  eventType = 'Alarm.ArmedEvent'
-  get eventType() {return AlarmArmedEvent.eventType}
   constructor(aggregateRootId: Uuid.UUID, alarmId: Uuid.UUID, public threshold: number){
-    super(aggregateRootId, alarmId)
+    super(AlarmArmedEvent.eventType, aggregateRootId, alarmId)    
   } 
 
   static assertIsAlarmArmedEvent(event: IChangeEvent) : asserts event is AlarmArmedEvent{
@@ -67,9 +66,9 @@ export class AlarmArmedEvent extends AbstractChangeEvent {
 
 export class AlarmDisarmedEvent extends AbstractChangeEvent {
   static readonly  eventType = 'Alarm.DisarmedEvent'
-  get eventType() {return AlarmDisarmedEvent.eventType}
+  
   constructor(aggregateRootId: Uuid.UUID, alarmId: Uuid.UUID){
-    super(aggregateRootId, alarmId)
+    super(AlarmDisarmedEvent.eventType, aggregateRootId, alarmId)
   } 
 
   static assertIsAlarmDisarmedEvent(event: IChangeEvent) : asserts event is AlarmDisarmedEvent{
@@ -82,9 +81,9 @@ export class AlarmDisarmedEvent extends AbstractChangeEvent {
 
 export class AlarmTriggeredEvent extends AbstractChangeEvent {
   static readonly  eventType = 'Alarm.Triggered'
-  get eventType() {return AlarmTriggeredEvent.eventType}
+  
   constructor(aggregateRootId: Uuid.UUID, alarmId: Uuid.UUID){
-    super(aggregateRootId, alarmId)
+    super(AlarmTriggeredEvent.eventType, aggregateRootId, alarmId)
   } 
 
   static assertIsAlarmTriggeredEvent(event: IChangeEvent) : asserts event is AlarmTriggeredEvent{

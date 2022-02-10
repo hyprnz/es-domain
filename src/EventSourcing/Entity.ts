@@ -10,7 +10,7 @@ export abstract class Entity implements IEntityAggregate {
   protected readonly parentId: Uuid.UUID
   // private handlers = new Map<string, { handlers: Array<EventHandler> }>()
 
-  constructor(private parent: IParentAggregateRoot) {
+  constructor(protected parent: IParentAggregateRoot) {
     // Uninitialised Entity, we are going to load an exisitng 
     this.id = Uuid.EmptyUUID
     this.parentId = parent.id()
