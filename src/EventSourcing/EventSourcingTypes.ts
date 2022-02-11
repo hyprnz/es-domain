@@ -35,3 +35,5 @@ export interface IParentAggregateRoot {
   id() : Uuid.UUID,
   addChangeEvent(event: IChangeEvent): void
 }
+
+export type StaticEventHandler<E> = (entity: E, evt: IChangeEvent) => void

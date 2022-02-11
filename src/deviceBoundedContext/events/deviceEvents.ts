@@ -1,11 +1,5 @@
-import { Alarm } from "..";
 import { IChangeEvent } from "../../EventSourcing/EventSourcingTypes";
 import * as Uuid from "../../EventSourcing/UUID";
-
-type DeviceAggregateRootEvents = 
-  DeviceCreatedEvent |
-  AlarmCreatedEvent
-
 
 export class DeviceDomainError  extends Error {
   constructor(public readonly aggregateRootId: Uuid.UUID, message:string){
@@ -57,7 +51,7 @@ export class AlarmArmedEvent extends AbstractChangeEvent {
   } 
 
   static assertIsAlarmArmedEvent(event: IChangeEvent) : asserts event is AlarmArmedEvent{
-    if(event instanceof AlarmArmedEvent)  return
+    if(event.eventType === AlarmArmedEvent.eventType)  return
 
     throw new Error(`Unexpected EventType, Expected EventType: AlarmArmedEvent, received ${typeof event}` ) 
   }
@@ -87,8 +81,16 @@ export class AlarmTriggeredEvent extends AbstractChangeEvent {
   } 
 
   static assertIsAlarmTriggeredEvent(event: IChangeEvent) : asserts event is AlarmTriggeredEvent{
-    if(event instanceof AlarmTriggeredEvent)  return
+    if(event.eventType === AlarmTriggeredEvent.eventType)  return
 
     throw new Error(`Unexpected EventType, Expected EventType: AlarmTriggeredEvent, received ${typeof event}` ) 
   }
+}
+
+export class AlarmDestroyedEvent extends AbstractChangeEvent {
+  static readonly  eventType = 'Alarm.Distroyed'
+  
+  constructor(aggregateRootId: Uuid.UUID, alarmId: Uuid.UUID){
+    super(AlarmDestroyedEvent.eventType, aggregateRootId, alarmId)
+  }   
 }

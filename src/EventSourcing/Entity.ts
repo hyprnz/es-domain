@@ -2,8 +2,7 @@ import * as Uuid from './UUID'
 import { AggregateError } from './AggregateError'
 import { IChangeEvent, IParentAggregateRoot, IEntityAggregate } from './EventSourcingTypes'
 
-export type EventHandler = <T extends IChangeEvent>(evt: T) => void
-export type StaticEventHandler<E> = (entity: E, evt: IChangeEvent) => void
+
 
 export abstract class Entity implements IEntityAggregate {
   id: Uuid.UUID
@@ -24,7 +23,7 @@ export abstract class Entity implements IEntityAggregate {
     return `Entity ${this.id}, Parent:${this.parent.id}`
   }
 
-  /** Applies a new chnage to the Domain Object */
+  /** Applies a new change to the Domain Object */
   protected applyChange(evt: IChangeEvent): void {
     this.applyEvent(evt)
     this.parent.addChangeEvent(evt) //TOOD : Should just store against the parent with out performing any actions

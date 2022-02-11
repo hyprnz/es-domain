@@ -3,9 +3,8 @@ import { DeviceAggregateRoot } from "./DeviceAggregateRoot"
 import { assertThat, match } from "mismatched";
 import * as deviceEvents from './events/deviceEvents'
 import { IEntityAggregate, IChangeEvent, IEntityEvent, UNINITIALISED_AGGREGATE_VERSION, IAggregateRoot } from '../EventSourcing/EventSourcingTypes';
-import { AlarmTriggeredEvent } from './events/deviceEvents';
 import { GenericAggregateRoot } from '../EventSourcing/AggregateRoot';
-import { Device, DeviceEntity } from '.';
+import { DeviceEntity } from '.';
 
 describe('Device', () => {
   describe('DeviceAggregateRoot', () => {
@@ -60,7 +59,23 @@ describe('Device', () => {
 
         hydratedDevice.telemetryReceived(21)
         const uncomitted = hydratedDevice.uncommittedChanges()
-        assertThat(uncomitted).is([makeEntityEventMatcher(new AlarmTriggeredEvent(hydratedDevice.id, alarm.id), 3)])
+        assertThat(uncomitted).is([makeEntityEventMatcher(new deviceEvents.AlarmTriggeredEvent(hydratedDevice.id, alarm.id), 3)])
+      })
+      it('Destroy child Entity', ()=>{
+        const deviceId = Uuid.createV4()
+        const alarmId = Uuid.createV4()
+        const device =  new DeviceAggregateRoot(deviceId)
+        const alarm = device.addAlarm(alarmId) //+1 Event
+        assertThat(device.findAlarm(alarm.id)).isNot(undefined)
+
+        const lastChange = device.uncommittedChanges()
+        device.markChangesAsCommitted(lastChange.length)
+
+
+        device.destroyAlarm(alarm) //+1
+        assertThat(device.findAlarm(alarm.id)).is(undefined)
+        assertThat(device.uncommittedChanges().map(x => x.event))
+          .is([makeEventMatcher(new deviceEvents.AlarmDestroyedEvent(device.id, alarm.id))])
       })
     })
   })
@@ -123,8 +138,27 @@ describe('Device', () => {
 
         hydratedAggregate.rootEntity.telemetryReceived(21)
         const uncomitted = hydratedAggregate.uncommittedChanges()
-        assertThat(uncomitted).is([makeEntityEventMatcher(new AlarmTriggeredEvent(hydratedAggregate.id, alarm.id), 3)])
+        assertThat(uncomitted).is([makeEntityEventMatcher(new deviceEvents.AlarmTriggeredEvent(hydratedAggregate.id, alarm.id), 3)])
       })
+
+      it('Destroy child Entity', ()=>{
+        const deviceId = Uuid.createV4()
+        const alarmId = Uuid.createV4()
+        const aggregate = new GenericAggregateRoot<DeviceEntity>((parent, id) => new DeviceEntity(parent, id), deviceId) //+1
+        const device = aggregate.rootEntity
+        const alarm = device.addAlarm(alarmId) //+1 Event
+        assertThat(device.findAlarm(alarm.id)).isNot(undefined)
+
+        const lastChange = aggregate.uncommittedChanges()
+        aggregate.markChangesAsCommitted(lastChange.length)
+
+
+        device.destroyAlarm(alarm) //+1
+        assertThat(device.findAlarm(alarm.id)).is(undefined)
+        assertThat(aggregate.uncommittedChanges().map(x => x.event))
+          .is([makeEventMatcher(new deviceEvents.AlarmDestroyedEvent(aggregate.id, alarm.id))])
+      })
+
     })
   })
 

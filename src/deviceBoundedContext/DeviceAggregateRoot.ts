@@ -1,9 +1,9 @@
 import { AggregateRoot } from "../EventSourcing/AggregateRoot"
-import { AlarmCreatedEvent, DeviceCreatedEvent } from "./events/deviceEvents"
+import { AlarmCreatedEvent, AlarmDestroyedEvent, DeviceCreatedEvent } from "./events/deviceEvents"
 import * as Uuid from '../EventSourcing/UUID'
 import { Alarm } from "./Alarm"
-import { StaticEventHandler } from "../EventSourcing/Entity"
-import { IChangeEvent } from "../EventSourcing/EventSourcingTypes"
+import { IChangeEvent, StaticEventHandler } from "../EventSourcing/EventSourcingTypes"
+import { AggregateError } from "../EventSourcing/AggregateError"
 
 export class DeviceAggregateRoot extends AggregateRoot {
   private alarms: Array<Alarm> = []
@@ -18,7 +18,20 @@ export class DeviceAggregateRoot extends AggregateRoot {
   addAlarm(id: Uuid.UUID): Alarm {
     const alarm = this.alarms.find(x =>x.id === id)
     if(alarm) return alarm
-    return new Alarm(this.thisAsParent, id)    
+   
+    this.applyChange(new AlarmCreatedEvent(this.id, id))
+    return this.findAlarm(id)!
+  }
+
+  findAlarm(id: Uuid.UUID): Alarm | undefined {
+    return this.alarms.find(x =>x.id === id)
+  }
+
+  destroyAlarm(alarm: Alarm): void {
+    const foundAlarm = this.alarms.find(x =>x.id === alarm.id)
+    if(!foundAlarm) return    
+    
+    this.applyChange(new AlarmDestroyedEvent(this.id, alarm.id))
   }
 
   // AggregateRoot performs aggregated actions on its children
@@ -29,14 +42,18 @@ export class DeviceAggregateRoot extends AggregateRoot {
   toString() {return  "DeviceAggregateRoot"}
 
   
-  protected override makeEventHandler(evt: IChangeEvent) : (() => void) | undefined{
+  protected override makeEventHandler(evt: IChangeEvent) : (() => void) | undefined {
+    const handlers: Array<()=>void> = []
+
     const handler = DeviceAggregateRoot.eventHandlers[evt.eventType]    
-    if(handler) return () => handler.forEach(x => x.call(this, this, evt))
+    if(handler) handlers.push(() => handler.forEach(x => x.call(this, this, evt)))
 
     const child = this.alarms.find(x =>x.id === evt.entityId)
-    if(child) return () => child.applyChangeEvent(evt)
-    
-    return undefined    
+    if(child) handlers.push( () => child.applyChangeEvent(evt) )
+
+    return (handlers.length) 
+    ?  () => {handlers.forEach(x => x())}
+    : undefined
   }
   
   private static readonly eventHandlers: Record<string, Array<StaticEventHandler<DeviceAggregateRoot>>> = {
@@ -45,6 +62,13 @@ export class DeviceAggregateRoot extends AggregateRoot {
       const alarm = new Alarm(device.thisAsParent)
       alarm.applyChangeEvent(evt)
       device.alarms.push(alarm)
+    }],
+    
+    [AlarmDestroyedEvent.eventType]: [(device, evt) => {
+      const alarmIndex = device.alarms.findIndex(x =>x.id === evt.entityId)
+      if(alarmIndex === -1) throw new AggregateError(device.toString(),  `Alarm Not Found, Alarm of id:${evt.entityId} missing from Device`)
+      const deletedAlarm = device.alarms.splice(alarmIndex, 1)[0]
+      deletedAlarm.applyChangeEvent(evt)
     }]
   }
 }

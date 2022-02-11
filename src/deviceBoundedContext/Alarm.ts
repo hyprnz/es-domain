@@ -1,9 +1,10 @@
-import { Entity, EventHandler, StaticEventHandler } from "../EventSourcing/Entity";
-import { IChangeEvent, IParentAggregateRoot } from "../EventSourcing/EventSourcingTypes";
 import * as Uuid from '../EventSourcing/UUID'
-import { AlarmArmedEvent, AlarmCreatedEvent, AlarmDisarmedEvent, AlarmTriggeredEvent, DeviceDomainError } from "./events/deviceEvents";
+import { Entity } from "../EventSourcing/Entity";
+import { IChangeEvent, IParentAggregateRoot, StaticEventHandler } from "../EventSourcing/EventSourcingTypes";
+import { AlarmArmedEvent, AlarmCreatedEvent, AlarmDestroyedEvent, AlarmDisarmedEvent, AlarmTriggeredEvent, DeviceDomainError } from "./events/deviceEvents";
 
 export class Alarm extends Entity {
+  
   
   private isArmed: boolean = false
   private threshold: number = 0;
@@ -41,15 +42,19 @@ export class Alarm extends Entity {
     }
     
     return true
-  }
+  }  
 
-  toString() {return  'Alarm'}
+  toString() {return  `Alarm:${this.id}`}
 
   protected override makeEventHandler(evt: IChangeEvent) : (() => void) | undefined {
+    const handlers: Array<()=>void> = []
+
     const handler = Alarm.eventHandlers[evt.eventType]
-    return handler 
-      ? () => handler.forEach(x => x.call(this, this, evt))
-      : undefined
+    if(handler) handlers.push(() => handler.forEach(x => x.call(this, this, evt)))
+    
+    return (handlers.length) 
+    ?  () => {handlers.forEach(x => x())}
+    : undefined
   }
   
   static readonly eventHandlers: Record<string, Array<StaticEventHandler<Alarm>>> = {
@@ -60,6 +65,7 @@ export class Alarm extends Entity {
       alarm.isArmed = true; 
       alarm.threshold = evt.threshold
     }],
-    [AlarmTriggeredEvent.eventType]:[(alarm) => alarm.isTriggered = true]
+    [AlarmTriggeredEvent.eventType]:[(alarm) => alarm.isTriggered = true],
+    [AlarmDestroyedEvent.eventType]:[() => {}]
   }
 }
