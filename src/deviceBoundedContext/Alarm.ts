@@ -3,9 +3,7 @@ import { Entity } from "../EventSourcing/Entity";
 import { IChangeEvent, IParentAggregateRoot, StaticEventHandler } from "../EventSourcing/EventSourcingTypes";
 import { AlarmArmedEvent, AlarmCreatedEvent, AlarmDestroyedEvent, AlarmDisarmedEvent, AlarmTriggeredEvent, DeviceDomainError } from "./events/deviceEvents";
 
-export class Alarm extends Entity {
-  
-  
+export class Alarm extends Entity {    
   private isArmed: boolean = false
   private threshold: number = 0;
   private isTriggered: boolean = false;
@@ -23,8 +21,9 @@ export class Alarm extends Entity {
     if(alarmThreshold < 0 || alarmThreshold > 100) {
       throw new DeviceDomainError(this.parentId, "Alarm threshold Failed Validation")
     }
-    if(this.isArmed) this.disarmAlarm()
-    this.applyChange(new AlarmArmedEvent(this.parentId, this.id, alarmThreshold))    
+    if(!this.isArmed) {
+      this.applyChange(new AlarmArmedEvent(this.parentId, this.id, alarmThreshold))    
+    }
   }
 
   disarmAlarm():void {
