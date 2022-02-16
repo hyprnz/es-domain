@@ -1,7 +1,7 @@
 import * as Uuid from './UUID'
 
 export const UNINITIALISED_AGGREGATE_VERSION = -1
-export interface IChangeEvent
+export interface ChangeEvent
 {
     readonly id: Uuid.UUID
     readonly eventType: string
@@ -9,31 +9,31 @@ export interface IChangeEvent
     readonly aggregateRootId : Uuid.UUID
 }
 
-export interface IEntityEvent
+export interface EntityEvent
 {
     version: number
-    readonly event: IChangeEvent
+    readonly event: ChangeEvent
 }
 
-export interface IAggregateRoot{
+export interface Aggregate {
   readonly id: Uuid.UUID
   readonly changeVersion: number
   
 
-  loadFromHistory(events: Array<IEntityEvent>): void
-  uncommittedChanges(): Array<IEntityEvent>
+  loadFromHistory(events: Array<EntityEvent>): void
+  uncommittedChanges(): Array<EntityEvent>
   markChangesAsCommitted(version: number): void
 }
 
-export interface IEntityAggregate {
+export interface Entity {
   readonly id: Uuid.UUID
-  applyChangeEvent(event: IChangeEvent): void
+  applyChangeEvent(event: ChangeEvent): void
 }
 
 
-export interface IParentAggregateRoot {
+export interface ParentAggregate {
   id() : Uuid.UUID,
-  addChangeEvent(event: IChangeEvent): void
+  addChangeEvent(event: ChangeEvent): void
 }
 
-export type StaticEventHandler<E> = (entity: E, evt: IChangeEvent) => void
+export type StaticEventHandler<E> = (entity: E, evt: ChangeEvent) => void

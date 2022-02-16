@@ -1,14 +1,14 @@
 import * as Uuid from '../EventSourcing/UUID'
-import { Entity } from "../EventSourcing/Entity";
-import { IChangeEvent, IParentAggregateRoot, StaticEventHandler } from "../EventSourcing/EventSourcingTypes";
+import { EntityBase } from "../EventSourcing/Entity";
+import { ChangeEvent, ParentAggregate, StaticEventHandler } from "../EventSourcing/EventSourcingTypes";
 import { AlarmArmedEvent, AlarmCreatedEvent, AlarmDestroyedEvent, AlarmDisarmedEvent, AlarmTriggeredEvent, DeviceDomainError } from "./events/deviceEvents";
 
-export class Alarm extends Entity {    
+export class Alarm extends EntityBase {    
   private isArmed: boolean = false
   private threshold: number = 0;
   private isTriggered: boolean = false;
 
-  constructor(parent: IParentAggregateRoot, id?: Uuid.UUID){
+  constructor(parent: ParentAggregate, id?: Uuid.UUID){
     super(parent)
 
     if(id){
@@ -45,7 +45,7 @@ export class Alarm extends Entity {
 
   toString() {return  `Alarm:${this.id}`}
 
-  protected override makeEventHandler(evt: IChangeEvent) : (() => void) | undefined {
+  protected override makeEventHandler(evt: ChangeEvent) : (() => void) | undefined {
     const handlers: Array<()=>void> = []
 
     const handler = Alarm.eventHandlers[evt.eventType]

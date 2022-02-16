@@ -1,7 +1,7 @@
 import * as Uuid from './UUID'
 import { AggregateError } from './AggregateError'
-import { IChangeEvent, IAggregateRoot, IEntityEvent, IParentAggregateRoot, UNINITIALISED_AGGREGATE_VERSION } from './EventSourcingTypes'
-import { Entity } from './Entity'
+import { ChangeEvent, Aggregate, EntityEvent, ParentAggregate, UNINITIALISED_AGGREGATE_VERSION } from './EventSourcingTypes'
+import { EntityBase } from './Entity'
 
 
 // For aggregate roots consider not extending them to be trated as an entity.
@@ -14,14 +14,14 @@ import { Entity } from './Entity'
 //        Though if we have a layered system, the service layer could be responsible for creating aggregate roots 
 //        It just passes / makes use of the entities to perform domain actions
 
-export abstract class AggregateRoot implements IAggregateRoot{
+export abstract class AggregateRoot implements Aggregate {
   
   id: Uuid.UUID
   get changeVersion() : number { return this.version}
 
   private version: number
-  private changes: Array<IEntityEvent> = []
-  protected thisAsParent: IParentAggregateRoot 
+  private changes: Array<EntityEvent> = []
+  protected thisAsParent: ParentAggregate 
 
   constructor(){
     // Uninitialised, we are going to load an exisitng 
@@ -37,7 +37,7 @@ export abstract class AggregateRoot implements IAggregateRoot{
     }
   }
 
-  loadFromHistory(history: IEntityEvent[]): void{
+  loadFromHistory(history: EntityEvent[]): void{
     history.forEach(evt => {
       const expectedVersion = this.version + 1
       if(expectedVersion !== evt.version){
@@ -49,7 +49,7 @@ export abstract class AggregateRoot implements IAggregateRoot{
     })
   }
 
-  uncommittedChanges(): IEntityEvent[] {
+  uncommittedChanges(): EntityEvent[] {
     // Probably a better way of doing this, must preserve order
     const uncommited = [...this.changes]
     uncommited.forEach((e, index) => e.version = this.version + index + 1)
@@ -67,7 +67,7 @@ export abstract class AggregateRoot implements IAggregateRoot{
 
 
   /** Applies a new chnage to the Domain Object */
-  protected applyChange(evt: IChangeEvent){
+  protected applyChange(evt: ChangeEvent){
     this.applyEvent(evt)
     this.changes.push({
       event:evt, 
@@ -76,26 +76,26 @@ export abstract class AggregateRoot implements IAggregateRoot{
   }
   
   /** Actions an event on the domain object */
-  private applyEvent(evt: IChangeEvent){
+  private applyEvent(evt: ChangeEvent){
     const eventHandler = this.makeEventHandler(evt)
     if(!eventHandler) throw new AggregateError( this.toString(), `AggregateRoot Event Handlers not found for eventType:${evt.eventType}`) 
     eventHandler()    
   }
 
-  protected abstract makeEventHandler(evt: IChangeEvent) : (() => void) | undefined
+  protected abstract makeEventHandler(evt: ChangeEvent) : (() => void) | undefined
 }
 
 
-export class GenericAggregateRoot<T extends Entity> extends AggregateRoot {
+export class AggregateContaner<T extends EntityBase> extends AggregateRoot {
   public readonly rootEntity: T 
 
-  constructor(activator: (parent: IParentAggregateRoot, id?:Uuid.UUID)=>T, id?:Uuid.UUID){
+  constructor(activator: (parent: ParentAggregate, id?:Uuid.UUID)=>T, id?:Uuid.UUID){
     super()
     if(id) this.id = id
     this.rootEntity = activator(this.thisAsParent, id)
   }
 
-  protected makeEventHandler(evt: IChangeEvent): (() => void) | undefined {
+  protected makeEventHandler(evt: ChangeEvent): (() => void) | undefined {
     return () => {
       this.rootEntity.applyChangeEvent(evt)
       this.id = evt.aggregateRootId

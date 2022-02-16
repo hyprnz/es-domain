@@ -1,3 +1,3 @@
-export {DeviceAggregateRoot as Device} from './DeviceAggregateRoot'
-export {DeviceEntity} from './DeviceEntity'
+export {DeviceAggregateRoot} from './DeviceAggregateRoot'
+export {Device} from './Device'
 export {Alarm} from './Alarm'

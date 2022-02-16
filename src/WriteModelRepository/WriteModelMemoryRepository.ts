@@ -1,5 +1,5 @@
 import EventEmitter from "events";
-import { IAggregateRoot, IEntityEvent } from "../EventSourcing/EventSourcingTypes";
+import { Aggregate, EntityEvent } from "../EventSourcing/EventSourcingTypes";
 import { UUID } from "../EventSourcing/UUID";
 import { WriteModelrRepositoryError as WriteModelRepositoryError } from "./WriteModelRepositoryError";
 import { IWriteModelRepositroy } from "./WriteModelRepositoryTypes";
@@ -8,11 +8,11 @@ import { IWriteModelRepositroy } from "./WriteModelRepositoryTypes";
 
 export class WriteModelMemoryRepository implements IWriteModelRepositroy {
   private readonly eventEmitter = new EventEmitter();
-  private readonly store = new Map<UUID, Array<IEntityEvent>>()
+  private readonly store = new Map<UUID, Array<EntityEvent>>()
 
   constructor(){}
 
-  save<T extends IAggregateRoot>(aggregateRoot: T): Promise<number> {
+  save<T extends Aggregate>(aggregateRoot: T): Promise<number> {
     const changes = aggregateRoot.uncommittedChanges()
     if(changes.length === 0) return Promise.resolve(0)
 
@@ -46,7 +46,7 @@ export class WriteModelMemoryRepository implements IWriteModelRepositroy {
     return Promise.resolve(changes.length)
   }
 
-  load<T extends IAggregateRoot>(id: UUID, activator: () => T): Promise<T> {
+  load<T extends Aggregate>(id: UUID, activator: () => T): Promise<T> {
     const events = this.store.get(id)
     const found = !!events
     if(!found) throw new WriteModelRepositoryError(activator.name, `Failed to load aggregate id:${id}: NOT FOUND`)
@@ -56,11 +56,11 @@ export class WriteModelMemoryRepository implements IWriteModelRepositroy {
     return Promise.resolve(aggregate)
   }
 
-  subscribeToChanges(handler: (changes: Array<IEntityEvent>) => void ){
+  subscribeToChanges(handler: (changes: Array<EntityEvent>) => void ){
     this.eventEmitter.addListener('events', handler)
   }
 
-  private onAfterEventsStored(changes: Array<IEntityEvent>)
+  private onAfterEventsStored(changes: Array<EntityEvent>)
   {      
       if(changes.length){        
         this.eventEmitter.emit('events', changes)

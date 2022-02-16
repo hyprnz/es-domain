@@ -2,7 +2,7 @@ import { AggregateRoot } from "../EventSourcing/AggregateRoot"
 import { AlarmCreatedEvent, AlarmDestroyedEvent, DeviceCreatedEvent } from "./events/deviceEvents"
 import * as Uuid from '../EventSourcing/UUID'
 import { Alarm } from "./Alarm"
-import { IChangeEvent, StaticEventHandler } from "../EventSourcing/EventSourcingTypes"
+import { ChangeEvent, StaticEventHandler } from "../EventSourcing/EventSourcingTypes"
 import { AggregateError } from "../EventSourcing/AggregateError"
 
 export class DeviceAggregateRoot extends AggregateRoot {
@@ -42,7 +42,7 @@ export class DeviceAggregateRoot extends AggregateRoot {
   toString() {return  "DeviceAggregateRoot"}
 
   
-  protected override makeEventHandler(evt: IChangeEvent) : (() => void) | undefined {
+  protected override makeEventHandler(evt: ChangeEvent) : (() => void) | undefined {
     const handlers: Array<()=>void> = []
 
     const handler = DeviceAggregateRoot.eventHandlers[evt.eventType]    

@@ -1,5 +1,5 @@
 import * as Uuid from '../EventSourcing/UUID'
-import { IChangeEvent } from './EventSourcingTypes'
+import { ChangeEvent } from './EventSourcingTypes'
 
 export interface IProjection {
   id: Uuid.UUID
@@ -8,7 +8,7 @@ export interface IProjection {
 
 export type ProjectionAction = 'none'|'create'|'update'|'delete'
 export type ProjectionRow<T extends IProjection> =  {action:ProjectionAction, state:T}
-export type StaticProjectionEventHandler<E> = (entity: E, evt: IChangeEvent) => ProjectionAction
+export type StaticProjectionEventHandler<E> = (entity: E, evt: ChangeEvent) => ProjectionAction
 
 export interface IReadModelRepository<T extends IProjection> {
   find(id: Uuid.UUID): Promise<T|undefined>

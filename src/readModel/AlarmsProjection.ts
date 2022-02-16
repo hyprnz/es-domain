@@ -1,6 +1,6 @@
 import * as Uuid from '../EventSourcing/UUID'
 import { AlarmArmedEvent, AlarmCreatedEvent, AlarmDestroyedEvent } from "../deviceBoundedContext/events/deviceEvents";
-import { IEntityEvent } from "../EventSourcing/EventSourcingTypes";
+import { EntityEvent } from "../EventSourcing/EventSourcingTypes";
 import { calculateNextAction, IProjection, IReadModelRepository, persistReadModelState, ProjectionRow, StaticProjectionEventHandler } from "../EventSourcing/ReadModelTypes";
 
 export interface IAlarm extends IProjection {
@@ -11,7 +11,7 @@ export interface IAlarm extends IProjection {
   threshold: number
 }
 
-export async function handleEvents(events: Array<IEntityEvent>, repository: IReadModelRepository<IAlarm>): Promise<Array<ProjectionRow<IAlarm>>> {
+export async function handleEvents(events: Array<EntityEvent>, repository: IReadModelRepository<IAlarm>): Promise<Array<ProjectionRow<IAlarm>>> {
   const cache: Record<Uuid.UUID, ProjectionRow<IAlarm>> = {}
   for (var evt of events) {
     const handler = eventHandlers[evt.event.eventType]

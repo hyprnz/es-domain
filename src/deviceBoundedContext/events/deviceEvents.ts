@@ -1,4 +1,4 @@
-import { IChangeEvent } from "../../EventSourcing/EventSourcingTypes";
+import { ChangeEvent } from "../../EventSourcing/EventSourcingTypes";
 import * as Uuid from "../../EventSourcing/UUID";
 
 export class DeviceDomainError  extends Error {
@@ -6,14 +6,14 @@ export class DeviceDomainError  extends Error {
     super(message)
   }
 }
-abstract class AbstractChangeEvent implements IChangeEvent{
+abstract class AbstractChangeEvent implements ChangeEvent{
   readonly id: Uuid.UUID;
   constructor(public eventType:string, public readonly aggregateRootId: Uuid.UUID, readonly entityId: Uuid.UUID){
     this.id = Uuid.createV4()
   }
 }
 
-export class DeviceCreatedEvent implements IChangeEvent {
+export class DeviceCreatedEvent implements ChangeEvent {
   static readonly  eventType = 'Device.CreatedEvent'
   readonly id: Uuid.UUID;
   readonly eventType : string
@@ -24,7 +24,7 @@ export class DeviceCreatedEvent implements IChangeEvent {
   }
 }
 
-export class AlarmCreatedEvent implements IChangeEvent {
+export class AlarmCreatedEvent implements ChangeEvent {
   static readonly  eventType = 'Alarm.CreatedEvent'
   
   readonly id: Uuid.UUID;
@@ -37,7 +37,7 @@ export class AlarmCreatedEvent implements IChangeEvent {
     this.entityId = alarmId
   }
 
-  static assertIsAlarmCreatedEvent(event: IChangeEvent): asserts event is AlarmCreatedEvent{
+  static assertIsAlarmCreatedEvent(event: ChangeEvent): asserts event is AlarmCreatedEvent{
     if(event instanceof AlarmCreatedEvent) return
     
     throw new Error(`Unexpected EventType, Expected EventType: AlarmCreatedEvent, received ${typeof event}` )
@@ -50,7 +50,7 @@ export class AlarmArmedEvent extends AbstractChangeEvent {
     super(AlarmArmedEvent.eventType, aggregateRootId, alarmId)    
   } 
 
-  static assertIsAlarmArmedEvent(event: IChangeEvent) : asserts event is AlarmArmedEvent{
+  static assertIsAlarmArmedEvent(event: ChangeEvent) : asserts event is AlarmArmedEvent{
     if(event.eventType === AlarmArmedEvent.eventType)  return
 
     throw new Error(`Unexpected EventType, Expected EventType: AlarmArmedEvent, received ${typeof event}` ) 
@@ -65,7 +65,7 @@ export class AlarmDisarmedEvent extends AbstractChangeEvent {
     super(AlarmDisarmedEvent.eventType, aggregateRootId, alarmId)
   } 
 
-  static assertIsAlarmDisarmedEvent(event: IChangeEvent) : asserts event is AlarmDisarmedEvent{
+  static assertIsAlarmDisarmedEvent(event: ChangeEvent) : asserts event is AlarmDisarmedEvent{
     if(event instanceof AlarmDisarmedEvent)  return
 
     throw new Error(`Unexpected EventType, Expected EventType: AlarmDisarmedEvent, received ${typeof event}` ) 
@@ -80,7 +80,7 @@ export class AlarmTriggeredEvent extends AbstractChangeEvent {
     super(AlarmTriggeredEvent.eventType, aggregateRootId, alarmId)
   } 
 
-  static assertIsAlarmTriggeredEvent(event: IChangeEvent) : asserts event is AlarmTriggeredEvent{
+  static assertIsAlarmTriggeredEvent(event: ChangeEvent) : asserts event is AlarmTriggeredEvent{
     if(event.eventType === AlarmTriggeredEvent.eventType)  return
 
     throw new Error(`Unexpected EventType, Expected EventType: AlarmTriggeredEvent, received ${typeof event}` ) 
