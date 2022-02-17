@@ -19,17 +19,8 @@ export class Device extends EntityBase {
   addAlarm(id: Uuid.UUID): Alarm {
     const alarm = this.alarms.get(id)
     if(alarm) return alarm
-    
     this.applyChange(new AlarmCreatedEvent(this.parentId, id))
-    // const newAlarm = new Alarm(this.parent, id)    
-    // this.alarms.push(newAlarm)
-    // return newAlarm
-
     return this.findAlarm(id)!
-  }
-
-  findAlarm(id: Uuid.UUID): Alarm | undefined {
-    return this.alarms.get(id)
   }
 
   destroyAlarm(alarm: Alarm): void {
@@ -38,6 +29,12 @@ export class Device extends EntityBase {
     
     this.applyChange(new AlarmDestroyedEvent(this.parentId, alarm.id))
   }
+
+  findAlarm(id: Uuid.UUID): Alarm | undefined {
+    return this.alarms.get(id)
+  }
+
+
 
   // AggregateRoot performs aggregated actions on its children
   telemetryReceived(value: number): void{

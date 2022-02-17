@@ -64,3 +64,10 @@ describe("WriteModelMemoryRepository", ()=>{
       )
   })
 })
+
+const payload = {} as any
+
+const newState = Object.keys(payload).reduce((state, key) =>{
+  state[key] = payload[key]
+  return state
+}, {} as any);

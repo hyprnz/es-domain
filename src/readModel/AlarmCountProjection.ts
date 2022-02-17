@@ -23,7 +23,7 @@ export async function handleEvents(events: Array<ChangeEvent>, repository: IRead
         const record = await repository.find(id)
         cache[id] = record
           ? { action: 'none', state: record }
-          : { action: 'create', state: { id, countOfAlarms:0, countOfCurrentAlarms:0 } }
+          : { action: 'create', state: { id, version: 0, countOfAlarms:0, countOfCurrentAlarms:0 } }
       }
 
       const row = cache[id]
