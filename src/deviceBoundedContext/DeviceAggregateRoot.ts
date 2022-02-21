@@ -64,11 +64,13 @@ export class DeviceAggregateRoot extends AggregateRoot {
       device.alarms.push(alarm)
     }],
     
-    [AlarmDestroyedEvent.eventType]: [(device, evt) => {
-      const alarmIndex = device.alarms.findIndex(x =>x.id === evt.entityId)
-      if(alarmIndex === -1) throw new AggregateError(device.toString(),  `Alarm Not Found, Alarm of id:${evt.entityId} missing from Device`)
-      const deletedAlarm = device.alarms.splice(alarmIndex, 1)[0]
-      deletedAlarm.applyChangeEvent(evt)
-    }]
+    [AlarmDestroyedEvent.eventType]: [DeviceAggregateRoot.AlarmDestroyedHandler]
   }
+
+  private static AlarmDestroyedHandler(device: DeviceAggregateRoot, evt:ChangeEvent): void{
+    const alarmIndex = device.alarms.findIndex(x =>x.id === evt.entityId)
+    if(alarmIndex === -1) throw new AggregateError(device.toString(),  `Alarm Not Found, Alarm of id:${evt.entityId} missing from Device`)
+    const deletedAlarm = device.alarms.splice(alarmIndex, 1)[0]
+    deletedAlarm.applyChangeEvent(evt)
+  } 
 }
