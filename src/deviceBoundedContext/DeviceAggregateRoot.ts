@@ -1,11 +1,14 @@
-import { AggregateRoot } from "../EventSourcing/AggregateRoot"
+import { AggregateRootBase } from "../EventSourcing/AggregateRoot"
 import { AlarmCreatedEvent, AlarmDestroyedEvent, DeviceCreatedEvent } from "./events/deviceEvents"
 import * as Uuid from '../EventSourcing/UUID'
 import { Alarm } from "./Alarm"
 import { ChangeEvent, StaticEventHandler } from "../EventSourcing/EventSourcingTypes"
 import { AggregateError } from "../EventSourcing/AggregateError"
 
-export class DeviceAggregateRoot extends AggregateRoot {
+/**@deprecated Use Device instead , does not extend AggregateRoot
+ * 
+ */
+export class DeviceAggregateRoot extends AggregateRootBase {
   private alarms: Array<Alarm> = []
   constructor(id?: Uuid.UUID) {
     super()

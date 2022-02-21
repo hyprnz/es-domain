@@ -14,7 +14,10 @@ import { EntityBase } from './Entity'
 //        Though if we have a layered system, the service layer could be responsible for creating aggregate roots 
 //        It just passes / makes use of the entities to perform domain actions
 
-export abstract class AggregateRoot implements Aggregate {
+/** @deprecated - Will make this private to module and start using 'AggregateContainer' in the future 
+ * 
+*/
+export abstract class AggregateRootBase implements Aggregate {
   
   id: Uuid.UUID
   get changeVersion() : number { return this.version}
@@ -86,7 +89,7 @@ export abstract class AggregateRoot implements Aggregate {
 }
 
 
-export class AggregateContaner<T extends EntityBase> extends AggregateRoot {
+export class AggregateContainer<T extends EntityBase> extends AggregateRootBase {
   public readonly rootEntity: T 
 
   constructor(activator: (parent: ParentAggregate, id?:Uuid.UUID)=>T, id?:Uuid.UUID){
