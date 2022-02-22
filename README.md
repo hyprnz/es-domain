@@ -1,15 +1,42 @@
 # Introduction 
-TODO: Give a short introduction of your project. Let this section explain the objectives or the motivation behind this project. 
+An implementation of event sourcingmaking use of following patterns
+- Domain Style Events
+- CRQS
+- Write Side
+  - Event sourced Aggregate (As a container for Entities)
+  - Domain Model supports complex entities with children
+  - Event Store, with optomistic concurrency detection
+  - Eventstore abstracted behind repositories
 
+- Read Side
+  - Read model repository
+  - Read model observes persisted/committed events
+  - Read model projections
+    - Examples of projections at the entity level
+    - Aggregated values at the aggregate root level
+    - Addregated at the global level
+
+- Sample Bounded context
+  - Device / Alarm models
+  - Projections
+    - alarmProjectionHandler
+    - deviceAlarmCountProjection
+    - allAlarmCountProjection
+
+  Sample application
+    - see: `DeviceApplication.test.ts`
+
+
+> NOTE: This implementation is not using Commands and Process Manager pattern has not been implmented, significant ids still to be added to events
 # Getting Started
-TODO: Guide users through getting your code up and running on their own system. In this section you can talk about:
-1.	Installation process
-2.	Software dependencies
-3.	Latest releases
-4.	API references
+```npm i```
 
 # Build and Test
-TODO: Describe and show how to build your code and run the tests. 
+```
+npm run compile
+npm run test:micro
+```
+
 
 # Contribute
 TODO: Explain how other users and developers can contribute to make your code better. 
