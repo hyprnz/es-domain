@@ -1,8 +1,10 @@
 import * as Uuid from '../EventSourcing/UUID'
-import { ChangeEvent } from './EventSourcingTypes'
+import { ChangeEvent, EntityEvent } from './EventSourcingTypes'
 
-export interface Projection {
+export interface Projection {  
   id: Uuid.UUID
+
+  /** Version of most recently processed event */
   version: number
 }
 
@@ -37,3 +39,36 @@ export function persistReadModelState<T extends Projection>(repository: ReadMode
 }
 
 
+export function makeProjection<T extends Projection>(
+  eventHandlers:  Record<string, StaticProjectionEventHandler<T>>, 
+  defaultValue: (id:Uuid.UUID) => T)
+: (events: Array<EntityEvent>, repository: ReadModelRepository) => Promise<void>{
+
+  const projection = async (events: Array<EntityEvent>, repository: ReadModelRepository): Promise<void> => {
+    const cache: Record<Uuid.UUID, ProjectionRow<T>> = {}
+    
+    for (var evt of events) {
+      const handler = eventHandlers[evt.event.eventType]
+      if (handler) {
+        const id = evt.event.entityId
+
+        if (!cache[id]) {
+          const record = await repository.find<T>(id)
+          cache[id] = record
+            ? { action: 'none', state: record }
+            : { action: 'create', state: defaultValue(id) }
+        }
+
+        const row = cache[id]
+        const action = handler(row.state, evt.event)
+        row.action = calculateNextAction(action, row.action)
+        row.state.version = evt.version
+      }
+    }
+
+    const rows = Object.values(cache)
+    await persistReadModelState(repository, rows)    
+  }
+
+  return projection
+}
