@@ -18,7 +18,7 @@ import { UUID } from "../EventSourcing/UUID";
  * Fetching all events for an aggregate root is simply a mater of querying by partition key and is very efficent and inexpensive
  * This also gives us optomistic concurrency detection for free
  */
-export interface IWriteModelRepositroy {
+export interface WriteModelRepositroy {
   /** Persists an AggregateRoots uncommited events
    * @argument aggregateRoot The aggregateroot to persist
    */
@@ -28,10 +28,13 @@ export interface IWriteModelRepositroy {
    * @argument id The id of the Aggregate Root to load
    * @argument activator As we do not have reflection in typescript we must provide either an instance or an activation function
    */
-  load<T extends Aggregate>(id: UUID, activator: () => T) : Promise<T>
+  load<T extends Aggregate>(id: UUID, activator: (id?:UUID) => T) : Promise<T>
 
   /** Subscribe to events that are being commited to persistence, this can be used to feed events 
    * to down stream services to create other side effects such as Projections
    * @argument handler A callback function that will receive an array of changes (Unit of work) related to a single aggregate.*/  
   subscribeToChanges(handler: (changes: Array<EntityEvent>) => void ): void
+
+  /** Utility function, not sure if its going to be needed or not but is useful */
+  loadEvents(id: UUID): Promise<Array<EntityEvent>> 
 }

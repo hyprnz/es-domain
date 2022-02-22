@@ -1,63 +1,79 @@
 import * as Uuid from '../EventSourcing/UUID'
-import {DeviceAggregateRoot as Device} from '../deviceBoundedContext'
 import { WriteModelMemoryRepository } from './WriteModelMemoryRepository'
 import { assertThat, match } from 'mismatched'
-import { IWriteModelRepositroy } from './WriteModelRepositoryTypes'
+import { WriteModelRepositroy } from './WriteModelRepositoryTypes'
 import { EntityEvent } from '../EventSourcing/EventSourcingTypes'
+import { AggregateContainer } from '../EventSourcing/AggregateRoot'
+import { Device } from '../deviceBoundedContext'
 describe("WriteModelMemoryRepository", ()=>{
+
   it("stores events", async ()=>{
     const deviceId = Uuid.createV4()
     const alarmId = Uuid.createV4()
-    const writeModelRepo: IWriteModelRepositroy = new WriteModelMemoryRepository()
+    const writeModelRepo: WriteModelRepositroy = new WriteModelMemoryRepository()
 
-    const device = new Device(deviceId)
-    device.addAlarm(alarmId)
-    const uncomittedEvents = device.uncommittedChanges()
+    const deviceAggregate = new AggregateContainer<Device>((p,id) => new Device(p,id), deviceId)
+    deviceAggregate.rootEntity.addAlarm(alarmId)
+
+    const uncomittedEvents = deviceAggregate.uncommittedChanges()
     
     const emittedEvents: Array<EntityEvent> = []
     writeModelRepo.subscribeToChanges(changes => changes.forEach(x => emittedEvents.push(x)))
     
-    const countEvents = await writeModelRepo.save(device)
+    const countEvents = await writeModelRepo.save(deviceAggregate)
 
     assertThat(countEvents).withMessage("Stored Event count").is(2)
     assertThat(emittedEvents).withMessage("Emitted Events").is(match.array.length(2))
     assertThat(uncomittedEvents).is(emittedEvents)
   })
 
-  xit("loads events", async ()=>{
+  it("loads events", async ()=>{
     const deviceId = Uuid.createV4()
     const alarmId = Uuid.createV4()
-    const writeModelRepo: IWriteModelRepositroy = new WriteModelMemoryRepository()
+    const writeModelRepo: WriteModelRepositroy = new WriteModelMemoryRepository()
 
-    const device = new Device(deviceId)
+    const deviceAggregate = new AggregateContainer<Device>(
+      (p,id) => new Device(p,id),
+      deviceId
+    )
+
+    const device = deviceAggregate.rootEntity
     device.addAlarm(alarmId)
-    const uncomittedEvents = device.uncommittedChanges()
-    writeModelRepo.save(device)
-    
-    // this dosent look right?
-    const loadedDevice = await writeModelRepo.load<Device>(deviceId, () => new Device())
-    const loadedUncommited = loadedDevice.uncommittedChanges()
 
-    assertThat(uncomittedEvents).is(loadedUncommited)
+    const uncomittedEvents = deviceAggregate.uncommittedChanges()
+    writeModelRepo.save(deviceAggregate)
+    
+    // Compare Saved event to loaded make sure they are thesame
+    const loadedEvents = await writeModelRepo.loadEvents(deviceId)
+    
+    assertThat(uncomittedEvents).is(loadedEvents)
+    assertThat(loadedEvents).is(match.array.length(2))
   })
 
   it('detects concurrency', async()=>{
     const deviceId = Uuid.createV4()
     const alarmId = Uuid.createV4()
-    const writeModelRepo: IWriteModelRepositroy = new WriteModelMemoryRepository()
+    const writeModelRepo: WriteModelRepositroy = new WriteModelMemoryRepository()
 
-    const device = new Device(deviceId)
+    const deviceAggregate = new AggregateContainer<Device>((p,id) => new Device(p,id), deviceId)
+
+    const device = deviceAggregate.rootEntity
     device.addAlarm(alarmId)
-    writeModelRepo.save(device)
+
+    writeModelRepo.save(deviceAggregate)
 
 
-    const anotherDevice = await writeModelRepo.load(device.id, () => new Device())
-    
+    const anotherDeviceAggregate = await writeModelRepo.load(
+      deviceId,
+      (id) => new AggregateContainer<Device>((p,id) => new Device(p,id)),       
+    )
+    const anotherDevice = anotherDeviceAggregate.rootEntity
+
     device.addAlarm(Uuid.createV4())
     anotherDevice.addAlarm(Uuid.createV4())
 
-    await writeModelRepo.save(device)
-    await writeModelRepo.save(anotherDevice)
+    await writeModelRepo.save(deviceAggregate)
+    await writeModelRepo.save(anotherDeviceAggregate)
       .then(
         () => fail("Expected and Optimistic concurrency error here!!"),
         e => assertThat(e.message).is(`Error:AggregateRoot, Optimistic concurrency error, expected event version:3 but received 2, Suggested solution is to retry`)

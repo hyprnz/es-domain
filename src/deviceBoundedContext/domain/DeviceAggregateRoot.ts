@@ -8,7 +8,7 @@ import { DeviceCreatedEvent, AlarmCreatedEvent, AlarmDestroyedEvent } from "../e
 /**@deprecated Use Device instead , does not extend AggregateRoot
  * 
  */
-export class DeviceAggregateRoot extends AggregateRootBase {
+class DeviceAggregateRoot extends AggregateRootBase {
   private alarms: Array<Alarm> = []
   constructor(id?: Uuid.UUID) {
     super()

@@ -9,6 +9,8 @@ export interface AlarmCountProjection extends Projection {
 
   /** Count of current devices */
   countOfCurrentAlarms: number  
+
+  // countOfDevices: number
 }
 
 const eventHandlers: Record<string, StaticProjectionEventHandler<AlarmCountProjection>> = {
@@ -23,7 +25,13 @@ const eventHandlers: Record<string, StaticProjectionEventHandler<AlarmCountProje
   }
 }
 
-const defaultValue =  (id: Uuid.UUID): AlarmCountProjection => ({ id, version: 0, countOfAlarms:0, countOfCurrentAlarms:0 }) 
+const defaultValue =  (id: Uuid.UUID): AlarmCountProjection => ({ 
+  id, 
+  version: 0, 
+  countOfAlarms:0, 
+  countOfCurrentAlarms:0, 
+  // countOfDevices:0 
+}) 
 
 
 export async function alarmCountProjection(events: Array<EntityEvent>, repository: ReadModelRepository): Promise<void> {
