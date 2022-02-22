@@ -1,9 +1,9 @@
-import * as Uuid from '../EventSourcing/UUID'
-import { EntityBase } from "../EventSourcing/Entity";
-import { AlarmCreatedEvent, AlarmDestroyedEvent, DeviceCreatedEvent } from "./events/deviceEvents"
-import { ChangeEvent, ParentAggregate, StaticEventHandler } from "../EventSourcing/EventSourcingTypes";
-import { Alarm } from '.';
-import { AggregateError } from '../EventSourcing/AggregateError';
+import { Alarm } from '..'
+import { AggregateError } from '../../EventSourcing/AggregateError'
+import { EntityBase } from '../../EventSourcing/Entity'
+import { ParentAggregate, ChangeEvent, StaticEventHandler } from '../../EventSourcing/EventSourcingTypes'
+import * as Uuid from '../../EventSourcing/UUID'
+import { DeviceCreatedEvent, AlarmCreatedEvent, AlarmDestroyedEvent } from '../events/deviceEvents'
 
 export class Device extends EntityBase {
   private alarms: Map<Uuid.UUID, Alarm> = new Map<Uuid.UUID, Alarm>()

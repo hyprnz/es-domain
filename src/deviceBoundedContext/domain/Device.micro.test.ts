@@ -1,10 +1,9 @@
-import * as Uuid from '../EventSourcing/UUID'
-import { DeviceAggregateRoot } from "./DeviceAggregateRoot"
-import { assertThat, match } from "mismatched";
-import * as deviceEvents from './events/deviceEvents'
-import { Entity, ChangeEvent, EntityEvent, UNINITIALISED_AGGREGATE_VERSION, Aggregate } from '../EventSourcing/EventSourcingTypes';
-import { AggregateContainer } from '../EventSourcing/AggregateRoot';
-import { Device } from '.';
+import { assertThat, match } from 'mismatched'
+import { DeviceAggregateRoot, Device } from '..'
+import * as deviceEvents from "../events/deviceEvents"
+import { AggregateContainer } from '../../EventSourcing/AggregateRoot'
+import { UNINITIALISED_AGGREGATE_VERSION, ChangeEvent, EntityEvent, Entity, Aggregate } from '../../EventSourcing/EventSourcingTypes'
+import * as Uuid from '../../EventSourcing/UUID'
 
 describe('Device', () => {
   describe('DeviceAggregateRoot', () => {

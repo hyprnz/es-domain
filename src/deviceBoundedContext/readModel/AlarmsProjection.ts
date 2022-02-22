@@ -1,9 +1,9 @@
-import * as Uuid from '../EventSourcing/UUID'
-import { AlarmArmedEvent, AlarmCreatedEvent, AlarmDestroyedEvent } from "../deviceBoundedContext/events/deviceEvents";
-import { EntityEvent } from "../EventSourcing/EventSourcingTypes";
-import { calculateNextAction, IProjection, IReadModelRepository, persistReadModelState, ProjectionRow, StaticProjectionEventHandler } from "../EventSourcing/ReadModelTypes";
+import * as Uuid from '../../EventSourcing/UUID'
+import { AlarmArmedEvent, AlarmCreatedEvent, AlarmDestroyedEvent } from "../events/deviceEvents";
+import { EntityEvent } from "../../EventSourcing/EventSourcingTypes";
+import { calculateNextAction, Projection, ReadModelRepository, persistReadModelState, ProjectionRow, StaticProjectionEventHandler } from "../../EventSourcing/ReadModelTypes";
 
-export interface IAlarm extends IProjection {
+export interface CurrentAlarmsProjection extends Projection {
   /** Is alarm active */
   isActive: boolean
 
@@ -11,15 +11,15 @@ export interface IAlarm extends IProjection {
   threshold: number
 }
 
-export async function handleEvents(events: Array<EntityEvent>, repository: IReadModelRepository<IAlarm>): Promise<Array<ProjectionRow<IAlarm>>> {
-  const cache: Record<Uuid.UUID, ProjectionRow<IAlarm>> = {}
+export async function handleEvents(events: Array<EntityEvent>, repository: ReadModelRepository): Promise<Array<ProjectionRow<CurrentAlarmsProjection>>> {
+  const cache: Record<Uuid.UUID, ProjectionRow<CurrentAlarmsProjection>> = {}
   for (var evt of events) {
     const handler = eventHandlers[evt.event.eventType]
     if (handler) {
       const id = evt.event.entityId
 
       if (!cache[id]) {
-        const record = await repository.find(id)
+        const record = await repository.find<CurrentAlarmsProjection>(id)
         cache[id] = record
           ? { action: 'none', state: record }
           : { action: 'create', state: { id, version: evt.version, isActive: false, threshold: 0 } }
@@ -37,7 +37,7 @@ export async function handleEvents(events: Array<EntityEvent>, repository: IRead
   return rows
 }
 
-const eventHandlers: Record<string, StaticProjectionEventHandler<IAlarm>> = {
+const eventHandlers: Record<string, StaticProjectionEventHandler<CurrentAlarmsProjection>> = {
   [AlarmCreatedEvent.eventType]: (state, evt) => { state.isActive = false; return 'update' },
   [AlarmArmedEvent.eventType]: (state, evt) => {
     AlarmArmedEvent.assertIsAlarmArmedEvent(evt)

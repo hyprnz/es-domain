@@ -1,9 +1,9 @@
-import { AggregateRootBase } from "../EventSourcing/AggregateRoot"
-import { AlarmCreatedEvent, AlarmDestroyedEvent, DeviceCreatedEvent } from "./events/deviceEvents"
-import * as Uuid from '../EventSourcing/UUID'
-import { Alarm } from "./Alarm"
-import { ChangeEvent, StaticEventHandler } from "../EventSourcing/EventSourcingTypes"
-import { AggregateError } from "../EventSourcing/AggregateError"
+import * as Uuid from "../../EventSourcing/UUID"
+import { Alarm } from ".."
+import { AggregateError } from "../../EventSourcing/AggregateError"
+import { AggregateRootBase } from "../../EventSourcing/AggregateRoot"
+import { ChangeEvent, StaticEventHandler } from "../../EventSourcing/EventSourcingTypes"
+import { DeviceCreatedEvent, AlarmCreatedEvent, AlarmDestroyedEvent } from "../events/deviceEvents"
 
 /**@deprecated Use Device instead , does not extend AggregateRoot
  * 

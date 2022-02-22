@@ -1,13 +1,13 @@
-import * as Uuid from '../EventSourcing/UUID'
+import * as Uuid from '../../EventSourcing/UUID'
 import { Thespian, TMocked } from 'thespian'
-import { IReadModelRepository } from "../EventSourcing/ReadModelTypes"
-import { handleEvents, IAlarm } from "./AlarmsProjection"
-import { AlarmArmedEvent, AlarmCreatedEvent } from '../deviceBoundedContext/events/deviceEvents'
+import { ReadModelRepository } from "../../EventSourcing/ReadModelTypes"
+import { handleEvents, CurrentAlarmsProjection } from "./AlarmsProjection"
+import { AlarmArmedEvent, AlarmCreatedEvent } from '../events/deviceEvents'
 
 
 describe('AlarmsProjection', ()=>{
   let mocks: Thespian
-  let repository: TMocked<IReadModelRepository<IAlarm>> 
+  let repository: TMocked<ReadModelRepository> 
   beforeEach(() => {
     mocks = new Thespian()
     repository = mocks.mock('repository')

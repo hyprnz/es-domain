@@ -1,3 +1,3 @@
-export {DeviceAggregateRoot} from './DeviceAggregateRoot'
-export {Device} from './Device'
-export {Alarm} from './Alarm'
+export {DeviceAggregateRoot} from './domain/DeviceAggregateRoot'
+export {Device} from './domain/Device'
+export {Alarm} from './domain/Alarm'
