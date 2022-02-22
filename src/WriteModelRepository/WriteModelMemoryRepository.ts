@@ -1,3 +1,4 @@
+import * as Uuid from '../EventSourcing/UUID'
 import EventEmitter from "events";
 import { Aggregate, EntityEvent } from "../EventSourcing/EventSourcingTypes";
 import { UUID } from "../EventSourcing/UUID";
@@ -46,12 +47,12 @@ export class WriteModelMemoryRepository implements WriteModelRepositroy {
     return Promise.resolve(changes.length)
   }
 
-  load<T extends Aggregate>(id: UUID, activator: () => T): Promise<T> {
+  load<T extends Aggregate>(id: UUID, activator: (id:Uuid.UUID) => T): Promise<T> {
     const events = this.store.get(id)
     const found = !!events
     if(!found) throw new WriteModelRepositoryError(activator.name, `Failed to load aggregate id:${id}: NOT FOUND`)
 
-    const aggregate = activator()
+    const aggregate = activator(id)
     aggregate.loadFromHistory(events)
     return Promise.resolve(aggregate)
   }

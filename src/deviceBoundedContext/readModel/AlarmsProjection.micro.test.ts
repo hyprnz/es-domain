@@ -9,6 +9,8 @@ import { EntityEvent } from '../../EventSourcing/EventSourcingTypes'
 describe('AlarmsProjection', ()=>{
   let mocks: Thespian
   let repository: TMocked<ReadModelRepository> 
+
+  const projectionName = "alarmProjectionHandler"
   beforeEach(() => {
     mocks = new Thespian()
     repository = mocks.mock('repository')
@@ -28,10 +30,10 @@ describe('AlarmsProjection', ()=>{
         eventType: AlarmCreatedEvent.eventType
       }},                 
     ]
-    repository.setup(x => x.find(alarmId))
+    repository.setup(x => x.find(projectionName, alarmId))
       .returns(()=> Promise.resolve(undefined))
 
-    repository.setup(x => x.create({id:alarmId, version:0,  isActive: false, threshold: 0}))
+    repository.setup(x => x.create(projectionName, {id:alarmId, version:0,  isActive: false, threshold: 0}))
       .returns(() => Promise.resolve())
     
     await alarmProjectionHandler(events, repository.object)
@@ -58,10 +60,10 @@ describe('AlarmsProjection', ()=>{
         isArmed: true
       }}
     ]
-    repository.setup(x => x.find(alarmId))
+    repository.setup(x => x.find(projectionName, alarmId))
       .returns(()=> Promise.resolve(undefined))
 
-    repository.setup(x => x.create({id:alarmId, version:1,  isActive: true, threshold: 10}))
+    repository.setup(x => x.create(projectionName, {id:alarmId, version:1,  isActive: true, threshold: 10}))
       .returns(() => Promise.resolve())
     
     await alarmProjectionHandler(events, repository.object)

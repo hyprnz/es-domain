@@ -14,12 +14,19 @@ export function assertValidUUID(input: string): asserts input is UUID {
   }
 }
 
-assertValidUUID(nullUUID)
-export const EmptyUUID: UUID =  nullUUID
-
+export function makeWelKnownUuid(uuid:string): UUID{
+  assertValidUUID(uuid)
+  return uuid
+}
 
 export function createV4(): UUID {
   const uuid = uuidv4()
   assertValidUUID(uuid)
   return uuid
 }
+
+
+export const EmptyUUID: UUID =  makeWelKnownUuid(nullUUID)
+
+
+

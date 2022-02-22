@@ -24,4 +24,4 @@ const eventHandlers: Record<string, StaticProjectionEventHandler<CurrentAlarmsPr
 
 
 
-export const alarmProjectionHandler =  makeProjection<CurrentAlarmsProjection>(eventHandlers, defaultValue)
+export const alarmProjectionHandler =  makeProjection<CurrentAlarmsProjection>('alarmProjectionHandler', eventHandlers, defaultValue)

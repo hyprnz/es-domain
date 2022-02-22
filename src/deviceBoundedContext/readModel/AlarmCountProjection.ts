@@ -1,7 +1,7 @@
 import * as Uuid from '../../EventSourcing/UUID'
 import { AlarmCreatedEvent, AlarmDestroyedEvent } from '../events/deviceEvents'
 import { ChangeEvent, EntityEvent, StaticEventHandler } from '../../EventSourcing/EventSourcingTypes'
-import { calculateNextAction, Projection, ReadModelRepository, ProjectionRow, StaticProjectionEventHandler, persistReadModelState } from '../../EventSourcing/ReadModelTypes'
+import { calculateNextAction, Projection, ReadModelRepository, ProjectionRow, StaticProjectionEventHandler, persistReadModelState, makeProjection } from '../../EventSourcing/ReadModelTypes'
 
 export interface AlarmCountProjection extends Projection {
   /** Count of all devices that have ever been */
@@ -34,28 +34,6 @@ const defaultValue =  (id: Uuid.UUID): AlarmCountProjection => ({
 }) 
 
 
-export async function alarmCountProjection(events: Array<EntityEvent>, repository: ReadModelRepository): Promise<void> {
-  const cache: Record<Uuid.UUID, ProjectionRow<AlarmCountProjection>> = {}
-
-  await events.forEach(async (evt) => {
-    const handler = eventHandlers[evt.event.eventType]
-    if (handler) {
-      const id = evt.event.entityId
-
-      if (!cache[id]) {
-        const record = await repository.find<AlarmCountProjection>(id)
-        cache[id] = record
-          ? { action: 'none', state: record }
-          : { action: 'create', state: defaultValue(id) }
-      }
-
-      const row = cache[id]
-      const action = handler(row.state, evt.event)
-      row.action = calculateNextAction(action, row.action)
-    }
-  })
-  
-  const rows = Object.values(cache)
-  await persistReadModelState(repository, rows)
-  return Promise.resolve()
-}
+const allAlarmCountProjectionId = Uuid.makeWelKnownUuid('d855f06c-89a2-4600-be96-2d86e9f0bff4')
+export const allAlarmCountProjection =  makeProjection<AlarmCountProjection>('allAlarmCountProjection', eventHandlers, defaultValue, (evt) => allAlarmCountProjectionId)
+export const deviceAlarmCountProjection =  makeProjection<AlarmCountProjection>('deviceAlarmCountProjection', eventHandlers, defaultValue, (evt) => evt.aggregateRootId)

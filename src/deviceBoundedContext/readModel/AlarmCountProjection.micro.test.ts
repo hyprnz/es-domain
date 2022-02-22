@@ -4,11 +4,13 @@ import { ReadModelRepository } from "../../EventSourcing/ReadModelTypes"
 import { AlarmArmedEvent, AlarmCreatedEvent } from '../events/deviceEvents'
 import { alarmCountProjection } from '..'
 import { EntityEvent } from '../../EventSourcing/EventSourcingTypes'
+import { match } from 'mismatched'
 
 
 describe('AlarmsCountProjection', ()=>{
   let mocks: Thespian
   let repository: TMocked<ReadModelRepository> 
+  const projectionName = "deviceAlarmCountProjection"
   
   beforeEach(() => {
     mocks = new Thespian()
@@ -29,10 +31,10 @@ describe('AlarmsCountProjection', ()=>{
         eventType: AlarmCreatedEvent.eventType
       }},                 
     ]
-    repository.setup(x => x.find(alarmId))
+    repository.setup(x => x.find(projectionName, aggregateRootId))
       .returns(()=> Promise.resolve(undefined))
 
-    repository.setup(x => x.create({id:alarmId, version:0, countOfAlarms:1, countOfCurrentAlarms:1 }))
+    repository.setup(x => x.create(projectionName, {id:aggregateRootId, version:0, countOfAlarms:1, countOfCurrentAlarms:1 }))
       .returns(() => Promise.resolve())
     
     await alarmCountProjection(events, repository.object)
@@ -59,10 +61,10 @@ describe('AlarmsCountProjection', ()=>{
         isArmed: true
       }}
     ]
-    repository.setup(x => x.find(alarmId))
+    repository.setup(x => x.find(projectionName, aggregateRootId))
       .returns(()=> Promise.resolve(undefined))
 
-    repository.setup(x => x.create({id:alarmId, version:0,  countOfAlarms:1, countOfCurrentAlarms:1}))
+    repository.setup(x => x.create(projectionName, {id:aggregateRootId, version:0,  countOfAlarms:1, countOfCurrentAlarms:1}))
       .returns(() => Promise.resolve())
     
     await alarmCountProjection(events, repository.object)
