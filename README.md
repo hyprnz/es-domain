@@ -1,7 +1,7 @@
 # Introduction 
-An implementation of event sourcingmaking use of following patterns
+An implementation of event sourcing making use of following patterns
 - Domain Style Events
-- CRQS
+- CQRS
 - Write Side
   - Event sourced Aggregate (As a container for Entities)
   - Domain Model supports complex entities with children
