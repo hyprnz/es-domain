@@ -32,6 +32,13 @@ steps:
     npm run test:micro
   displayName: "Micro Tests"
 
+- task: PublishTestResults@2
+  condition: succeededOrFailed()
+  inputs:
+    testRunner: JUnit
+    testResultsFiles: 'junit.xml'
+  displayName: "Publish Test Results"  
+
 - task: Npm@1
   inputs:
     command: 'publish'
