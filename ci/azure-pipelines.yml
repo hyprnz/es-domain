@@ -32,10 +32,8 @@ steps:
     npm run test:micro
   displayName: "Micro Tests"
 
-# - task: Npm@1
-#   inputs:
-#     command: 'publish'
-#     verbose: true
-#     publishRegistry: 'useFeed'
-#     publishFeed: 'xxx'
-#   displayName: 'Publish to artifact feed.'
+- task: Npm@1
+  inputs:
+    command: 'publish'
+    verbose: true
+  displayName: 'Publish to artifact feed...'

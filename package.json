@@ -1,16 +1,14 @@
 {
-  "name": "iot-domain-model",
+  "name": "@allegrotech/esDomain",
   "version": 0,
   "private": true,
+  "type": "commonjs",
   "author": {
     "name": "Blair Jacobs"
   },
-  "licenses": [
-    {
-      "type": "MIT"
-    }
-  ],
-  "description": "node implementation of pollin8 iot domain model",
+  "licenses": [{"type": "MIT"}],
+  "files": ["dist"],
+  "description": "A library for handling event sourced domain models",
   "scripts": {
     "build": "tsc -p ./tsconfig.json",
     "compile": "tsc -p ./tsconfig.json",
