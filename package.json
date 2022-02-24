@@ -1,7 +1,7 @@
 {
   "name": "@allegrotech/esDomain",
   "version": 0,
-  "private": true,
+  "private": false,
   "type": "commonjs",
   "author": {
     "name": "Blair Jacobs"
