@@ -37,4 +37,5 @@ steps:
     command: 'publish'
     verbose: true
     publishRegistry: 'useFeed'
+    publishFeed: 'a43d4cac-71f8-42fc-b942-cfa713da390e/980645ab-671b-4b1a-85a3-ad02df26f981'
   displayName: 'Publish to artifact feed.'
