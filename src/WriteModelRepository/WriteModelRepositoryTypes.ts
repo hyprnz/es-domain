@@ -18,7 +18,7 @@ import { UUID } from "../EventSourcing/UUID";
  * Fetching all events for an aggregate root is simply a mater of querying by partition key and is very efficent and inexpensive
  * This also gives us optomistic concurrency detection for free
  */
-export interface WriteModelRepositroy {
+export interface WriteModelRepository {
   /** Persists an AggregateRoots uncommited events
    * @argument aggregateRoot The aggregateroot to persist
    */

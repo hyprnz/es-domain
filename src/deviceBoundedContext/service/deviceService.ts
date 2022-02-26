@@ -1,10 +1,10 @@
 import { Device } from "..";
 import { AggregateContainer } from "../../EventSourcing/AggregateRoot";
 import * as Uuid from "../../EventSourcing/UUID";
-import { WriteModelRepositroy } from "../../WriteModelRepository/WriteModelRepositoryTypes";
+import { WriteModelRepository } from "../../WriteModelRepository/WriteModelRepositoryTypes";
 
 export class DeviceService {
-  constructor(private writeRepo: WriteModelRepositroy) { }
+  constructor(private writeRepo: WriteModelRepository) { }
 
   private static deviceAggregateFactory = (deviceId: Uuid.UUID)=> new AggregateContainer<Device>(      
     (p, id) => new Device(p, id),

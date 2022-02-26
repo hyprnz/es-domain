@@ -1,7 +1,7 @@
 import * as Uuid from '../EventSourcing/UUID'
 import { WriteModelMemoryRepository } from './WriteModelMemoryRepository'
 import { assertThat, match } from 'mismatched'
-import { WriteModelRepositroy } from './WriteModelRepositoryTypes'
+import { WriteModelRepository } from './WriteModelRepositoryTypes'
 import { EntityEvent } from '../EventSourcing/EventSourcingTypes'
 import { AggregateContainer } from '../EventSourcing/AggregateRoot'
 import { Device } from '../deviceBoundedContext'
@@ -10,7 +10,7 @@ describe("WriteModelMemoryRepository", ()=>{
   it("stores events", async ()=>{
     const deviceId = Uuid.createV4()
     const alarmId = Uuid.createV4()
-    const writeModelRepo: WriteModelRepositroy = new WriteModelMemoryRepository()
+    const writeModelRepo: WriteModelRepository = new WriteModelMemoryRepository()
 
     const deviceAggregate = new AggregateContainer<Device>((p,id) => new Device(p,id), deviceId)
     deviceAggregate.rootEntity.addAlarm(alarmId)
@@ -30,7 +30,7 @@ describe("WriteModelMemoryRepository", ()=>{
   it("loads events", async ()=>{
     const deviceId = Uuid.createV4()
     const alarmId = Uuid.createV4()
-    const writeModelRepo: WriteModelRepositroy = new WriteModelMemoryRepository()
+    const writeModelRepo: WriteModelRepository = new WriteModelMemoryRepository()
 
     const deviceAggregate = new AggregateContainer<Device>(
       (p,id) => new Device(p,id),
@@ -53,7 +53,7 @@ describe("WriteModelMemoryRepository", ()=>{
   it('detects concurrency', async()=>{
     const deviceId = Uuid.createV4()
     const alarmId = Uuid.createV4()
-    const writeModelRepo: WriteModelRepositroy = new WriteModelMemoryRepository()
+    const writeModelRepo: WriteModelRepository = new WriteModelMemoryRepository()
 
     const deviceAggregate = new AggregateContainer<Device>((p,id) => new Device(p,id), deviceId)
 
