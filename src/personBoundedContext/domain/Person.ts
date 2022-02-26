@@ -1,22 +1,23 @@
+import { Aggregate } from '../../EventSourcing/Aggregate'
 import { AggregateError } from '../../EventSourcing/AggregateError'
+import { Emits } from '../../EventSourcing/decorators'
 import { EntityBase } from '../../EventSourcing/Entity'
 import { ParentAggregate, ChangeEvent, StaticEventHandler } from '../../EventSourcing/EventSourcingTypes'
 import * as Uuid from '../../EventSourcing/UUID'
-import { PersonCreatedEvent, AlarmCreatedEvent, AlarmDestroyedEvent } from '../events/personEvents'
+import { PersonCreatedEvent } from '../events/personEvents'
 
-export class Person extends EntityBase {
-  constructor(parent: ParentAggregate, id?: Uuid.UUID) {  // id?: Uuid.UUID
-    super(parent)
-
-    if (id) {
-      // This is a new object
-      this.applyChange(new PersonCreatedEvent(this.parentId, id))
-    }
+export class Person {
+  private name?: string;
+  constructor(readonly id: Uuid.UUID, readonly aggregate: ParentAggregate) {
   }
 
-  toString() { return `PersonEntity:${this.id}` }
+  @Emits(PersonCreatedEvent)
+  create(): Person {
+    this.name = "Susan"
+    return this
+  }
 
-  protected override makeEventHandler(evt: ChangeEvent): (() => void) | undefined {
+  // protected override makeEventHandler(evt: ChangeEvent): (() => void) | undefined {
   //   const handlers: Array<() => void> = []
 
   //   const handler = Person.eventHandlers[evt.eventType]
@@ -28,10 +29,10 @@ export class Person extends EntityBase {
   //   return (handlers.length)
   //     ? () => { handlers.forEach(x => x()) }
   //     : undefined
-  return undefined
-  }
+  //   return undefined
+  // }
 
-  private static readonly eventHandlers: Record<string, Array<StaticEventHandler<Person>>> = {
-    [PersonCreatedEvent.eventType]: [(person, evt) => person.id = evt.aggregateRootId],
-  }
+  // private static readonly eventHandlers: Record<string, Array<StaticEventHandler<Person>>> = {
+  //   [PersonCreatedEvent.eventType]: [(person, evt) => person.id = evt.aggregateRootId],
+  // }
 }
