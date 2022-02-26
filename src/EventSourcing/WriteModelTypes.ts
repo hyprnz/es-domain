@@ -1,6 +1,7 @@
 import { Aggregate, EntityEvent } from "../EventSourcing/EventSourcingTypes";
 import { UUID } from "../EventSourcing/UUID";
 
+
 /** I like to implement a write model useing only 2 keys.
  *  For several reasons: 
  *  - So that it can be implemented by any Key Value store
@@ -18,7 +19,7 @@ import { UUID } from "../EventSourcing/UUID";
  * Fetching all events for an aggregate root is simply a mater of querying by partition key and is very efficent and inexpensive
  * This also gives us optomistic concurrency detection for free
  */
-export interface WriteModelRepositroy {
+ export interface WriteModelRepositroy {
   /** Persists an AggregateRoots uncommited events
    * @argument aggregateRoot The aggregateroot to persist
    */

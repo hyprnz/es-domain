@@ -1,8 +1,8 @@
 import { Alarm } from '..'
-import { AggregateError } from '../../EventSourcing/AggregateError'
-import { EntityBase } from '../../EventSourcing/Entity'
-import { ParentAggregate, ChangeEvent, StaticEventHandler } from '../../EventSourcing/EventSourcingTypes'
 import * as Uuid from '../../EventSourcing/UUID'
+import { AggregateError } from '../../EventSourcing/AggregateError'
+import { EntityBase } from '../../EventSourcing/EntityBase'
+import { ParentAggregate, ChangeEvent, StaticEventHandler } from '../../EventSourcing/EventSourcingTypes'
 import { DeviceCreatedEvent, AlarmCreatedEvent, AlarmDestroyedEvent } from '../events/deviceEvents'
 
 export class Device extends EntityBase {

@@ -3,7 +3,8 @@ import EventEmitter from "events";
 import { Aggregate, EntityEvent } from "../EventSourcing/EventSourcingTypes";
 import { UUID } from "../EventSourcing/UUID";
 import { WriteModelrRepositoryError as WriteModelRepositoryError } from "./WriteModelRepositoryError";
-import { WriteModelRepositroy } from "./WriteModelRepositoryTypes";
+import { WriteModelRepositroy } from '../EventSourcing/WriteModelTypes';
+
 
 
 

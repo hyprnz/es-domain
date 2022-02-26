@@ -1,7 +1,7 @@
 import * as Uuid from './UUID'
 import { AggregateError } from './AggregateError'
 import { ChangeEvent, Aggregate, EntityEvent, ParentAggregate, UNINITIALISED_AGGREGATE_VERSION } from './EventSourcingTypes'
-import { EntityBase } from './Entity'
+import { EntityBase } from './EntityBase'
 
 
 // For aggregate roots consider not extending them to be trated as an entity.

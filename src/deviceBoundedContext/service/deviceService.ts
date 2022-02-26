@@ -1,7 +1,8 @@
 import { Device } from "..";
 import { AggregateContainer } from "../../EventSourcing/AggregateRoot";
 import * as Uuid from "../../EventSourcing/UUID";
-import { WriteModelRepositroy } from "../../WriteModelRepository/WriteModelRepositoryTypes";
+import { WriteModelRepositroy } from "../../EventSourcing/WriteModelTypes";
+
 
 export class DeviceService {
   constructor(private writeRepo: WriteModelRepositroy) { }

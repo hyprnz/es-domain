@@ -8,6 +8,7 @@
   },
   "licenses": [{"type": "MIT"}],
   "files": ["dist"],
+  "types": "dist/src/index.d.ts",
   "description": "A library for handling event sourced domain models",
   "scripts": {
     "build": "tsc -p ./tsconfig.json",

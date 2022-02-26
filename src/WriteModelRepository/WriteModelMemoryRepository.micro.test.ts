@@ -1,10 +1,10 @@
 import * as Uuid from '../EventSourcing/UUID'
 import { WriteModelMemoryRepository } from './WriteModelMemoryRepository'
 import { assertThat, match } from 'mismatched'
-import { WriteModelRepositroy } from './WriteModelRepositoryTypes'
 import { EntityEvent } from '../EventSourcing/EventSourcingTypes'
 import { AggregateContainer } from '../EventSourcing/AggregateRoot'
 import { Device } from '../deviceBoundedContext'
+import { WriteModelRepositroy } from '../EventSourcing/WriteModelTypes'
 describe("WriteModelMemoryRepository", ()=>{
 
   it("stores events", async ()=>{
