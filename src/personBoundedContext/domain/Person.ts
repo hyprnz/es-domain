@@ -7,8 +7,10 @@ import { Dog } from './Dog';
 export class Person {
   private name?: string;
   private isCool?: boolean;
-  private dogs: Dog[] = [];
-  constructor(readonly id: UUID, readonly aggregate: ParentAggregate) {}
+  private dogs: Dog[];
+  constructor(readonly id: UUID, readonly aggregate: ParentAggregate) {
+    this.dogs = [];
+  }
 
   create(firstName:string, lastName = "Smith"): Person {
     if (!firstName.length) throw new Error("Name must have at least one character!")
@@ -33,6 +35,6 @@ export class Person {
 
   @Emits(DogAdoptedEvent)
   adoptDog(dog: {dogId: UUID, dogName: string}): void {
-    this.dogs.push(new Dog(dog.dogId, dog.dogName, this.aggregate));
+    this.dogs.push(new Dog(dog.dogId, this.aggregate, dog.dogName));
   }
 }

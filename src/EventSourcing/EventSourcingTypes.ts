@@ -1,16 +1,21 @@
-import * as Uuid from './UUID'
+import { UUID } from './UUID'
 
 export interface Delta {
   [key: string]: any
 }
 
+export interface DomainObject {
+    id: UUID,
+    aggregate: ParentAggregate
+}
+
 export const UNINITIALISED_AGGREGATE_VERSION = -1
 export interface ChangeEvent
 {
-    readonly id: Uuid.UUID
+    readonly id: UUID
     readonly eventType: string
-    readonly entityId: Uuid.UUID
-    readonly aggregateRootId : Uuid.UUID
+    readonly entityId: UUID
+    readonly aggregateRootId : UUID
     readonly delta: Delta
 }
 
@@ -21,7 +26,7 @@ export interface EntityEvent
 }
 
 export interface Aggregate {
-  readonly id: Uuid.UUID
+  readonly id: UUID
   readonly changeVersion: number
   
 
@@ -31,14 +36,15 @@ export interface Aggregate {
 }
 
 export interface Entity {
-  readonly id: Uuid.UUID
+  readonly id: UUID
   applyChangeEvent(event: ChangeEvent): void
 }
 
 
 export interface ParentAggregate {
-  id() : Uuid.UUID,
-  addChangeEvent(event: ChangeEvent): void
+  id() : UUID,
+  addChangeEvent(event: ChangeEvent): void,
+  registerAsChildEntity(entity: DomainObject): void
 }
 
 export type StaticEventHandler<E> = (entity: E, evt: ChangeEvent) => void

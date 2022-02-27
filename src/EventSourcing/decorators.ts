@@ -31,13 +31,13 @@ export const Emits = <E extends AbstractChangeEvent>(ChangeEvent: EventConstruct
         | TypedPropertyDescriptor<(change: E["delta"]) => void>
         | TypedPropertyDescriptor<() => void>;
 
-    return (entity: DomainObject, methodName: string, descriptor: ApplyMethodDescriptor) => {
+    return (entity: Object, methodName: string, descriptor: ApplyMethodDescriptor) => {
         const originalMethod = descriptor.value;
         if (!originalMethod) throw new Error('State change method not implemented')
 
         Reflect.defineMetadata(
             ChangeEvent.eventType,
-            originalMethod.bind(entity),
+            originalMethod,
             entity
         )
         descriptor.value = function (this: DomainObject, changeArg: E["delta"] = {}) {

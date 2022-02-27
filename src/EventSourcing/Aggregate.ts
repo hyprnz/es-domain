@@ -1,17 +1,17 @@
-import * as Uuid from './UUID'
+import { UUID } from './UUID'
 import { AggregateError } from './AggregateError'
-import { ChangeEvent, Delta, EntityEvent, ParentAggregate, UNINITIALISED_AGGREGATE_VERSION } from './EventSourcingTypes'
-import { EntityBase } from './Entity'
+import { Delta, DomainObject, EntityEvent, ParentAggregate, UNINITIALISED_AGGREGATE_VERSION } from './EventSourcingTypes'
 
-export class Aggregate<T extends {id: Uuid.UUID} = {id: Uuid.UUID}> {
-  id: Uuid.UUID
+export class Aggregate<T extends {id: UUID} = {id: UUID}> {
+  id: UUID
   public readonly rootEntity: T 
+  public readonly childEntities = new Set<DomainObject>()
 
   private version: number
   private changes: Array<EntityEvent> = []
   protected thisAsParent: ParentAggregate 
 
-  constructor(id:Uuid.UUID, makeRootEntity: (id:Uuid.UUID, aggregate: ParentAggregate)=>T){
+  constructor(id: UUID, makeRootEntity: (id: UUID, aggregate: ParentAggregate)=>T){
     this.id = id
     this.version = UNINITIALISED_AGGREGATE_VERSION
 
@@ -20,7 +20,10 @@ export class Aggregate<T extends {id: Uuid.UUID} = {id: Uuid.UUID}> {
       addChangeEvent: (evt) => this.changes.push({
         event:evt, 
         version: UNINITIALISED_AGGREGATE_VERSION
-      })
+      }),
+      registerAsChildEntity: (entity: DomainObject) => { 
+        this.childEntities.add(entity)
+      }
     }
 
     this.rootEntity = makeRootEntity(id, this.thisAsParent)
@@ -60,7 +63,14 @@ export class Aggregate<T extends {id: Uuid.UUID} = {id: Uuid.UUID}> {
   }
 
   private getEventHandler (eventType: string): (delta: Delta) => void {
-      const handler = Reflect.getMetadata(eventType, this.rootEntity)
-      return handler
+    const handler = Reflect.getMetadata(eventType, this.rootEntity)
+    if (handler) return (delta) => handler.call(this.rootEntity, delta)
+
+    for (const entity of this.childEntities) {
+      const childHandler = Reflect.getMetadata(eventType, entity)
+      if (childHandler) return (delta) => childHandler.call(entity, delta)
+    }
+
+    throw new Error(`Handler not registered for event type ${eventType}`)
   }
 }

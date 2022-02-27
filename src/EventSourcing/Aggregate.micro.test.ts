@@ -7,15 +7,13 @@ import { ParentAggregate } from "./EventSourcingTypes"
 import { createV4, UUID } from "./UUID"
 
 describe("Aggregate", () => {
+    const makePerson = (id: UUID, aggregate: ParentAggregate) => new Person(id, aggregate);
     it("Can create a root entity", () => {
-        // new Person aggregate
         const id = createV4()
-        const createPerson = (id: UUID, aggregate: ParentAggregate) => {
-            const person = new Person(id, aggregate);
-            return person.create("Susan");
-        }
-        
-        const personAggregate = new Aggregate(id, createPerson)
+        const personAggregate = new Aggregate(id, makePerson)
+
+        personAggregate.rootEntity.create("Susan");
+
         const uncommited = personAggregate.uncommittedChanges()
         assertThat(uncommited).is([{
             event: {
@@ -36,12 +34,7 @@ describe("Aggregate", () => {
         const personCreatedEvent = new PersonCreatedEvent(id, id, {name: "Susan"});
         const events = [{event: personCreatedEvent, version: 0}];
 
-        const createPerson = (id: UUID, aggregate: ParentAggregate) => {
-            const person = new Person(id, aggregate);
-            return person;
-        }
-
-        const personAggregate = new Aggregate(id, createPerson)
+        const personAggregate = new Aggregate(id, makePerson)
         personAggregate.loadFromHistory(events);
 
         // accessing private name property...
@@ -55,13 +48,9 @@ describe("Aggregate", () => {
     it("Can add and mutate a child entity", () => {
         const id = createV4()
         const dogId = createV4()
-        const createPerson = (id: UUID, aggregate: ParentAggregate) => {
-            const person = new Person(id, aggregate);
-            return person.create("Susan");
-        }
-        
-        const personAggregate = new Aggregate(id, createPerson)
 
+        const personAggregate = new Aggregate(id, makePerson)
+        personAggregate.rootEntity.create("Susan");
         personAggregate.rootEntity.adoptDog({dogId: dogId, dogName: "Rudolf"})
 
         const rudolf = personAggregate.rootEntity.findDog(dogId);
@@ -73,22 +62,25 @@ describe("Aggregate", () => {
         assertThat(uncommited[2].event.eventType).is(DogMicrochippedEvent.eventType)
     })
 
-    it.skip("Can hydrate a child entity from events", () => {
+    it("Can hydrate a child entity from events", () => {
         const id = createV4()
         const dogId = createV4()
-        const createPerson = (id: UUID, aggregate: ParentAggregate) => {
-            const person = new Person(id, aggregate);
-            return person.create("Susan");
-        }
+        const personCreated = new PersonCreatedEvent(id, id, { name: "Simone" });
+        const dogAdopted = new DogAdoptedEvent(id, id, { dogId, dogName: "Rufus" });
+        const dogMicrochipped = new DogMicrochippedEvent(id, dogId);
+        const eventHistory = [
+            { event: personCreated, version: 0 },
+            { event: dogAdopted, version: 1 },
+            { event: dogMicrochipped, version: 2 }
+            ];
         
-        const personAggregate = new Aggregate(id, createPerson)
+        const personAggregate = new Aggregate(id, makePerson)
+        personAggregate.loadFromHistory(eventHistory)
 
-        personAggregate.rootEntity.adoptDog({dogId: dogId, dogName: "Rudolf"})
+        const rufus = personAggregate.rootEntity.findDog(dogId)
 
-        const rudolf = personAggregate.rootEntity.findDog(dogId);
-        rudolf!.microchip();
-
-        const uncommited = personAggregate.uncommittedChanges()
-        assertThat(uncommited[2].event.eventType).is(DogMicrochippedEvent.eventType)
+        // accessing private name property...
+        // @ts-ignore
+        assertThat(rufus.isMicrochipped).is(true);
     })
 })
