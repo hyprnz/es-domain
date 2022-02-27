@@ -1,6 +1,6 @@
 import * as Uuid from './UUID'
 import { AggregateError } from './AggregateError'
-import { ChangeEvent, EntityEvent, ParentAggregate, UNINITIALISED_AGGREGATE_VERSION } from './EventSourcingTypes'
+import { ChangeEvent, Delta, EntityEvent, ParentAggregate, UNINITIALISED_AGGREGATE_VERSION } from './EventSourcingTypes'
 import { EntityBase } from './Entity'
 
 export class Aggregate<T extends {id: Uuid.UUID} = {id: Uuid.UUID}> {
@@ -12,10 +12,7 @@ export class Aggregate<T extends {id: Uuid.UUID} = {id: Uuid.UUID}> {
   protected thisAsParent: ParentAggregate 
 
   constructor(id:Uuid.UUID, makeRootEntity: (id:Uuid.UUID, aggregate: ParentAggregate)=>T){
-    if(id) this.id = id
-    // Uninitialised, we are going to load an exisitng 
-    else this.id = Uuid.EmptyUUID
-
+    this.id = id
     this.version = UNINITIALISED_AGGREGATE_VERSION
 
     this.thisAsParent = {
@@ -38,7 +35,10 @@ export class Aggregate<T extends {id: Uuid.UUID} = {id: Uuid.UUID}> {
         throw new AggregateError( typeof this,  'Failed to load unexpected event version') 
       }
 
-      // this.applyEvent(evt.event)
+      const handler = this.getEventHandler(evt.event.eventType)
+      if(!handler) throw new AggregateError(typeof this,  'Failed to find handler for event type') 
+      handler(evt.event.delta)
+
       this.version = evt.version
     })
   }
@@ -59,26 +59,8 @@ export class Aggregate<T extends {id: Uuid.UUID} = {id: Uuid.UUID}> {
     return `AggregateRoot:${this.id}, Version:${this.changeVersion}`
   }
 
-  /** Applies a new chnage to the Domain Object */
-  // protected applyChange(evt: ChangeEvent){
-  //   this.applyEvent(evt)
-  //   this.changes.push({
-  //     event:evt, 
-  //     version: UNINITIALISED_AGGREGATE_VERSION
-  //   })
-  // }
-  
-  /** Actions an event on the domain object */
-  // private applyEvent(evt: ChangeEvent){
-  //   const eventHandler = this.makeEventHandler(evt)
-  //   if(!eventHandler) throw new AggregateError( this.toString(), `AggregateRoot Event Handlers not found for eventType:${evt.eventType}`) 
-  //   eventHandler()    
-  // }
-
-  // protected makeEventHandler(evt: ChangeEvent): (() => void) | undefined {
-  //   return () => {
-  //     this.rootEntity.applyChangeEvent(evt)
-  //     this.id = evt.aggregateRootId
-  //   }
-  // }
+  private getEventHandler (eventType: string): (delta: Delta) => void {
+      const handler = Reflect.getMetadata(eventType, this.rootEntity)
+      return handler
+  }
 }

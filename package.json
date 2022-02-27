@@ -20,6 +20,7 @@
     "test:ci": "npm run test:micro --  --ci --watchAll=false --reporters=default --reporters=jest-junit"
   },
   "dependencies": {
+    "reflect-metadata": "^0.1.13",
     "uuid": "~8.3.2"
   },
   "devDependencies": {

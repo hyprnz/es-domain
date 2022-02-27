@@ -1,5 +1,9 @@
 import * as Uuid from './UUID'
 
+export interface Delta {
+  [key: string]: any
+}
+
 export const UNINITIALISED_AGGREGATE_VERSION = -1
 export interface ChangeEvent
 {
@@ -7,6 +11,7 @@ export interface ChangeEvent
     readonly eventType: string
     readonly entityId: Uuid.UUID
     readonly aggregateRootId : Uuid.UUID
+    readonly delta: Delta
 }
 
 export interface EntityEvent
