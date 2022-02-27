@@ -40,5 +40,16 @@ export class PersonCreatedEvent extends AbstractChangeEvent {
     super(aggregateRootId, entityId, delta)
   }
 }
+
+export class DogAdoptedEvent extends AbstractChangeEvent {
+  static readonly eventType = 'Person.DogAdopted'
+  readonly eventType = DogAdoptedEvent.eventType
+
+  constructor(
+    public readonly aggregateRootId: UUID,
+    readonly entityId: UUID,
+    readonly delta: {dogId: UUID, dogName: string},
+    ){
+    super(aggregateRootId, entityId, delta)
   }
 }

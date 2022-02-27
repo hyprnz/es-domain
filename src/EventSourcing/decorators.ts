@@ -12,7 +12,7 @@ interface DomainObject {
  * 
  * @param ChangeEvent Event emitted by this method, and reduced by this method on rehydration.
  *
- * Method must accept a change object, which maps to the change data stored in the event.
+ * Method can accept a change object, which maps to the change data stored in the event.
  * However, the method may make state changes not tracked in the change object if they are
  * inherent to the event type:
  * 
@@ -27,7 +27,9 @@ interface DomainObject {
  * }
  */
 export const Emits = <E extends AbstractChangeEvent>(ChangeEvent: EventConstructor<E>) => {
-    type ApplyMethodDescriptor = TypedPropertyDescriptor<(change: E["delta"]) => void>;
+    type ApplyMethodDescriptor = 
+        | TypedPropertyDescriptor<(change: E["delta"]) => void>
+        | TypedPropertyDescriptor<() => void>;
 
     return (entity: DomainObject, methodName: string, descriptor: ApplyMethodDescriptor) => {
         const originalMethod = descriptor.value;
@@ -38,7 +40,7 @@ export const Emits = <E extends AbstractChangeEvent>(ChangeEvent: EventConstruct
             originalMethod.bind(entity),
             entity
         )
-        descriptor.value = function (this: DomainObject, changeArg: E["delta"]) {
+        descriptor.value = function (this: DomainObject, changeArg: E["delta"] = {}) {
             originalMethod.call(this, changeArg);
             this.aggregate.addChangeEvent(new ChangeEvent(this.aggregate.id(), this.id, changeArg));
         }

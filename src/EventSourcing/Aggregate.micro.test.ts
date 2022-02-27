@@ -1,5 +1,6 @@
 import { assertThat, match } from "mismatched"
 import { Person } from "../personBoundedContext"
+import { DogMicrochippedEvent } from "../personBoundedContext/events/dogEvents"
 import { DogAdoptedEvent, PersonCreatedEvent } from "../personBoundedContext/events/personEvents"
 import { Aggregate } from "./Aggregate"
 import { ParentAggregate } from "./EventSourcingTypes"
@@ -51,4 +52,43 @@ describe("Aggregate", () => {
         assertThat(uncommited).is([])
     })
 
+    it("Can add and mutate a child entity", () => {
+        const id = createV4()
+        const dogId = createV4()
+        const createPerson = (id: UUID, aggregate: ParentAggregate) => {
+            const person = new Person(id, aggregate);
+            return person.create("Susan");
+        }
+        
+        const personAggregate = new Aggregate(id, createPerson)
+
+        personAggregate.rootEntity.adoptDog({dogId: dogId, dogName: "Rudolf"})
+
+        const rudolf = personAggregate.rootEntity.findDog(dogId);
+        assertThat(rudolf).isNot(undefined);
+        rudolf!.microchip();
+
+        const uncommited = personAggregate.uncommittedChanges()
+        assertThat(uncommited[1].event.eventType).is(DogAdoptedEvent.eventType)
+        assertThat(uncommited[2].event.eventType).is(DogMicrochippedEvent.eventType)
+    })
+
+    it.skip("Can hydrate a child entity from events", () => {
+        const id = createV4()
+        const dogId = createV4()
+        const createPerson = (id: UUID, aggregate: ParentAggregate) => {
+            const person = new Person(id, aggregate);
+            return person.create("Susan");
+        }
+        
+        const personAggregate = new Aggregate(id, createPerson)
+
+        personAggregate.rootEntity.adoptDog({dogId: dogId, dogName: "Rudolf"})
+
+        const rudolf = personAggregate.rootEntity.findDog(dogId);
+        rudolf!.microchip();
+
+        const uncommited = personAggregate.uncommittedChanges()
+        assertThat(uncommited[2].event.eventType).is(DogMicrochippedEvent.eventType)
+    })
 })

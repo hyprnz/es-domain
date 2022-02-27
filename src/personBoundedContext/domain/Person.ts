@@ -1,13 +1,13 @@
-import { Aggregate } from '../../EventSourcing/Aggregate'
-import { AggregateError } from '../../EventSourcing/AggregateError'
 import { Emits } from '../../EventSourcing/decorators'
 import { ParentAggregate } from '../../EventSourcing/EventSourcingTypes'
 import { UUID } from '../../EventSourcing/UUID'
-import { PersonCreatedEvent } from '../events/personEvents'
+import { DogAdoptedEvent, PersonCreatedEvent } from '../events/personEvents'
+import { Dog } from './Dog';
 
 export class Person {
   private name?: string;
   private isCool?: boolean;
+  private dogs: Dog[] = [];
   constructor(readonly id: UUID, readonly aggregate: ParentAggregate) {}
 
   create(firstName:string, lastName = "Smith"): Person {
@@ -16,6 +16,10 @@ export class Person {
       name: firstName + " " + lastName
     })
     return this
+  }
+
+  findDog(dogId: UUID): Dog | undefined {
+    return this.dogs.find(d => d.id === dogId)
   }
 
   @Emits(PersonCreatedEvent)
@@ -27,7 +31,8 @@ export class Person {
     this.name = change.name
   }
 
-  // private static readonly eventHandlers: Record<string, Array<StaticEventHandler<Person>>> = {
-  //   [PersonCreatedEvent.eventType]: [(person, evt) => person.id = evt.aggregateRootId],
-  // }
+  @Emits(DogAdoptedEvent)
+  adoptDog(dog: {dogId: UUID, dogName: string}): void {
+    this.dogs.push(new Dog(dog.dogId, dog.dogName, this.aggregate));
+  }
 }
