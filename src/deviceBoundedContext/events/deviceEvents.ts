@@ -26,6 +26,12 @@ export class AlarmCreatedEvent extends AbstractChangeEvent {
   constructor(deviceId: UUID, entityId: UUID, readonly delta: { alarmId: UUID }) {
     super(deviceId, deviceId, delta)
   }
+
+  static isAlarmCreatedEvent(
+    event: ChangeEvent
+  ): event is AlarmCreatedEvent {
+    return event instanceof AlarmCreatedEvent
+  }
 }
 
 export class AlarmArmedEvent extends AbstractChangeEvent {
@@ -38,7 +44,7 @@ export class AlarmArmedEvent extends AbstractChangeEvent {
   ) {
     super(deviceId, alarmId, delta)
   }
-  // TODO: do we need event type assertion methods?
+
   static assertIsAlarmArmedEvent(
     event: ChangeEvent
   ): asserts event is AlarmArmedEvent {

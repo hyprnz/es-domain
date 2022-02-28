@@ -23,12 +23,7 @@ describe('AlarmsProjection', ()=>{
     const alarmId = Uuid.createV4()
     
     const events: Array<EntityEvent> = [
-      {version:0, event:{
-        id: Uuid.createV4(), 
-        entityId:alarmId, 
-        aggregateRootId:aggregateRootId, 
-        eventType: AlarmCreatedEvent.eventType
-      }},                 
+      {version:0, event: new AlarmCreatedEvent(aggregateRootId, aggregateRootId, { alarmId })},                 
     ]
     repository.setup(x => x.find(projectionName, alarmId))
       .returns(()=> Promise.resolve(undefined))
@@ -44,21 +39,8 @@ describe('AlarmsProjection', ()=>{
     const alarmId = Uuid.createV4()
     
     const events = [
-      {version:0, event:{
-        id: Uuid.createV4(), 
-        entityId:alarmId, 
-        aggregateRootId:aggregateRootId, 
-        eventType: AlarmCreatedEvent.eventType
-      }},      
-      
-      {version:1, event:{
-        id: Uuid.createV4(), 
-        entityId:alarmId, 
-        aggregateRootId:aggregateRootId, 
-        eventType: AlarmArmedEvent.eventType, 
-        threshold:10, 
-        isArmed: true
-      }}
+      {version:0, event: new AlarmCreatedEvent(aggregateRootId, aggregateRootId, { alarmId })},                 
+      {version:1, event: new AlarmArmedEvent(aggregateRootId, alarmId, { threshold: 10 })},                 
     ]
     repository.setup(x => x.find(projectionName, alarmId))
       .returns(()=> Promise.resolve(undefined))

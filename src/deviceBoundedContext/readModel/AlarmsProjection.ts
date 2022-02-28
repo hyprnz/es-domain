@@ -1,6 +1,7 @@
 import * as Uuid from '../../EventSourcing/UUID'
 import { AlarmArmedEvent, AlarmCreatedEvent, AlarmDestroyedEvent } from "../events/deviceEvents";
 import { Projection, StaticProjectionEventHandler, makeProjection } from "../../EventSourcing/ReadModelTypes";
+import { ChangeEvent } from '../../EventSourcing/EventSourcingTypes';
 
 export interface CurrentAlarmsProjection extends Projection {
   /** Is alarm active */
@@ -22,6 +23,9 @@ const eventHandlers: Record<string, StaticProjectionEventHandler<CurrentAlarmsPr
   [AlarmDestroyedEvent.eventType]: (state, evt) => { return 'delete' }
 }
 
+function idFactory (event: ChangeEvent): Uuid.UUID {
+  if (AlarmCreatedEvent.isAlarmCreatedEvent(event)) return event.delta.alarmId
+  return event.entityId
+}
 
-
-export const alarmProjectionHandler =  makeProjection<CurrentAlarmsProjection>('alarmProjectionHandler', eventHandlers, defaultValue)
+export const alarmProjectionHandler =  makeProjection<CurrentAlarmsProjection>('alarmProjectionHandler', eventHandlers, defaultValue, idFactory)
