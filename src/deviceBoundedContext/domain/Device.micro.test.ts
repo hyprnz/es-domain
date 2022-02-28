@@ -2,7 +2,7 @@ import { assertThat, match } from 'mismatched'
 import { Device } from '..'
 import * as deviceEvents from "../events/deviceEvents"
 import { AggregateContainer } from '../../EventSourcing/AggregateRoot'
-import { UNINITIALISED_AGGREGATE_VERSION, ChangeEvent, EntityEvent, Entity, Aggregate } from '../../EventSourcing/EventSourcingTypes'
+import { UNINITIALISED_AGGREGATE_VERSION, ChangeEvent, EntityEvent, OldEntity } from '../../EventSourcing/EventSourcingTypes'
 import * as Uuid from '../../EventSourcing/UUID'
 
 describe('Device', () => {
@@ -207,5 +207,5 @@ describe('Device', () => {
     return { event: makeEventMatcher(event), version }
   }
 
-  const makeEntityMatcher = (entity: Entity | Aggregate) => match.obj.has({ id: entity.id })
+  const makeEntityMatcher = (entity: OldEntity) => match.obj.has({ id: entity.id })
 })

@@ -17,15 +17,10 @@ describe("Aggregate", () => {
         const uncommited = personAggregate.uncommittedChanges()
         assertThat(uncommited).is([{
             event: {
-                id: match.any(),
-                entityId: id,
-                aggregateRootId: id,
-                eventType: PersonCreatedEvent.eventType,
-                delta: {
-                    name: "Susan Smith"
-                }
+                ...new PersonCreatedEvent(id, id, { name: "Susan Smith" }),
+                id: match.any()
             },
-            version: match.not(match.number.nan())
+            version: 0
         }])
     })
 
@@ -58,8 +53,20 @@ describe("Aggregate", () => {
         rudolf!.microchip();
 
         const uncommited = personAggregate.uncommittedChanges()
-        assertThat(uncommited[1].event.eventType).is(DogAdoptedEvent.eventType)
-        assertThat(uncommited[2].event.eventType).is(DogMicrochippedEvent.eventType)
+        assertThat(uncommited).is([
+            {
+                event: { ...new PersonCreatedEvent(id, id, { name: "Susan Smith" }), id: match.any() },
+                version: 0
+            },
+            {
+                event: { ...new DogAdoptedEvent(id, id, { dogId: dogId, dogName: "Rudolf" }), id: match.any() },
+                version: 1
+            },
+            {
+                event: { ...new DogMicrochippedEvent(id, dogId), id: match.any() },
+                version: 2
+            },
+        ])
     })
 
     it("Can hydrate a child entity from events", () => {

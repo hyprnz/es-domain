@@ -42,7 +42,7 @@ export class WriteModelMemoryRepository implements WriteModelRepository {
     else this.store.set(aggregateRoot.id, changes)
 
     const lastChange = changes[changes.length-1]
-    aggregateRoot.markChangesAsCommitted( lastChange.version );
+    aggregateRoot.markChangesAsCommitted();
     this.onAfterEventsStored(changes)
     return Promise.resolve(changes.length)
   }

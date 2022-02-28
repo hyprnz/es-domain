@@ -1,15 +1,22 @@
 import { UUID } from './UUID'
 
+export const UNINITIALISED_AGGREGATE_VERSION = -1
+
 export interface Delta {
   [key: string]: any
 }
 
-export interface DomainObject {
-    id: UUID,
-    aggregate: ParentAggregate
+export interface Entity {
+  id: UUID,
+  aggregate: ParentAggregate
 }
 
-export const UNINITIALISED_AGGREGATE_VERSION = -1
+export interface ParentAggregate {
+  id() : UUID,
+  addChangeEvent(event: ChangeEvent): void,
+  registerChildEntity(entity: Entity): void
+}
+
 export interface ChangeEvent
 {
     readonly id: UUID
@@ -27,24 +34,16 @@ export interface EntityEvent
 
 export interface Aggregate {
   readonly id: UUID
-  readonly changeVersion: number
-  
 
   loadFromHistory(events: Array<EntityEvent>): void
   uncommittedChanges(): Array<EntityEvent>
-  markChangesAsCommitted(version: number): void
+  markChangesAsCommitted(): void
 }
 
-export interface Entity {
+export interface OldEntity {
   readonly id: UUID
   applyChangeEvent(event: ChangeEvent): void
 }
 
-
-export interface ParentAggregate {
-  id() : UUID,
-  addChangeEvent(event: ChangeEvent): void,
-  registerAsChildEntity(entity: DomainObject): void
-}
 
 export type StaticEventHandler<E> = (entity: E, evt: ChangeEvent) => void

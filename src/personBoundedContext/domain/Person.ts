@@ -1,10 +1,10 @@
 import { Emits } from '../../EventSourcing/decorators'
-import { ParentAggregate } from '../../EventSourcing/EventSourcingTypes'
+import { Entity, ParentAggregate } from '../../EventSourcing/EventSourcingTypes'
 import { UUID } from '../../EventSourcing/UUID'
 import { DogAdoptedEvent, PersonCreatedEvent } from '../events/personEvents'
 import { Dog } from './Dog';
 
-export class Person {
+export class Person implements Entity {
   private name?: string;
   private isCool?: boolean;
   private dogs: Dog[];
@@ -25,12 +25,12 @@ export class Person {
   }
 
   @Emits(PersonCreatedEvent)
-  private applyCreate(change: { name: string }): void {
+  private applyCreate(data: { name: string }): void {
     // state changes inherent to action/event type
     this.isCool = true
 
-    // `change` contains data specific to this call...
-    this.name = change.name
+    // `data` contains data specific to this call
+    this.name = data.name
   }
 
   @Emits(DogAdoptedEvent)

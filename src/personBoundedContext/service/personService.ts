@@ -14,6 +14,7 @@ export class PersonService {
 
   async onboardPerson(personId: Uuid.UUID): Promise<void> {
     const personAggregate = PersonService.makePersonAggregate(personId)
+    personAggregate.rootEntity.create("Laché", "Melvin")
     await this.writeRepo.save(personAggregate)
   }
 }

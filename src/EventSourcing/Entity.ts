@@ -1,10 +1,10 @@
 import * as Uuid from './UUID'
 import { AggregateError } from './AggregateError'
-import { ChangeEvent, ParentAggregate, Entity } from './EventSourcingTypes'
+import { ChangeEvent, ParentAggregate, OldEntity } from './EventSourcingTypes'
 
 
 
-export abstract class EntityBase implements Entity {
+export abstract class EntityBase implements OldEntity {
   public id: Uuid.UUID
   protected readonly parentId: Uuid.UUID
   // private handlers = new Map<string, { handlers: Array<EventHandler> }>()

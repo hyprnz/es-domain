@@ -1,15 +1,16 @@
 import { UUID } from './UUID'
 import { AggregateError } from './AggregateError'
-import { Delta, DomainObject, EntityEvent, ParentAggregate, UNINITIALISED_AGGREGATE_VERSION } from './EventSourcingTypes'
+import { Delta, EntityEvent, ParentAggregate, UNINITIALISED_AGGREGATE_VERSION, Entity } from './EventSourcingTypes'
 
 export class Aggregate<T extends {id: UUID} = {id: UUID}> {
   id: UUID
   public readonly rootEntity: T 
-  public readonly childEntities = new Set<DomainObject>()
+  private readonly childEntities = new Set<Entity>()
 
   private version: number
   private changes: Array<EntityEvent> = []
-  protected thisAsParent: ParentAggregate 
+
+  private thisAsParent: ParentAggregate 
 
   constructor(id: UUID, makeRootEntity: (id: UUID, aggregate: ParentAggregate)=>T){
     this.id = id
@@ -17,19 +18,22 @@ export class Aggregate<T extends {id: UUID} = {id: UUID}> {
 
     this.thisAsParent = {
       id: () => this.id,
-      addChangeEvent: (evt) => this.changes.push({
-        event:evt, 
-        version: UNINITIALISED_AGGREGATE_VERSION
-      }),
-      registerAsChildEntity: (entity: DomainObject) => { 
+      addChangeEvent: (evt) => {
+        const currentVersion = this.changes.length 
+          ? this.changes[this.changes.length - 1].version
+          : this.version
+        this.changes.push({
+          event:evt, 
+          version: currentVersion + 1
+        })
+      },
+      registerChildEntity: (entity: Entity) => { 
         this.childEntities.add(entity)
       }
     }
 
     this.rootEntity = makeRootEntity(id, this.thisAsParent)
   }
-
-  get changeVersion() : number { return this.version }
 
   loadFromHistory(history: EntityEvent[]): void{
     history.forEach(evt => {
@@ -39,7 +43,6 @@ export class Aggregate<T extends {id: UUID} = {id: UUID}> {
       }
 
       const handler = this.getEventHandler(evt.event.eventType)
-      if(!handler) throw new AggregateError(typeof this,  'Failed to find handler for event type') 
       handler(evt.event.delta)
 
       this.version = evt.version
@@ -47,30 +50,28 @@ export class Aggregate<T extends {id: UUID} = {id: UUID}> {
   }
 
   uncommittedChanges(): EntityEvent[] {
-    // Probably a better way of doing this, must preserve order
-    const uncommited = [...this.changes]
-    uncommited.forEach((e, index) => e.version = this.version + index + 1)
-    return uncommited
+    return [...this.changes]
   }
 
-  markChangesAsCommitted(version: number): void {
+  markChangesAsCommitted(): void {
+    if (!this.changes.length) return
+    this.version = this.changes[this.changes.length - 1].version
     this.changes = []
-    this.version = version
   }
 
   toString(){
-    return `AggregateRoot:${this.id}, Version:${this.changeVersion}`
+    return `AggregateRoot:${this.id}, Version:${this.version}`
   }
 
   private getEventHandler (eventType: string): (delta: Delta) => void {
-    const handler = Reflect.getMetadata(eventType, this.rootEntity)
+    const handler = Reflect.getMetadata(`${eventType}Handler`, this.rootEntity)
     if (handler) return (delta) => handler.call(this.rootEntity, delta)
 
     for (const entity of this.childEntities) {
-      const childHandler = Reflect.getMetadata(eventType, entity)
+      const childHandler = Reflect.getMetadata(`${eventType}Handler`, entity)
       if (childHandler) return (delta) => childHandler.call(entity, delta)
     }
 
-    throw new Error(`Handler not registered for event type ${eventType}`)
+    throw new AggregateError(typeof this, `Failed to find handler for event type: ${eventType}`) 
   }
 }
