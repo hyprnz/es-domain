@@ -16,7 +16,7 @@ const eventHandlers: Record<string, StaticProjectionEventHandler<CurrentAlarmsPr
   [AlarmArmedEvent.eventType]: (state, evt) => {
     AlarmArmedEvent.assertIsAlarmArmedEvent(evt)
     state.isActive = true,
-    state.threshold = evt.threshold
+    state.threshold = evt.delta.threshold
     return 'update'
   },
   [AlarmDestroyedEvent.eventType]: (state, evt) => { return 'delete' }

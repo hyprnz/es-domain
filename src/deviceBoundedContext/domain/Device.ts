@@ -1,78 +1,54 @@
 import { Alarm } from '..'
-import { AggregateError } from '../../EventSourcing/AggregateError'
-import { EntityBase } from '../../EventSourcing/Entity'
-import { ParentAggregate, ChangeEvent, StaticEventHandler } from '../../EventSourcing/EventSourcingTypes'
-import * as Uuid from '../../EventSourcing/UUID'
-import { DeviceCreatedEvent, AlarmCreatedEvent, AlarmDestroyedEvent } from '../events/deviceEvents'
+import { Emits } from '../../EventSourcing/decorators'
+import { ParentAggregate, Entity } from '../../EventSourcing/EventSourcingTypes'
+import { UUID } from '../../EventSourcing/UUID'
+import { DeviceCreatedEvent, AlarmCreatedEvent, AlarmDestroyedEvent, DeviceDomainError } from '../events/deviceEvents'
 
-export class Device extends EntityBase {
-  private alarms: Map<Uuid.UUID, Alarm> = new Map<Uuid.UUID, Alarm>()
-  constructor(parent: ParentAggregate, id?: Uuid.UUID) {  // id?: Uuid.UUID
-    super(parent)
+export class Device implements Entity {
+  private initialised = false;
+  private alarms: Map<UUID, Alarm> = new Map<UUID, Alarm>()
 
-    if (id) {
-      // This is a new object
-      this.applyChange(new DeviceCreatedEvent(this.parentId, id))
-    }
+  constructor(readonly aggregate: ParentAggregate, readonly id: UUID) {}
+
+  @Emits(DeviceCreatedEvent)
+  initialise() {
+    this.initialised = true
   }
 
-  addAlarm(id: Uuid.UUID): Alarm {
-    const alarm = this.alarms.get(id)
+  addAlarm(id: UUID): Alarm {
+    if (!this.initialised) throw new DeviceDomainError(this.aggregate.id(), "Device must be initialised before adding alarms")
+    const alarm = this.findAlarm(id)
     if (alarm) return alarm
-    this.applyChange(new AlarmCreatedEvent(this.parentId, id))
+
+    this.addNewAlarm({ alarmId: id })
     return this.findAlarm(id)!
   }
 
   destroyAlarm(alarm: Alarm): void {
-    const foundAlarm = this.alarms.get(alarm.id)
+    const foundAlarm = this.findAlarm(alarm.id)
     if (!foundAlarm) return
 
-    this.applyChange(new AlarmDestroyedEvent(this.parentId, alarm.id))
+    this.removeAlarm({ alarmId: alarm.id })
   }
 
-  findAlarm(id: Uuid.UUID): Alarm | undefined {
+  findAlarm(id: UUID): Alarm | undefined {
     return this.alarms.get(id)
   }
 
-
-
-  // AggregateRoot performs aggregated actions on its children
   telemetryReceived(value: number): void {
     this.alarms.forEach(x => x.isAlarmTriggered(value))
   }
 
+  @Emits(AlarmCreatedEvent)
+  private addNewAlarm(alarmData: { alarmId: UUID }) {
+    const alarm = new Alarm(this.aggregate, alarmData.alarmId)
+    this.alarms.set(alarm.id, alarm)
+  }
+
+  @Emits(AlarmDestroyedEvent)
+  private removeAlarm(alarmData: { alarmId: UUID }) {
+      this.alarms.delete(alarmData.alarmId)
+  }
+
   toString() { return `DeviceEntity:${this.id}` }
-
-  protected override makeEventHandler(evt: ChangeEvent): (() => void) | undefined {
-    const handlers: Array<() => void> = []
-
-    const handler = Device.eventHandlers[evt.eventType]
-    if (handler) handlers.push(() => handler.forEach(x => x.call(this, this, evt)))
-
-    const child = this.alarms.get(evt.entityId)
-    if (child) handlers.push(() => child.applyChangeEvent(evt))
-
-    return (handlers.length)
-      ? () => { handlers.forEach(x => x()) }
-      : undefined
-  }
-
-  private static readonly eventHandlers: Record<string, Array<StaticEventHandler<Device>>> = {
-    [DeviceCreatedEvent.eventType]: [(device, evt) => device.id = evt.aggregateRootId],
-
-    [AlarmCreatedEvent.eventType]: [(device, evt) => {
-      const alarm = new Alarm(device.parent)
-      alarm.applyChangeEvent(evt)
-      device.alarms.set(alarm.id, alarm)
-    }],
-
-    [AlarmDestroyedEvent.eventType]: [(device, evt) => {
-      const alarmToDelete = device.alarms.get(evt.entityId)
-      if (!alarmToDelete) throw new AggregateError(device.toString(), `Alarm Not Found, Alarm of id:${evt.entityId} missing from Device`)
-
-      device.alarms.delete(alarmToDelete.id)
-      alarmToDelete.applyChangeEvent(evt)
-    }]
-  }
-
 }

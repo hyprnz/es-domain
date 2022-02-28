@@ -1,96 +1,78 @@
-import { ChangeEvent } from "../../EventSourcing/EventSourcingTypes";
-import * as Uuid from "../../EventSourcing/UUID";
+import {
+  AbstractChangeEvent,
+  ChangeEvent,
+} from "../../EventSourcing/EventSourcingTypes";
+import { UUID } from "../../EventSourcing/UUID";
 
-export class DeviceDomainError  extends Error {
-  constructor(public readonly aggregateRootId: Uuid.UUID, message:string){
-    super(message)
-  }
-}
-abstract class AbstractChangeEvent implements ChangeEvent{
-  readonly id: Uuid.UUID;
-  constructor(public eventType:string, public readonly aggregateRootId: Uuid.UUID, readonly entityId: Uuid.UUID){
-    this.id = Uuid.createV4()
+export class DeviceDomainError extends Error {
+  constructor(public readonly aggregateRootId: UUID, message: string) {
+    super(message);
   }
 }
 
-export class DeviceCreatedEvent implements ChangeEvent {
-  static readonly  eventType = 'Device.CreatedEvent'
-  readonly id: Uuid.UUID;
-  readonly eventType : string
+export class DeviceCreatedEvent extends AbstractChangeEvent {
+  static readonly eventType = "Device.CreatedEvent";
+  readonly eventType = DeviceCreatedEvent.eventType;
 
-  constructor(public readonly aggregateRootId: Uuid.UUID, readonly entityId: Uuid.UUID){
-    this.eventType = DeviceCreatedEvent.eventType
-    this.id = Uuid.createV4()
+  constructor(deviceId: UUID) {
+    super(deviceId, deviceId)
   }
 }
 
-export class AlarmCreatedEvent implements ChangeEvent {
-  static readonly  eventType = 'Alarm.CreatedEvent'
-  
-  readonly id: Uuid.UUID;
-  readonly entityId: Uuid.UUID;
-  readonly eventType: string
+export class AlarmCreatedEvent extends AbstractChangeEvent {
+  static readonly eventType = "Alarm.CreatedEvent";
+  readonly eventType = AlarmCreatedEvent.eventType;
 
-  constructor(public readonly aggregateRootId: Uuid.UUID, alarmId: Uuid.UUID){
-    this.eventType =  AlarmCreatedEvent.eventType
-    this.id = Uuid.createV4()
-    this.entityId = alarmId
-  }
-
-  static assertIsAlarmCreatedEvent(event: ChangeEvent): asserts event is AlarmCreatedEvent{
-    if(event instanceof AlarmCreatedEvent) return
-    
-    throw new Error(`Unexpected EventType, Expected EventType: AlarmCreatedEvent, received ${typeof event}` )
+  constructor(deviceId: UUID, entityId: UUID, readonly delta: { alarmId: UUID }) {
+    super(deviceId, deviceId, delta)
   }
 }
 
 export class AlarmArmedEvent extends AbstractChangeEvent {
-  static readonly  eventType = 'Alarm.ArmedEvent'
-  constructor(aggregateRootId: Uuid.UUID, alarmId: Uuid.UUID, public threshold: number){
-    super(AlarmArmedEvent.eventType, aggregateRootId, alarmId)    
-  } 
+  static readonly eventType = "Alarm.ArmedEvent";
+  readonly eventType = AlarmArmedEvent.eventType;
+  constructor(
+    deviceId: UUID,
+    alarmId: UUID,
+    readonly delta: { threshold: number }
+  ) {
+    super(deviceId, alarmId, delta)
+  }
+  // TODO: do we need event type assertion methods?
+  static assertIsAlarmArmedEvent(
+    event: ChangeEvent
+  ): asserts event is AlarmArmedEvent {
+    if (event instanceof AlarmArmedEvent) return;
 
-  static assertIsAlarmArmedEvent(event: ChangeEvent) : asserts event is AlarmArmedEvent{
-    if(event.eventType === AlarmArmedEvent.eventType)  return
-
-    throw new Error(`Unexpected EventType, Expected EventType: AlarmArmedEvent, received ${typeof event}` ) 
+    throw new Error(
+      `Unexpected EventType, Expected EventType: ${AlarmArmedEvent.eventType}, received ${typeof event}`
+    );
   }
 }
-
 
 export class AlarmDisarmedEvent extends AbstractChangeEvent {
-  static readonly  eventType = 'Alarm.DisarmedEvent'
-  
-  constructor(aggregateRootId: Uuid.UUID, alarmId: Uuid.UUID){
-    super(AlarmDisarmedEvent.eventType, aggregateRootId, alarmId)
-  } 
+  static readonly eventType = "Alarm.DisarmedEvent";
+  readonly eventType = AlarmDisarmedEvent.eventType;
 
-  static assertIsAlarmDisarmedEvent(event: ChangeEvent) : asserts event is AlarmDisarmedEvent{
-    if(event instanceof AlarmDisarmedEvent)  return
-
-    throw new Error(`Unexpected EventType, Expected EventType: AlarmDisarmedEvent, received ${typeof event}` ) 
+  constructor(deviceId: UUID, alarmId: UUID) {
+    super(deviceId, alarmId)
   }
 }
 
-
 export class AlarmTriggeredEvent extends AbstractChangeEvent {
-  static readonly  eventType = 'Alarm.Triggered'
-  
-  constructor(aggregateRootId: Uuid.UUID, alarmId: Uuid.UUID){
-    super(AlarmTriggeredEvent.eventType, aggregateRootId, alarmId)
-  } 
+  static readonly eventType = "Alarm.Triggered";
+  readonly eventType = AlarmTriggeredEvent.eventType;
 
-  static assertIsAlarmTriggeredEvent(event: ChangeEvent) : asserts event is AlarmTriggeredEvent{
-    if(event.eventType === AlarmTriggeredEvent.eventType)  return
-
-    throw new Error(`Unexpected EventType, Expected EventType: AlarmTriggeredEvent, received ${typeof event}` ) 
+  constructor(deviceId: UUID, alarmId: UUID) {
+    super(deviceId, alarmId)
   }
 }
 
 export class AlarmDestroyedEvent extends AbstractChangeEvent {
-  static readonly  eventType = 'Alarm.Distroyed'
-  
-  constructor(aggregateRootId: Uuid.UUID, alarmId: Uuid.UUID){
-    super(AlarmDestroyedEvent.eventType, aggregateRootId, alarmId)
-  }   
+  static readonly eventType = "Alarm.Distroyed";
+  readonly eventType = AlarmDestroyedEvent.eventType;
+
+  constructor(deviceId: UUID, entityId: UUID, readonly delta: { alarmId: UUID }) {
+    super(deviceId, deviceId)
+  }
 }

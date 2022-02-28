@@ -1,34 +1,31 @@
 import * as Uuid from '../../EventSourcing/UUID'
-import { EntityBase } from "../../EventSourcing/Entity";
-import { ChangeEvent, ParentAggregate, StaticEventHandler } from "../../EventSourcing/EventSourcingTypes";
-import { AlarmArmedEvent, AlarmCreatedEvent, AlarmDestroyedEvent, AlarmDisarmedEvent, AlarmTriggeredEvent, DeviceDomainError } from "../events/deviceEvents";
+import { Entity, ParentAggregate } from "../../EventSourcing/EventSourcingTypes";
+import { AlarmArmedEvent, AlarmDisarmedEvent, AlarmTriggeredEvent, DeviceDomainError } from "../events/deviceEvents";
+import { ChildEntity, Emits } from '../../EventSourcing/decorators';
 
-export class Alarm extends EntityBase {    
+// TODO: do we want this decorator? replaces registering entity in constructor...
+// @ChildEntity
+export class Alarm implements Entity {    
   private isArmed: boolean = false
   private threshold: number = 0;
   private isTriggered: boolean = false;
 
-  constructor(parent: ParentAggregate, id?: Uuid.UUID){
-    super(parent)
-
-    if(id){
-      // This is a new object
-      this.applyChange(new AlarmCreatedEvent(this.parentId, id))
-    }
+  constructor(readonly aggregate: ParentAggregate, readonly id: Uuid.UUID) {
+    this.aggregate.registerChildEntity(this)
   }
 
   armAlarm(alarmThreshold: number):void {
     if(alarmThreshold < 0 || alarmThreshold > 100) {
-      throw new DeviceDomainError(this.parentId, "Alarm threshold Failed Validation")
+      throw new DeviceDomainError(this.aggregate.id(), "Alarm threshold Failed Validation")
     }
     if(!this.isArmed) {
-      this.applyChange(new AlarmArmedEvent(this.parentId, this.id, alarmThreshold))    
+      this.arm({ threshold: alarmThreshold })
     }
   }
 
-  disarmAlarm():void {
+  disarmAlarm(): void {
     if(this.isArmed){
-      this.applyChange(new AlarmDisarmedEvent(this.parentId, this.id))
+      this.disarm()
     }
   }
 
@@ -36,8 +33,7 @@ export class Alarm extends EntityBase {
     if(value < this.threshold) return false
 
     if(this.isArmed && !this.isTriggered){
-      // Emit trigger event
-      this.applyChange(new AlarmTriggeredEvent(this.parentId, this.id))
+      this.trigger()
     }
     
     return true
@@ -45,26 +41,21 @@ export class Alarm extends EntityBase {
 
   toString() {return  `Alarm:${this.id}`}
 
-  protected override makeEventHandler(evt: ChangeEvent) : (() => void) | undefined {
-    const handlers: Array<()=>void> = []
+  ////// These methods mutate state
 
-    const handler = Alarm.eventHandlers[evt.eventType]
-    if(handler) handlers.push(() => handler.forEach(x => x.call(this, this, evt)))
-    
-    return (handlers.length) 
-    ?  () => {handlers.forEach(x => x())}
-    : undefined
+  @Emits(AlarmArmedEvent)
+  private arm (data: { threshold: number }) {
+    this.isArmed = true
+    this.threshold = data.threshold
   }
-  
-  static readonly eventHandlers: Record<string, Array<StaticEventHandler<Alarm>>> = {
-    [AlarmCreatedEvent.eventType]: [(alarm, evt) => alarm.id = evt.entityId],
-    [AlarmDisarmedEvent.eventType]: [(alarm) => alarm.isArmed = false],
-    [AlarmArmedEvent.eventType]: [(alarm, evt) => {
-      AlarmArmedEvent.assertIsAlarmArmedEvent(evt)
-      alarm.isArmed = true; 
-      alarm.threshold = evt.threshold
-    }],
-    [AlarmTriggeredEvent.eventType]:[(alarm) => alarm.isTriggered = true],
-    [AlarmDestroyedEvent.eventType]:[() => {}]
+
+  @Emits(AlarmDisarmedEvent)
+  private disarm () {
+    this.isArmed = false
+  }
+
+  @Emits(AlarmTriggeredEvent)
+  private trigger () {
+    this.isTriggered = true
   }
 }

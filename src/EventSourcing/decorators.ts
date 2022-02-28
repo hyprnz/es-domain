@@ -1,6 +1,5 @@
 import "reflect-metadata"
-import { AbstractChangeEvent, EventConstructor } from "../personBoundedContext/events/personEvents";
-import { Entity } from "./EventSourcingTypes";
+import { AbstractChangeEvent, Entity, EventConstructor } from "./EventSourcingTypes";
 
 /**
  * 
