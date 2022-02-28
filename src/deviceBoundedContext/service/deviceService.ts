@@ -1,29 +1,30 @@
 import { Device } from "..";
-import { AggregateContainer } from "../../EventSourcing/AggregateRoot";
-import * as Uuid from "../../EventSourcing/UUID";
+import { Aggregate } from "../../EventSourcing/Aggregate";
+import { UUID } from "../../EventSourcing/UUID";
 import { WriteModelRepository } from "../../WriteModelRepository/WriteModelRepositoryTypes";
 
 export class DeviceService {
   constructor(private writeRepo: WriteModelRepository) { }
 
-  private static deviceAggregateFactory = (deviceId: Uuid.UUID)=> new AggregateContainer<Device>(      
-    (p, id) => new Device(p, id),
+  private static deviceAggregateFactory = (deviceId: UUID)=> new Aggregate<Device>(      
     deviceId, 
+    (id, parentAggregate) => new Device(parentAggregate, id),
   )
 
-  async addNewDeviceToNetwork(deviceId: Uuid.UUID): Promise<void> {
-    const aggregate = DeviceService.deviceAggregateFactory(deviceId) 
-    await this.writeRepo.save(aggregate)        
+  async addNewDeviceToNetwork(deviceId: UUID): Promise<void> {
+    const deviceAggregate = DeviceService.deviceAggregateFactory(deviceId) 
+    deviceAggregate.rootEntity.initialise()
+    await this.writeRepo.save(deviceAggregate)        
   }
 
-  async addDeviceAlarm(deviceId: Uuid.UUID, alarmId: Uuid.UUID): Promise<void> {
+  async addDeviceAlarm(deviceId: UUID, alarmId: UUID): Promise<void> {
 
     const aggregate = await this.writeRepo.load(deviceId, DeviceService.deviceAggregateFactory)
     aggregate.rootEntity.addAlarm(alarmId)
     await this.writeRepo.save(aggregate)        
   }
  
-  async removeDeviceAlarm(deviceId: Uuid.UUID, alarmId: Uuid.UUID): Promise<void> {
+  async removeDeviceAlarm(deviceId: UUID, alarmId: UUID): Promise<void> {
     const aggregate = await this.writeRepo.load(deviceId, DeviceService.deviceAggregateFactory)
     
     const alarm = aggregate.rootEntity.findAlarm(alarmId)
