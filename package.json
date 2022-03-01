@@ -1,5 +1,5 @@
 {
-  "name": "@p8/es-domain",
+  "name": "es-domain",
   "version": "0.0.0",
   "private": false,
   "type": "commonjs",
