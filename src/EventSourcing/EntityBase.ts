@@ -6,13 +6,12 @@ import { ChangeEvent, ParentAggregate, Entity } from './EventSourcingTypes'
 
 export abstract class EntityBase implements Entity {
   public id: Uuid.UUID
-  protected readonly parentId: Uuid.UUID
+  protected get parentId() {return this.parent.id()}
   // private handlers = new Map<string, { handlers: Array<EventHandler> }>()
 
   constructor(protected parent: ParentAggregate) {
     // Uninitialised Entity, we are going to load an exisitng 
     this.id = Uuid.EmptyUUID
-    this.parentId = parent.id()
   }
 
   applyChangeEvent(evt: ChangeEvent): void {
