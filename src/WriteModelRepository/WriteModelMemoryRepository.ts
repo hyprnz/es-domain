@@ -3,12 +3,12 @@ import EventEmitter from "events";
 import { Aggregate, EntityEvent } from "../EventSourcing/EventSourcingTypes";
 import { UUID } from "../EventSourcing/UUID";
 import { WriteModelrRepositoryError as WriteModelRepositoryError } from "./WriteModelRepositoryError";
-import { WriteModelRepositroy } from '../EventSourcing/WriteModelTypes';
+import { WriteModelRepository } from '../EventSourcing/WriteModelTypes';
 
 
 
 
-export class WriteModelMemoryRepository implements WriteModelRepositroy {
+export class WriteModelMemoryRepository implements WriteModelRepository {
   private readonly eventEmitter = new EventEmitter();
   private readonly store = new Map<UUID, Array<EntityEvent>>()
 

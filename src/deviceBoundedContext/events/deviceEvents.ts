@@ -38,7 +38,7 @@ export class AlarmCreatedEvent implements ChangeEvent {
   }
 
   static assertIsAlarmCreatedEvent(event: ChangeEvent): asserts event is AlarmCreatedEvent{
-    if(event instanceof AlarmCreatedEvent) return
+    if(event.eventType === AlarmCreatedEvent.eventType) return
     
     throw new Error(`Unexpected EventType, Expected EventType: AlarmCreatedEvent, received ${typeof event}` )
   }
@@ -66,7 +66,7 @@ export class AlarmDisarmedEvent extends AbstractChangeEvent {
   } 
 
   static assertIsAlarmDisarmedEvent(event: ChangeEvent) : asserts event is AlarmDisarmedEvent{
-    if(event instanceof AlarmDisarmedEvent)  return
+    if(event.eventType ===  AlarmDisarmedEvent.eventType)  return
 
     throw new Error(`Unexpected EventType, Expected EventType: AlarmDisarmedEvent, received ${typeof event}` ) 
   }
