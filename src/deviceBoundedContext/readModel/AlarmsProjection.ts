@@ -1,5 +1,5 @@
 import * as Uuid from '../../EventSourcing/UUID'
-import { AlarmArmedEvent, AlarmCreatedEvent, AlarmDestroyedEvent } from "../events/deviceEvents";
+import { AlarmArmedEvent, AlarmCreatedEvent, AlarmDestroyedEvent } from "../events";
 import { Projection, StaticProjectionEventHandler, makeProjection } from "../../EventSourcing/ReadModelTypes";
 import { ChangeEvent } from '../../EventSourcing/EventSourcingTypes';
 
@@ -17,14 +17,14 @@ const eventHandlers: Record<string, StaticProjectionEventHandler<CurrentAlarmsPr
   [AlarmArmedEvent.eventType]: (state, evt) => {
     AlarmArmedEvent.assertIsAlarmArmedEvent(evt)
     state.isActive = true,
-    state.threshold = evt.delta.threshold
+    state.threshold = evt.payload.threshold
     return 'update'
   },
   [AlarmDestroyedEvent.eventType]: (state, evt) => { return 'delete' }
 }
 
 function idFactory (event: ChangeEvent): Uuid.UUID {
-  if (AlarmCreatedEvent.isAlarmCreatedEvent(event)) return event.delta.alarmId
+  if (AlarmCreatedEvent.isAlarmCreatedEvent(event)) return event.payload.alarmId
   return event.entityId
 }
 

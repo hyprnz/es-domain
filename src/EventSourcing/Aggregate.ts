@@ -1,6 +1,6 @@
 import { UUID } from './UUID'
 import { AggregateError } from './AggregateError'
-import { Delta, EntityEvent, ParentAggregate, UNINITIALISED_AGGREGATE_VERSION, Entity } from './EventSourcingTypes'
+import { Payload, EntityEvent, ParentAggregate, UNINITIALISED_AGGREGATE_VERSION, Entity } from './EventSourcingTypes'
 
 export class Aggregate<T extends {id: UUID} = {id: UUID}> {
   id: UUID
@@ -43,7 +43,7 @@ export class Aggregate<T extends {id: UUID} = {id: UUID}> {
       }
 
       const handler = this.getEventHandler(evt.event.eventType)
-      handler(evt.event.delta)
+      handler(evt.event.payload)
 
       this.version = evt.version
     })
@@ -63,7 +63,7 @@ export class Aggregate<T extends {id: UUID} = {id: UUID}> {
     return `AggregateRoot:${this.id}, Version:${this.version}`
   }
 
-  private getEventHandler (eventType: string): (delta: Delta) => void {
+  private getEventHandler (eventType: string): (delta: Payload) => void {
     const handler = Reflect.getMetadata(`${eventType}Handler`, this.rootEntity)
     if (handler) return (delta) => handler.call(this.rootEntity, delta)
 

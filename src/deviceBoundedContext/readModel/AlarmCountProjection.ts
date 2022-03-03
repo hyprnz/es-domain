@@ -1,7 +1,6 @@
 import * as Uuid from '../../EventSourcing/UUID'
-import { AlarmCreatedEvent, AlarmDestroyedEvent } from '../events/deviceEvents'
-import { ChangeEvent, EntityEvent, StaticEventHandler } from '../../EventSourcing/EventSourcingTypes'
-import { calculateNextAction, Projection, ReadModelRepository, ProjectionRow, StaticProjectionEventHandler, persistReadModelState, makeProjection } from '../../EventSourcing/ReadModelTypes'
+import { AlarmCreatedEvent, AlarmDestroyedEvent } from '../events'
+import { Projection, StaticProjectionEventHandler, makeProjection } from '../../EventSourcing/ReadModelTypes'
 
 export interface AlarmCountProjection extends Projection {
   /** Count of all devices that have ever been */

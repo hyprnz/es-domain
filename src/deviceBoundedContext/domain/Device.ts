@@ -2,7 +2,8 @@ import { Alarm } from '..'
 import { Emits } from '../../EventSourcing/decorators'
 import { ParentAggregate, Entity } from '../../EventSourcing/EventSourcingTypes'
 import { UUID } from '../../EventSourcing/UUID'
-import { DeviceCreatedEvent, AlarmCreatedEvent, AlarmDestroyedEvent, DeviceDomainError } from '../events/deviceEvents'
+import { DeviceCreatedEvent, AlarmCreatedEvent, AlarmDestroyedEvent, CreateAlarmPayload } from '../events'
+import { DeviceDomainError } from './DeviceDomainError'
 
 export class Device implements Entity {
   private initialised = false;
@@ -40,14 +41,14 @@ export class Device implements Entity {
   }
 
   @Emits(AlarmCreatedEvent)
-  private addNewAlarm(alarmData: { alarmId: UUID }) {
-    const alarm = new Alarm(this.aggregate, alarmData.alarmId)
+  private addNewAlarm(data: CreateAlarmPayload) {
+    const alarm = new Alarm(this.aggregate, data.alarmId)
     this.alarms.set(alarm.id, alarm)
   }
 
   @Emits(AlarmDestroyedEvent)
-  private removeAlarm(alarmData: { alarmId: UUID }) {
-      this.alarms.delete(alarmData.alarmId)
+  private removeAlarm(data: { alarmId: UUID }) {
+      this.alarms.delete(data.alarmId)
   }
 
   toString() { return `DeviceEntity:${this.id}` }

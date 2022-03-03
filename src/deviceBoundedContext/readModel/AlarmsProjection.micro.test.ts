@@ -2,7 +2,7 @@ import * as Uuid from '../../EventSourcing/UUID'
 import { Thespian, TMocked } from 'thespian'
 import { ReadModelRepository } from "../../EventSourcing/ReadModelTypes"
 import { alarmProjectionHandler } from "./AlarmsProjection"
-import { AlarmArmedEvent, AlarmCreatedEvent } from '../events/deviceEvents'
+import { AlarmArmedEvent, AlarmCreatedEvent } from '../events'
 import { EntityEvent } from '../../EventSourcing/EventSourcingTypes'
 
 

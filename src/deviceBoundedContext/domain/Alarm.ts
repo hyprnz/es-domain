@@ -1,6 +1,7 @@
 import * as Uuid from '../../EventSourcing/UUID'
 import { Entity, ParentAggregate } from "../../EventSourcing/EventSourcingTypes";
-import { AlarmArmedEvent, AlarmDisarmedEvent, AlarmTriggeredEvent, DeviceDomainError } from "../events/deviceEvents";
+import { AlarmArmedEvent, AlarmDisarmedEvent, AlarmTriggeredEvent } from "../events";
+import { DeviceDomainError } from "./DeviceDomainError";
 import { ChildEntity, Emits } from '../../EventSourcing/decorators';
 
 // TODO: do we want this decorator? replaces registering entity in constructor...

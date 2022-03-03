@@ -5,7 +5,7 @@ import {
   AlarmCreatedEvent,
   AlarmDestroyedEvent,
   DeviceCreatedEvent,
-} from "../deviceBoundedContext/events/deviceEvents";
+} from "../deviceBoundedContext/events";
 import { Aggregate } from "./Aggregate";
 import { ParentAggregate } from "./EventSourcingTypes";
 import { createV4, UUID } from "./UUID";
