@@ -12,7 +12,7 @@ describe("WriteModelMemoryRepository", ()=>{
     const alarmId = Uuid.createV4()
     const writeModelRepo: WriteModelRepository = new WriteModelMemoryRepository()
 
-    const deviceAggregate = new Aggregate<Device>(deviceId, (id, p) => new Device(p, id))
+    const deviceAggregate = new Aggregate(deviceId, (id, p) => new Device(p, id))
     deviceAggregate.rootEntity.initialise()
     deviceAggregate.rootEntity.addAlarm(alarmId)
 
@@ -33,7 +33,7 @@ describe("WriteModelMemoryRepository", ()=>{
     const alarmId = Uuid.createV4()
     const writeModelRepo: WriteModelRepository = new WriteModelMemoryRepository()
 
-    const deviceAggregate = new Aggregate<Device>(
+    const deviceAggregate = new Aggregate(
       deviceId,
       (id, p) => new Device(p,id)
     )
@@ -57,7 +57,7 @@ describe("WriteModelMemoryRepository", ()=>{
     const alarmId = Uuid.createV4()
     const writeModelRepo: WriteModelRepository = new WriteModelMemoryRepository()
 
-    const deviceAggregate = new Aggregate<Device>(deviceId,(id, p) => new Device(p,id))
+    const deviceAggregate = new Aggregate(deviceId,(id, p) => new Device(p,id))
 
     const device = deviceAggregate.rootEntity
     device.initialise()
@@ -68,7 +68,7 @@ describe("WriteModelMemoryRepository", ()=>{
 
     const anotherDeviceAggregateInstance = await writeModelRepo.load(
       deviceId,
-      (id) => new Aggregate<Device>(deviceId, (id, p) => new Device(p,id)),       
+      (id) => new Aggregate(deviceId, (id, p) => new Device(p,id)),
     )
     const anotherDevice = anotherDeviceAggregateInstance.rootEntity
     anotherDevice.initialise()

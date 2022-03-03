@@ -2,7 +2,7 @@ import { UUID } from './UUID'
 import { AggregateError } from './AggregateError'
 import { Payload, EntityEvent, ParentAggregate, UNINITIALISED_AGGREGATE_VERSION, Entity } from './EventSourcingTypes'
 
-export class Aggregate<T extends {id: UUID} = {id: UUID}> {
+export class Aggregate<T extends Entity> {
   id: UUID
   public readonly rootEntity: T 
   private readonly childEntities = new Set<Entity>()

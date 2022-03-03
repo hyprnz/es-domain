@@ -6,7 +6,7 @@ import { WriteModelRepository } from "../../WriteModelRepository/WriteModelRepos
 export class DeviceService {
   constructor(private writeRepo: WriteModelRepository) { }
 
-  private static deviceAggregateFactory = (deviceId: UUID)=> new Aggregate<Device>(      
+  private static deviceAggregateFactory = (deviceId: UUID)=> new Aggregate(
     deviceId, 
     (id, parentAggregate) => new Device(parentAggregate, id),
   )
