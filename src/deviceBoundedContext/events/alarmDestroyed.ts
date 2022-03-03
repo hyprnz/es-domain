@@ -8,7 +8,7 @@ export interface DestroyAlarmPayload {
 export class AlarmDestroyedEvent extends AbstractChangeEvent {
   static readonly eventType = "Alarm.Distroyed";
 
-  override payload: DestroyAlarmPayload;
+  readonly payload: DestroyAlarmPayload;
 
   constructor(
     deviceId: UUID,

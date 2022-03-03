@@ -1,6 +1,6 @@
 import * as Uuid from '../../EventSourcing/UUID'
 import { Entity, ParentAggregate } from "../../EventSourcing/EventSourcingTypes";
-import { AlarmArmedEvent, AlarmDisarmedEvent, AlarmTriggeredEvent } from "../events";
+import { AlarmArmedEvent, AlarmDisarmedEvent, AlarmTriggeredEvent, ArmAlarmPayload } from "../events";
 import { DeviceDomainError } from "./DeviceDomainError";
 import { ChildEntity, Emits } from '../../EventSourcing/decorators';
 
@@ -45,7 +45,7 @@ export class Alarm implements Entity {
   ////// These methods mutate state
 
   @Emits(AlarmArmedEvent)
-  private arm (data: { threshold: number }) {
+  private arm (data: ArmAlarmPayload) {
     this.isArmed = true
     this.threshold = data.threshold
   }

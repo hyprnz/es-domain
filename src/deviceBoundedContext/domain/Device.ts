@@ -2,7 +2,7 @@ import { Alarm } from '..'
 import { Emits } from '../../EventSourcing/decorators'
 import { ParentAggregate, Entity } from '../../EventSourcing/EventSourcingTypes'
 import { UUID } from '../../EventSourcing/UUID'
-import { DeviceCreatedEvent, AlarmCreatedEvent, AlarmDestroyedEvent, CreateAlarmPayload } from '../events'
+import { DeviceCreatedEvent, AlarmCreatedEvent, AlarmDestroyedEvent, CreateAlarmPayload, DestroyAlarmPayload } from '../events'
 import { DeviceDomainError } from './DeviceDomainError'
 
 export class Device implements Entity {
@@ -47,7 +47,7 @@ export class Device implements Entity {
   }
 
   @Emits(AlarmDestroyedEvent)
-  private removeAlarm(data: { alarmId: UUID }) {
+  private removeAlarm(data: DestroyAlarmPayload) {
       this.alarms.delete(data.alarmId)
   }
 

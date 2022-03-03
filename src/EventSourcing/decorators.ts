@@ -33,7 +33,7 @@ export const Emits = <E extends AbstractChangeEvent>(ChangeEvent: ChangeEventCon
             originalMethod,
             entity
         )
-        descriptor.value = function (this: Entity, payload: E["payload"] = {}) {
+        descriptor.value = function (this: Entity, payload: E["payload"]) {
             originalMethod.call(this, payload);
             this.aggregate.addChangeEvent(new ChangeEvent(this.aggregate.id(), this.id, payload));
         }
