@@ -7,28 +7,19 @@ export class DeviceDomainError  extends Error {
     super(message)
   }
 }
-export class DeviceCreatedEvent implements ChangeEvent {
+export class DeviceCreatedEvent extends AbstractChangeEvent {
   static readonly  eventType = 'Device.CreatedEvent'
-  readonly id: Uuid.UUID;
-  readonly eventType : string
 
-  constructor(public readonly aggregateRootId: Uuid.UUID, readonly entityId: Uuid.UUID){
-    this.eventType = DeviceCreatedEvent.eventType
-    this.id = Uuid.createV4()
+  constructor(aggregateRootId: Uuid.UUID, entityId: Uuid.UUID){
+    super(DeviceCreatedEvent.eventType, aggregateRootId, entityId)    
   }
 }
 
-export class AlarmCreatedEvent implements ChangeEvent {
+export class AlarmCreatedEvent extends AbstractChangeEvent {
   static readonly  eventType = 'Alarm.CreatedEvent'
-  
-  readonly id: Uuid.UUID;
-  readonly entityId: Uuid.UUID;
-  readonly eventType: string
 
-  constructor(public readonly aggregateRootId: Uuid.UUID, alarmId: Uuid.UUID){
-    this.eventType =  AlarmCreatedEvent.eventType
-    this.id = Uuid.createV4()
-    this.entityId = alarmId
+  constructor(aggregateRootId: Uuid.UUID, alarmId: Uuid.UUID){
+    super(AlarmCreatedEvent.eventType, aggregateRootId, alarmId)    
   }
 
   static assertIsAlarmCreatedEvent(event: ChangeEvent): asserts event is AlarmCreatedEvent{

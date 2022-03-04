@@ -12,7 +12,7 @@ describe("WriteModelMemoryRepository", ()=>{
     const alarmId = Uuid.createV4()
     const writeModelRepo: WriteModelRepository = new WriteModelMemoryRepository()
 
-    const deviceAggregate = new AggregateContainer<Device>((p,id) => new Device(p,id), deviceId)
+    const deviceAggregate = new AggregateContainer(Device, deviceId)
     deviceAggregate.rootEntity.addAlarm(alarmId)
 
     const uncomittedEvents = deviceAggregate.uncommittedChanges()
@@ -32,10 +32,7 @@ describe("WriteModelMemoryRepository", ()=>{
     const alarmId = Uuid.createV4()
     const writeModelRepo: WriteModelRepository = new WriteModelMemoryRepository()
 
-    const deviceAggregate = new AggregateContainer<Device>(
-      (p,id) => new Device(p,id),
-      deviceId
-    )
+    const deviceAggregate = new AggregateContainer(Device, deviceId)
 
     const device = deviceAggregate.rootEntity
     device.addAlarm(alarmId)
@@ -55,7 +52,7 @@ describe("WriteModelMemoryRepository", ()=>{
     const alarmId = Uuid.createV4()
     const writeModelRepo: WriteModelRepository = new WriteModelMemoryRepository()
 
-    const deviceAggregate = new AggregateContainer<Device>((p,id) => new Device(p,id), deviceId)
+    const deviceAggregate = new AggregateContainer(Device, deviceId)
 
     const device = deviceAggregate.rootEntity
     device.addAlarm(alarmId)
@@ -65,7 +62,7 @@ describe("WriteModelMemoryRepository", ()=>{
 
     const anotherDeviceAggregate = await writeModelRepo.load(
       deviceId,
-      (id) => new AggregateContainer<Device>((p,id) => new Device(p,id)),       
+      (id) => new AggregateContainer(Device),       
     )
     const anotherDevice = anotherDeviceAggregate.rootEntity
 
@@ -80,10 +77,3 @@ describe("WriteModelMemoryRepository", ()=>{
       )
   })
 })
-
-const payload = {} as any
-
-const newState = Object.keys(payload).reduce((state, key) =>{
-  state[key] = payload[key]
-  return state
-}, {} as any);

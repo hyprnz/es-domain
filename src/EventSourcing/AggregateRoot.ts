@@ -1,6 +1,6 @@
 import * as Uuid from './UUID'
 import { AggregateError } from './AggregateError'
-import { ChangeEvent, Aggregate, EntityEvent, ParentAggregate, UNINITIALISED_AGGREGATE_VERSION } from './EventSourcingTypes'
+import { ChangeEvent, Aggregate, EntityEvent, ParentAggregate, UNINITIALISED_AGGREGATE_VERSION, EntityContructor } from './EventSourcingTypes'
 import { EntityBase } from './EntityBase'
 
 
@@ -92,10 +92,10 @@ export abstract class AggregateRootBase implements Aggregate {
 export class AggregateContainer<T extends EntityBase> extends AggregateRootBase {
   public readonly rootEntity: T 
 
-  constructor(activator: (parent: ParentAggregate, id?:Uuid.UUID)=>T, id?:Uuid.UUID){
+  constructor(activator: EntityContructor<T>, id?:Uuid.UUID){  
     super()
     if(id) this.id = id
-    this.rootEntity = activator(this.thisAsParent, id)
+    this.rootEntity = new activator(this.thisAsParent, id)
   }
 
   protected makeEventHandler(evt: ChangeEvent): (() => void) | undefined {

@@ -34,9 +34,6 @@ export class Device extends EntityBase {
     return this.alarms.get(id)
   }
 
-
-
-  // AggregateRoot performs aggregated actions on its children
   telemetryReceived(value: number): void {
     this.alarms.forEach(x => x.isAlarmTriggered(value))
   }
