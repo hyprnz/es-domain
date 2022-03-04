@@ -1,5 +1,5 @@
 {
-  "name": "es-domain",
+  "name": "@hypr/es-domain",
   "version": "0.0.0",
   "private": false,
   "type": "commonjs",
