@@ -1,7 +1,6 @@
 {
   "name": "@hyprnz/es-domain",
   "version": "0.0.1-alpha",
-  "private": true,
   "type": "commonjs",
   "author": {
     "name": "Blair Jacobs"
