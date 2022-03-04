@@ -1,6 +1,12 @@
 import * as Uuid from './UUID'
 
 export const UNINITIALISED_AGGREGATE_VERSION = -1
+
+export interface Message {
+  readonly id: Uuid.UUID
+  readonly correlationId: Uuid.UUID,
+  readonly causationId: Uuid.UUID,
+}
 export interface ChangeEvent
 {
     readonly id: Uuid.UUID
@@ -30,7 +36,9 @@ export interface Entity {
   applyChangeEvent(event: ChangeEvent): void
 }
 
-
+export interface EntityContructor<T extends Entity>{
+  new (parent: ParentAggregate, id?: Uuid.UUID): T
+}
 export interface ParentAggregate {
   id() : Uuid.UUID,
   addChangeEvent(event: ChangeEvent): void

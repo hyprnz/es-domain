@@ -1,3 +1,4 @@
+import { AbstractChangeEvent } from "../../EventSourcing/AbstractChangeEvent";
 import { ChangeEvent } from "../../EventSourcing/EventSourcingTypes";
 import * as Uuid from "../../EventSourcing/UUID";
 
@@ -6,13 +7,6 @@ export class DeviceDomainError  extends Error {
     super(message)
   }
 }
-abstract class AbstractChangeEvent implements ChangeEvent{
-  readonly id: Uuid.UUID;
-  constructor(public eventType:string, public readonly aggregateRootId: Uuid.UUID, readonly entityId: Uuid.UUID){
-    this.id = Uuid.createV4()
-  }
-}
-
 export class DeviceCreatedEvent implements ChangeEvent {
   static readonly  eventType = 'Device.CreatedEvent'
   readonly id: Uuid.UUID;

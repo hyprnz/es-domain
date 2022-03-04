@@ -5,6 +5,8 @@ export {
   ChangeEvent, 
   Entity, 
   EntityEvent, 
+  EntityContructor,
+  Message,
   ParentAggregate,
   StaticEventHandler
 } from './EventSourcing/EventSourcingTypes'
@@ -12,7 +14,7 @@ export {
 export {WriteModelRepository} from './EventSourcing/WriteModelTypes'
 
 export {
-  makeProjection, 
+  makeProjection,   
   Projection,
   ProjectionRow,
   ProjectionAction,
@@ -24,6 +26,7 @@ export {
 
 
 export {EntityBase} from './EventSourcing/EntityBase'
+export {AbstractChangeEvent} from './EventSourcing/AbstractChangeEvent'
 export {AggregateContainer} from './EventSourcing/AggregateRoot'
 
 export * as example from './deviceBoundedContext';
