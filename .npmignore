@@ -1,0 +1,10 @@
+src/
+ci/
+deviceBoundedContext/
+junit.xml
+tsconfig.tsbuildinfo
+
+*.tgz
+*.json
+jest.config*
+.git*

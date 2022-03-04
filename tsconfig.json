@@ -4,9 +4,7 @@
     "outDir": "./dist",
     "rootDir": "."
   },
-  "exclude": [
-    "./dist",
-    "./node_modules", 
-    "local.env.ts",
+  "include": [
+    "./src",
   ],  
 }

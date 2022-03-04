@@ -108,3 +108,5 @@ build
 artifacts
 package-lock.json
 junit.xml
+*.gtz
+tsconfig.tsbuildinfo
