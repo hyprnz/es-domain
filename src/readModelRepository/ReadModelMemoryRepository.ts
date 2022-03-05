@@ -1,5 +1,6 @@
-import { Projection, ReadModelRepository } from "../eventSourcing/ReadModelTypes";
+import { Projection} from "./Projection";
 import { UUID } from "../eventSourcing/UUID";
+import {ReadModelRepository} from "./ReadModelRepository";
 
 export class ReadModelMemoryRepository implements ReadModelRepository{
   private readonly store: Record<string, Map<UUID, string>> =  {}

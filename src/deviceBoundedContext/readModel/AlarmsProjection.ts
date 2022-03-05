@@ -1,6 +1,6 @@
 import * as Uuid from '../../eventSourcing/UUID'
-import { AlarmArmedEvent, AlarmCreatedEvent, AlarmDestroyedEvent } from "../events/deviceEvents";
-import { Projection, StaticProjectionEventHandler, makeProjection } from "../../eventSourcing/ReadModelTypes";
+import { AlarmArmedEvent, AlarmCreatedEvent, AlarmDestroyedEvent } from "../events/DeviceEvents";
+import { Projection, StaticProjectionEventHandler, makeProjection } from "../../readModelRepository/Projection";
 
 export interface CurrentAlarmsProjection extends Projection {
   /** Is alarm active */

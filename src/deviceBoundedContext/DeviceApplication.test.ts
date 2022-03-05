@@ -4,7 +4,7 @@ import { EntityEvent } from "../eventSourcing/MessageTypes";
 import { ReadModelMemoryRepository } from "../readModelRepository/ReadModelMemoryRepository";
 import { WriteModelMemoryRepository } from "../writeModelRepository/WriteModelMemoryRepository";
 import { allAlarmCountProjection, deviceAlarmCountProjection } from "./readModel/AlarmCountProjection";
-import { DeviceService } from "./service/deviceService";
+import { DeviceService } from "./service/DeviceService";
 import { alarmProjectionHandler } from '.';
 
 

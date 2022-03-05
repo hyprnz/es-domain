@@ -1,79 +1,83 @@
 import * as Uuid from '../eventSourcing/UUID'
-import { WriteModelMemoryRepository } from './WriteModelMemoryRepository'
-import { assertThat, match } from 'mismatched'
-import { EntityEvent } from '../eventSourcing/MessageTypes'
-import { AggregateContainer } from '../eventSourcing/AggregateRootBase'
-import { Device } from '../deviceBoundedContext'
-import { WriteModelRepository } from './WriteModelRepository'
-describe("WriteModelMemoryRepository", ()=>{
+import {WriteModelMemoryRepository} from './WriteModelMemoryRepository'
+import {assertThat, match} from 'mismatched'
+import {EntityEvent} from '../eventSourcing/MessageTypes'
+import {AggregateContainer} from '../eventSourcing/AggregateRootBase'
+import {Device} from '../deviceBoundedContext'
+import {WriteModelRepository} from './WriteModelRepository'
+import {OptimisticConcurrencyError} from "./OptimisticConcurrencyError";
 
-  it("stores events", async ()=>{
-    const deviceId = Uuid.createV4()
-    const alarmId = Uuid.createV4()
-    const writeModelRepo: WriteModelRepository = new WriteModelMemoryRepository()
+describe("WriteModelMemoryRepository", () => {
 
-    const deviceAggregate = new AggregateContainer(Device, deviceId)
-    deviceAggregate.rootEntity.addAlarm(alarmId)
+    it("stores events", async () => {
+        const deviceId = Uuid.createV4()
+        const alarmId = Uuid.createV4()
+        const writeModelRepo: WriteModelRepository = new WriteModelMemoryRepository()
 
-    const uncomittedEvents = deviceAggregate.uncommittedChanges()
-    
-    const emittedEvents: Array<EntityEvent> = []
-    writeModelRepo.subscribeToChanges(changes => changes.forEach(x => emittedEvents.push(x)))
-    
-    const countEvents = await writeModelRepo.save(deviceAggregate)
+        const deviceAggregate = new AggregateContainer(Device, deviceId)
+        deviceAggregate.rootEntity.addAlarm(alarmId)
 
-    assertThat(countEvents).withMessage("Stored Event count").is(2)
-    assertThat(emittedEvents).withMessage("Emitted Events").is(match.array.length(2))
-    assertThat(uncomittedEvents).is(emittedEvents)
-  })
+        const uncomittedEvents = deviceAggregate.uncommittedChanges()
 
-  it("loads events", async ()=>{
-    const deviceId = Uuid.createV4()
-    const alarmId = Uuid.createV4()
-    const writeModelRepo: WriteModelRepository = new WriteModelMemoryRepository()
+        const emittedEvents: Array<EntityEvent> = []
+        writeModelRepo.subscribeToChanges(changes => changes.forEach(x => emittedEvents.push(x)))
 
-    const deviceAggregate = new AggregateContainer(Device, deviceId)
+        const countEvents = await writeModelRepo.save(deviceAggregate)
 
-    const device = deviceAggregate.rootEntity
-    device.addAlarm(alarmId)
+        assertThat(countEvents).withMessage("Stored Event count").is(2)
+        assertThat(emittedEvents).withMessage("Emitted Events").is(match.array.length(2))
+        assertThat(uncomittedEvents).is(emittedEvents)
+    })
 
-    const uncomittedEvents = deviceAggregate.uncommittedChanges()
-    writeModelRepo.save(deviceAggregate)
-    
-    // Compare Saved event to loaded make sure they are thesame
-    const loadedEvents = await writeModelRepo.loadEvents(deviceId)
-    
-    assertThat(uncomittedEvents).is(loadedEvents)
-    assertThat(loadedEvents).is(match.array.length(2))
-  })
+    it("loads events", async () => {
+        const deviceId = Uuid.createV4()
+        const alarmId = Uuid.createV4()
+        const writeModelRepo: WriteModelRepository = new WriteModelMemoryRepository()
 
-  it('detects concurrency', async()=>{
-    const deviceId = Uuid.createV4()
-    const alarmId = Uuid.createV4()
-    const writeModelRepo: WriteModelRepository = new WriteModelMemoryRepository()
+        const deviceAggregate = new AggregateContainer(Device, deviceId)
 
-    const deviceAggregate = new AggregateContainer(Device, deviceId)
+        const device = deviceAggregate.rootEntity
+        device.addAlarm(alarmId)
 
-    const device = deviceAggregate.rootEntity
-    device.addAlarm(alarmId)
+        const uncomittedEvents = deviceAggregate.uncommittedChanges()
+        writeModelRepo.save(deviceAggregate)
 
-    writeModelRepo.save(deviceAggregate)
+        // Compare Saved event to loaded make sure they are thesame
+        const loadedEvents = await writeModelRepo.loadEvents(deviceId)
 
+        assertThat(uncomittedEvents).is(loadedEvents)
+        assertThat(loadedEvents).is(match.array.length(2))
+    })
 
-    const anotherDeviceAggregate = await writeModelRepo.load(
-      deviceId,
-      (id) => new AggregateContainer(Device),       
-    )
-    const anotherDevice = anotherDeviceAggregate.rootEntity
+    it('detects concurrency issue', async () => {
+        const deviceId = Uuid.createV4()
+        const alarmId = Uuid.createV4()
+        const writeModelRepo: WriteModelRepository = new WriteModelMemoryRepository()
 
-    device.addAlarm(Uuid.createV4())
-    anotherDevice.addAlarm(Uuid.createV4())
+        const deviceAggregate = new AggregateContainer(Device, deviceId)
 
-    await writeModelRepo.save(deviceAggregate)
-    await writeModelRepo.save(anotherDeviceAggregate)
-      .then(
-        () => fail("Expected and Optimistic concurrency error here!!"),
-        e => assertThat(e.message).is(`Error:AggregateRoot, Optimistic concurrency error, expected event version:3 but received 2, Suggested solution is to retry`)
-      )
-  })
+        const device = deviceAggregate.rootEntity
+        device.addAlarm(alarmId)
+
+        await writeModelRepo.save(deviceAggregate)
+
+        const anotherDeviceAggregate = await writeModelRepo.load(
+            deviceId,
+            (id) => new AggregateContainer(Device),
+        )
+        const anotherDevice = anotherDeviceAggregate.rootEntity
+
+        device.addAlarm(Uuid.createV4())
+        anotherDevice.addAlarm(Uuid.createV4())
+
+        await writeModelRepo.save(deviceAggregate)
+        await writeModelRepo.save(anotherDeviceAggregate)
+            .then(
+                () => fail("Expected and Optimistic concurrency error here!!"),
+                (e: any) => {
+                    assertThat(e instanceof OptimisticConcurrencyError).is(true)
+                    assertThat(e.message).is(`Optimistic concurrency error for aggregate root id: ${device.id}, expected event version:${3} but received ${2}, Suggested solution is to retry`)
+                }
+            )
+    })
 })

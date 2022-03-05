@@ -1,7 +1,7 @@
 import * as Uuid from '../../eventSourcing/UUID'
 import { EntityBase } from "../../eventSourcing/EntityBase";
 import { ChangeEvent} from "../../eventSourcing/MessageTypes";
-import { AlarmArmedEvent, AlarmCreatedEvent, AlarmDestroyedEvent, AlarmDisarmedEvent, AlarmTriggeredEvent, DeviceDomainError } from "../events/deviceEvents";
+import { AlarmArmedEvent, AlarmCreatedEvent, AlarmDestroyedEvent, AlarmDisarmedEvent, AlarmTriggeredEvent, DeviceDomainError } from "../events/DeviceEvents";
 import {StaticEventHandler} from "../../eventSourcing/Entity";
 import {ParentAggregate} from "../../eventSourcing/AggregateEntity";
 

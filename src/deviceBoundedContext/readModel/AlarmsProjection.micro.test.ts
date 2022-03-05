@@ -1,9 +1,9 @@
 import * as Uuid from '../../eventSourcing/UUID'
 import { Thespian, TMocked } from 'thespian'
-import { ReadModelRepository } from "../../eventSourcing/ReadModelTypes"
 import { alarmProjectionHandler } from "./AlarmsProjection"
-import { AlarmArmedEvent, AlarmCreatedEvent } from '../events/deviceEvents'
+import { AlarmArmedEvent, AlarmCreatedEvent } from '../events/DeviceEvents'
 import { EntityEvent } from '../../eventSourcing/MessageTypes'
+import {ReadModelRepository} from "../../readModelRepository/ReadModelRepository";
 
 
 describe('AlarmsProjection', ()=>{

@@ -1,5 +1,6 @@
 import {ExternalEvent} from "../eventSourcing/MessageTypes";
-import {ExternalEventStoreProcessingState, ExternalEventStoreRepository} from "./EventStoreExternal";
+import {ExternalEventStoreProcessingState} from "./EventStoreExternal";
+import {ExternalEventStoreRepository} from "./ExternalEventStoreRepository";
 
 export class ExternalEventStoreInMemoryRepository implements ExternalEventStoreRepository {
     private readonly store = new Map<string, ExternalEvent>()
@@ -14,11 +15,11 @@ export class ExternalEventStoreInMemoryRepository implements ExternalEventStoreR
         return this.store.has(eventId)
     }
 
-    async recordFailedProcessing(eventId: string, state: ExternalEventStoreProcessingState): Promise<void> {
+    async recordProcessingFailure(eventId: string, state: ExternalEventStoreProcessingState): Promise<void> {
         this.failed.set(eventId, state)
     }
 
-    async setAsProcessed(eventId: string, retryCount: number = 0): Promise<void> {
+    async markAsProcessed(eventId: string, retryCount: number = 0): Promise<void> {
         this.failed.delete(eventId)
         this.processed.set(eventId, retryCount)
     }

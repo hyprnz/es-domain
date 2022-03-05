@@ -1,10 +1,10 @@
 import * as Uuid from '../../eventSourcing/UUID'
 import { Thespian, TMocked } from 'thespian'
-import { ReadModelRepository } from "../../eventSourcing/ReadModelTypes"
-import { AlarmArmedEvent, AlarmCreatedEvent } from '../events/deviceEvents'
+import { AlarmArmedEvent, AlarmCreatedEvent } from '../events/DeviceEvents'
 import { alarmCountProjection } from '..'
 import { EntityEvent } from '../../eventSourcing/MessageTypes'
 import { match } from 'mismatched'
+import {ReadModelRepository} from "../../readModelRepository/ReadModelRepository";
 
 
 describe('AlarmsCountProjection', ()=>{

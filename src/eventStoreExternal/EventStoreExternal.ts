@@ -1,14 +1,5 @@
 import {ExternalEvent} from "../eventSourcing/MessageTypes";
-
-export interface ExternalEventStoreRepository {
-    exists(eventId: string): Promise<boolean>
-
-    append(externalEvent: ExternalEvent): Promise<void>
-
-    setAsProcessed(eventId: string): Promise<void>
-
-    recordFailedProcessing(eventId: string, state: ExternalEventStoreProcessingState): Promise<void>
-}
+import {ExternalEventStoreRepository} from "./ExternalEventStoreRepository";
 
 export enum ExternalEventStoreProcessingState {
     RECEIVED = 'RECEIVED',
@@ -32,12 +23,12 @@ export class EventStoreExternal {
                 state = ExternalEventStoreProcessingState.APPENDED
                 await handler(externalEvent)
                 state = ExternalEventStoreProcessingState.HANDLED
-                await this.store.setAsProcessed(externalEvent.eventId)
+                await this.store.markAsProcessed(externalEvent.eventId)
             }
             state = ExternalEventStoreProcessingState.PROCESSED
         } catch (err) {
             // console.log(err)
-            await this.store.recordFailedProcessing(externalEvent.eventId, state)
+            await this.store.recordProcessingFailure(externalEvent.eventId, state)
         }
     }
 

@@ -13,10 +13,9 @@ export {
   Projection,
   ProjectionRow,
   ProjectionAction,
-  ReadModelRepository, 
   StaticProjectionEventHandler,
 
-} from './eventSourcing/ReadModelTypes'
+} from './readModelRepository/Projection'
 
 
 
@@ -30,3 +29,4 @@ export {EntityConstructor} from "./eventSourcing/Entity";
 export {Entity} from "./eventSourcing/Entity";
 export {ParentAggregate} from "./eventSourcing/AggregateEntity";
 export {AggregateEntity} from "./eventSourcing/AggregateEntity";
+export {ReadModelRepository} from "./readModelRepository/ReadModelRepository";
