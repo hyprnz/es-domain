@@ -5,9 +5,6 @@ import { UUID } from "../EventSourcing/UUID";
 import { WriteModelrRepositoryError as WriteModelRepositoryError } from "./WriteModelRepositoryError";
 import { WriteModelRepository } from '../EventSourcing/WriteModelTypes';
 
-
-
-
 export class WriteModelMemoryRepository implements WriteModelRepository {
   private readonly eventEmitter = new EventEmitter();
   private readonly store = new Map<UUID, Array<EntityEvent>>()
@@ -18,28 +15,26 @@ export class WriteModelMemoryRepository implements WriteModelRepository {
     const changes = aggregateRoot.uncommittedChanges()
     if(changes.length === 0) return Promise.resolve(0)
 
-        
-    const commitedEvents = this.store.get(aggregateRoot.id)
-    const found = !!commitedEvents
+    const committedEvents = this.store.get(aggregateRoot.id)
+    const found = !!committedEvents
     if(found){
-      // Optionally do some event vaidation , usefull for test systems
-      // [1] Optomistic concurrency
+      // Optionally do some event validation , useful for test systems
+      // [1] Optimistic concurrency
       
-      const commitedVersion = commitedEvents[commitedEvents.length-1].version + 1
-      const firstUncommitedChangeVersion = changes[0].version
+      const committedVersion = committedEvents[committedEvents.length-1].version + 1
+      const firstUncommittedChangeVersion = changes[0].version
 
-      if(commitedVersion !== firstUncommitedChangeVersion){
+      if(committedVersion !== firstUncommittedChangeVersion){
         const error =  new WriteModelRepositoryError(
           "AggregateRoot", 
-          `Optimistic concurrency error, expected event version:${commitedVersion} but received ${firstUncommitedChangeVersion}, Suggested solution is to retry`
+          `Optimistic concurrency error, expected event version:${committedVersion} but received ${firstUncommittedChangeVersion}, Suggested solution is to retry`
         )
         return Promise.reject(error)
       }
     }
 
-
     // Insert vs update
-    if(found) commitedEvents.push(...changes)
+    if(found) committedEvents.push(...changes)
     else this.store.set(aggregateRoot.id, changes)
 
     const lastChange = changes[changes.length-1]
