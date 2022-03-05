@@ -1,11 +1,13 @@
 import * as Uuid from './UUID'
 import { AggregateError } from './AggregateError'
-import { ChangeEvent, Aggregate, EntityEvent, ParentAggregate, UNINITIALISED_AGGREGATE_VERSION, EntityContructor } from './EventSourcingTypes'
+import { ChangeEvent, EntityEvent, UNINITIALISED_AGGREGATE_VERSION} from './MessageTypes'
 import { EntityBase } from './EntityBase'
+import {EntityConstructor} from "./Entity";
+import {AggregateEntity, ParentAggregate} from "./AggregateEntity";
 
 
-// For aggregate roots consider not extending them to be trated as an entity.
-// Instead aggregate root could be a container that has one entity that is the RootEntity of the Aggregate !!
+// For aggregate roots consider not extending them to be treated as an entity.
+// Instead aggregate root could become a container that has one entity that is the RootEntity of the Aggregate !!
 // this would be a switch from inheritance to composition
 // This may be a little clunky to use, but worth exploring
 // PROS : we would end up with a single implementation of aggregateRoot with a generic for the RootEntity Type
@@ -17,7 +19,7 @@ import { EntityBase } from './EntityBase'
 /** @deprecated - Will soon make this private to module and start using 'AggregateContainer' in the future 
  * 
 */
-export abstract class AggregateRootBase implements Aggregate {
+export abstract class AggregateRootBase implements AggregateEntity {
   
   id: Uuid.UUID
   get changeVersion() : number { return this.version}
@@ -26,8 +28,8 @@ export abstract class AggregateRootBase implements Aggregate {
   private changes: Array<EntityEvent> = []
   protected thisAsParent: ParentAggregate 
 
-  constructor(){
-    // Uninitialised, we are going to load an exisitng 
+  protected constructor(){
+    // Uninitialised, we are going to load an existing
     this.id = Uuid.EmptyUUID
     this.version = UNINITIALISED_AGGREGATE_VERSION
 
@@ -92,7 +94,7 @@ export abstract class AggregateRootBase implements Aggregate {
 export class AggregateContainer<T extends EntityBase> extends AggregateRootBase {
   public readonly rootEntity: T 
 
-  constructor(activator: EntityContructor<T>, id?:Uuid.UUID){  
+  constructor(activator: EntityConstructor<T>, id?:Uuid.UUID){
     super()
     if(id) this.id = id
     this.rootEntity = new activator(this.thisAsParent, id)

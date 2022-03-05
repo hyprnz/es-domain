@@ -1,6 +1,6 @@
-import { Aggregate, EntityEvent } from "../EventSourcing/EventSourcingTypes";
-import { UUID } from "../EventSourcing/UUID";
-
+import { UUID } from "../eventSourcing/UUID";
+import {AggregateEntity} from "../eventSourcing/AggregateEntity";
+import {EntityEvent} from "../eventSourcing/MessageTypes";
 
 /** Write model uses only 2 keys.
  *  For several reasons: 
@@ -13,7 +13,7 @@ import { UUID } from "../EventSourcing/UUID";
  *  - A set of rows can also be identified by supplying just a Partition key
  * 
  * Here we would map 
- *  - PartionKey => AggreggateRootId
+ *  - PartitionKey => AggregateRootId
  *  - Version  => RowKey
  * 
  * Fetching all events for an aggregate root is simply a matter of querying by partition key which is efficient and inexpensive
@@ -23,13 +23,13 @@ import { UUID } from "../EventSourcing/UUID";
   /** Persists an AggregateRoots uncommited events
    * @argument aggregateRoot The aggregateroot to persist
    */
-  save<T extends Aggregate>(aggregateRoot: T) : Promise<number>
+  save<T extends AggregateEntity>(aggregateRoot: T) : Promise<number>
 
   /**Loads an aggregate root from persistence
    * @argument id The id of the Aggregate Root to load
    * @argument activator As we do not have reflection in typescript we must provide either an instance or an activation function
    */
-  load<T extends Aggregate>(id: UUID, activator: (id:UUID) => T) : Promise<T>
+  load<T extends AggregateEntity>(id: UUID, activator: (id:UUID) => T) : Promise<T>
 
   /** Subscribe to events that are being commited to persistence, this can be used to feed events 
    * to down stream services to create other side effects such as Projections

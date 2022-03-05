@@ -1,8 +1,8 @@
 
-import * as Uuid from '../EventSourcing/UUID'
-import { EntityEvent } from "../EventSourcing/EventSourcingTypes";
-import { ReadModelMemoryRepository } from "../ReadModelRepository/ReadModelMemoryRepository";
-import { WriteModelMemoryRepository } from "../WriteModelRepository/WriteModelMemoryRepository";
+import * as Uuid from '../eventSourcing/UUID'
+import { EntityEvent } from "../eventSourcing/MessageTypes";
+import { ReadModelMemoryRepository } from "../readModelRepository/ReadModelMemoryRepository";
+import { WriteModelMemoryRepository } from "../writeModelRepository/WriteModelMemoryRepository";
 import { allAlarmCountProjection, deviceAlarmCountProjection } from "./readModel/AlarmCountProjection";
 import { DeviceService } from "./service/deviceService";
 import { alarmProjectionHandler } from '.';

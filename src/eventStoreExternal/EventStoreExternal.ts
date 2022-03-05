@@ -1,4 +1,4 @@
-import {ExternalEvent} from "../EventSourcing/EventSourcingTypes";
+import {ExternalEvent} from "../eventSourcing/MessageTypes";
 
 export interface ExternalEventStoreRepository {
     exists(eventId: string): Promise<boolean>
@@ -14,7 +14,7 @@ export enum ExternalEventStoreProcessingState {
     RECEIVED = 'RECEIVED',
     APPENDED = 'APPENDED',
     HANDLED = 'HANDLED',
-    COMPLETED = 'COMPLETED',
+    PROCESSED = 'PROCESSED',
 }
 
 export class EventStoreExternal {
@@ -34,7 +34,7 @@ export class EventStoreExternal {
                 state = ExternalEventStoreProcessingState.HANDLED
                 await this.store.setAsProcessed(externalEvent.eventId)
             }
-            state = ExternalEventStoreProcessingState.COMPLETED
+            state = ExternalEventStoreProcessingState.PROCESSED
         } catch (err) {
             // console.log(err)
             await this.store.recordFailedProcessing(externalEvent.eventId, state)

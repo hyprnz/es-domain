@@ -1,4 +1,4 @@
-import {ExternalEvent} from "../EventSourcing/EventSourcingTypes";
+import {ExternalEvent} from "../eventSourcing/MessageTypes";
 import {ExternalEventStoreProcessingState, ExternalEventStoreRepository} from "./EventStoreExternal";
 
 export class ExternalEventStoreInMemoryRepository implements ExternalEventStoreRepository {

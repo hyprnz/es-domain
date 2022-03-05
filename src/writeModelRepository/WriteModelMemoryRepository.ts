@@ -1,9 +1,10 @@
-import * as Uuid from '../EventSourcing/UUID'
+import * as Uuid from '../eventSourcing/UUID'
 import EventEmitter from "events";
-import { Aggregate, EntityEvent } from "../EventSourcing/EventSourcingTypes";
-import { UUID } from "../EventSourcing/UUID";
+import { EntityEvent } from "../eventSourcing/MessageTypes";
+import { UUID } from "../eventSourcing/UUID";
 import { WriteModelrRepositoryError as WriteModelRepositoryError } from "./WriteModelRepositoryError";
-import { WriteModelRepository } from '../EventSourcing/WriteModelTypes';
+import { WriteModelRepository } from './WriteModelRepository';
+import {AggregateEntity} from "../eventSourcing/AggregateEntity";
 
 export class WriteModelMemoryRepository implements WriteModelRepository {
   private readonly eventEmitter = new EventEmitter();
@@ -11,7 +12,7 @@ export class WriteModelMemoryRepository implements WriteModelRepository {
 
   constructor(){}
 
-  save<T extends Aggregate>(aggregateRoot: T): Promise<number> {
+  save<T extends AggregateEntity>(aggregateRoot: T): Promise<number> {
     const changes = aggregateRoot.uncommittedChanges()
     if(changes.length === 0) return Promise.resolve(0)
 
@@ -43,7 +44,7 @@ export class WriteModelMemoryRepository implements WriteModelRepository {
     return Promise.resolve(changes.length)
   }
 
-  load<T extends Aggregate>(id: UUID, activator: (id:Uuid.UUID) => T): Promise<T> {
+  load<T extends AggregateEntity>(id: UUID, activator: (id:Uuid.UUID) => T): Promise<T> {
     const events = this.store.get(id)
     const found = !!events
     if(!found) throw new WriteModelRepositoryError(activator.name, `Failed to load aggregate id:${id}: NOT FOUND`)

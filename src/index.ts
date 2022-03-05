@@ -1,17 +1,12 @@
-export * as Uuid from './EventSourcing/UUID'
-export {AggregateError} from './EventSourcing/AggregateError'
+export * as Uuid from './eventSourcing/UUID'
+export {AggregateError} from './eventSourcing/AggregateError'
 export {
-  Aggregate, 
-  ChangeEvent, 
-  Entity, 
-  EntityEvent, 
-  EntityContructor,
-  Message,
-  ParentAggregate,
-  StaticEventHandler
-} from './EventSourcing/EventSourcingTypes'
+  ChangeEvent,
+  EntityEvent,
+  Message
+} from './eventSourcing/MessageTypes'
 
-export {WriteModelRepository} from './EventSourcing/WriteModelTypes'
+export {WriteModelRepository} from './writeModelRepository/WriteModelRepository'
 
 export {
   makeProjection,   
@@ -21,12 +16,17 @@ export {
   ReadModelRepository, 
   StaticProjectionEventHandler,
 
-} from './EventSourcing/ReadModelTypes'
+} from './eventSourcing/ReadModelTypes'
 
 
 
-export {EntityBase} from './EventSourcing/EntityBase'
-export {AbstractChangeEvent} from './EventSourcing/AbstractChangeEvent'
-export {AggregateContainer} from './EventSourcing/AggregateRoot'
+export {EntityBase} from './eventSourcing/EntityBase'
+export {AbstractChangeEvent} from './eventSourcing/AbstractChangeEvent'
+export {AggregateContainer} from './eventSourcing/AggregateRootBase'
 
 export * as example from './deviceBoundedContext';
+export {StaticEventHandler} from "./eventSourcing/Entity";
+export {EntityConstructor} from "./eventSourcing/Entity";
+export {Entity} from "./eventSourcing/Entity";
+export {ParentAggregate} from "./eventSourcing/AggregateEntity";
+export {AggregateEntity} from "./eventSourcing/AggregateEntity";

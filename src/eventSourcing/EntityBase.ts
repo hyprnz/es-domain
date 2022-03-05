@@ -1,15 +1,15 @@
 import * as Uuid from './UUID'
 import { AggregateError } from './AggregateError'
-import { ChangeEvent, ParentAggregate, Entity } from './EventSourcingTypes'
-
-
+import { ChangeEvent} from './MessageTypes'
+import {Entity} from "./Entity";
+import {ParentAggregate} from "./AggregateEntity";
 
 export abstract class EntityBase implements Entity {
   public id: Uuid.UUID
   protected get parentId() {return this.parent.id()}
   // private handlers = new Map<string, { handlers: Array<EventHandler> }>()
 
-  constructor(protected parent: ParentAggregate) {
+  protected constructor(protected parent: ParentAggregate) {
     // Uninitialised Entity, we are going to load an exisitng 
     this.id = Uuid.EmptyUUID
   }

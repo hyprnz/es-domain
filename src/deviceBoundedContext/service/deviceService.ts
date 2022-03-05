@@ -1,7 +1,7 @@
 import { Device } from "..";
-import { AggregateContainer } from "../../EventSourcing/AggregateRoot";
-import * as Uuid from "../../EventSourcing/UUID";
-import { WriteModelRepository } from "../../EventSourcing/WriteModelTypes";
+import { AggregateContainer } from "../../eventSourcing/AggregateRootBase";
+import * as Uuid from "../../eventSourcing/UUID";
+import { WriteModelRepository } from "../../writeModelRepository/WriteModelRepository";
 
 
 export class DeviceService {

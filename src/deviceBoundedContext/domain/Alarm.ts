@@ -1,7 +1,9 @@
-import * as Uuid from '../../EventSourcing/UUID'
-import { EntityBase } from "../../EventSourcing/EntityBase";
-import { ChangeEvent, ParentAggregate, StaticEventHandler } from "../../EventSourcing/EventSourcingTypes";
+import * as Uuid from '../../eventSourcing/UUID'
+import { EntityBase } from "../../eventSourcing/EntityBase";
+import { ChangeEvent} from "../../eventSourcing/MessageTypes";
 import { AlarmArmedEvent, AlarmCreatedEvent, AlarmDestroyedEvent, AlarmDisarmedEvent, AlarmTriggeredEvent, DeviceDomainError } from "../events/deviceEvents";
+import {StaticEventHandler} from "../../eventSourcing/Entity";
+import {ParentAggregate} from "../../eventSourcing/AggregateEntity";
 
 export class Alarm extends EntityBase {    
   private isArmed: boolean = false

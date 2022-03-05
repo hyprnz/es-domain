@@ -1,5 +1,5 @@
-import * as Uuid from '../EventSourcing/UUID'
-import { ChangeEvent, EntityEvent } from './EventSourcingTypes'
+import * as Uuid from './/UUID'
+import { ChangeEvent, EntityEvent } from './MessageTypes'
 
 export interface Projection {  
   id: Uuid.UUID
