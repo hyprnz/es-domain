@@ -2,16 +2,20 @@ import {UUID} from "../../../eventSourcing/UUID";
 import {DeviceService} from "../../service/DeviceService";
 import {ExternalEvent} from "../../../eventSourcing/MessageTypes";
 import {EventStoreExternal} from "../../../eventStoreExternal/EventStoreExternal";
+import {ExternalEventStoreInMemoryRepository} from "../../../eventStoreExternal/ExternalEventStoreInMemoryRepository";
+import {AggregateRootRepository} from "../../../writeModelRepository/AggregateRootRepository";
+import {InMemoryEventStoreRepository} from "../../../writeModelRepository/InMemoryEventStoreRepository";
+import {ExternalEventBuilder} from "../../../eventStoreExternal/ExternalEventBuilder";
 
 export interface AlarmTriggeredByExternalSystemEvent extends ExternalEvent {
-    readonly causationId: UUID;
-    readonly correlationId: UUID;
-    readonly eventId: string;
-    readonly eventType: string;
-    readonly id: UUID;
-    readonly deviceId: UUID;
-    readonly alarmId: UUID;
+    deviceId: UUID;
+    alarmId: UUID;
 }
+
+const isAlarmTriggerredEvent = (e: ExternalEvent): e is AlarmTriggeredByExternalSystemEvent => {
+    return e.eventType === 'AlarmTriggeredByExternalSystemEvent'
+}
+
 
 export class AlarmTriggeredByExternalSystemEventConsumer {
     constructor(private eventStoreExternal: EventStoreExternal) {
@@ -26,9 +30,22 @@ export class AlarmTriggeredByExternalSystemEventHandler {
     constructor(private deviceService: DeviceService) {
     }
 
-    async handle(events: AlarmTriggeredByExternalSystemEvent[]): Promise<void> {
+    async handle(events: ExternalEvent[]): Promise<void> {
+        await this.handleAlarmTriggered(events.filter(isAlarmTriggerredEvent))
+    }
+
+    private async handleAlarmTriggered(events: AlarmTriggeredByExternalSystemEvent[]): Promise<void> {
         for (const event of events) {
             await this.deviceService.triggerAlarm(event.deviceId, event.alarmId)
         }
     }
 }
+
+// Example application start config
+// const service = new DeviceService(new AggregateRootRepository(new InMemoryEventStoreRepository()))
+// const handler = new AlarmTriggeredByExternalSystemEventHandler(service)
+// const repository = new ExternalEventStoreInMemoryRepository()
+// const eventStore = new EventStoreExternal(repository)
+// eventStore.subscribeToEventsSynchronously((events: ExternalEvent[]) => handler.handle(events))
+// const consumer = new AlarmTriggeredByExternalSystemEventConsumer(eventStore)
+// await consumer.consume(ExternalEventBuilder.make().to() as AlarmTriggeredByExternalSystemEvent)

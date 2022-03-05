@@ -51,7 +51,7 @@ export class EventStoreExternal {
         return false
     }
 
-    subscribeToEventSynchronously(handler: (events: ExternalEvent[]) => Promise<void>) {
+    subscribeToEventsSynchronously(handler: (events: ExternalEvent[]) => Promise<void>) {
         this.eventBus.registerHandlerForEvents(handler)
     }
 
