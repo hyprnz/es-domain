@@ -3,8 +3,8 @@ import {EventBusError} from "./EventBusError";
 import {UUID} from "./UUID";
 
 export interface EventBus<E> {
-    registerHandlerForEvent<T extends E>(handler: (e: T) => Promise<unknown>): void
-    callHandlers<T extends E>(event: T): Promise<void>
+    registerHandlerForEvents<T extends E>(handler: (events: T[]) => Promise<void>): void
+    callHandlers<T extends E>(events: T[]): Promise<void>
 }
 
 export class EventBusProcessor<E> {
@@ -13,7 +13,7 @@ export class EventBusProcessor<E> {
     constructor(private logger = makeNoOpLogger()) {
     }
 
-    registerHandlerForEvent<T extends E>(handler: (e: T) => Promise<unknown>): void {
+    registerHandlerForEvent<T extends E>(handler: (events: T[]) => Promise<unknown>): void {
         this.eventHandlerFor.push(handler)
     }
 

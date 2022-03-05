@@ -23,7 +23,7 @@ describe('deviceApplication', () => {
 
   // Setup Write side
   const deviceWriteRepository = new AggregateRootRepository(new InMemoryEventStoreRepository())
-  deviceWriteRepository.subscribeToChanges(eventBus)
+  deviceWriteRepository.subscribeToChangesAsynchronously(eventBus)
   const deviceService = new DeviceService(deviceWriteRepository)
 
   it('Updates entities and read models', async () => {

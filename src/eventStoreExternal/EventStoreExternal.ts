@@ -2,10 +2,6 @@ import {ExternalEvent} from "../eventSourcing/MessageTypes";
 import {ExternalEventStoreRepository} from "./ExternalEventStoreRepository";
 import {Logger, makeNoOpLogger} from "../eventSourcing/Logger";
 import {EventBusExternal} from "../eventSourcing/EventBusExternal";
-import {EventBusProcessor} from "../eventSourcing/EventBus";
-
-const EXTERNAL_EVENT = 'event'
-const EVENT_FAILED = 'failed'
 
 export enum ExternalEventStoreProcessingState {
     RECEIVED = 'RECEIVED',
@@ -30,7 +26,7 @@ export class EventStoreExternal {
             const appended = await this.appendEvent(externalEvent)
             if (appended) {
                 state = ExternalEventStoreProcessingState.APPENDED
-                await this.onAfterEventStored(externalEvent)
+                await this.onAfterEventsStored([externalEvent])
                 state = ExternalEventStoreProcessingState.HANDLED
             }
             state = ExternalEventStoreProcessingState.PROCESSED
@@ -38,7 +34,7 @@ export class EventStoreExternal {
             // TODO: specific error with all info for logging
             this.logger.error(`External event store failed for id: ${externalEvent.id} with state: ${state}`)
             this.logger.error(err)
-            await this.onAfterEventFailed(externalEvent)
+            await this.onAfterEventsFailed([externalEvent])
             this.logger.debug(`Handled failure for event id: ${externalEvent.id} with state: ${state}`)
         }
     }
@@ -49,25 +45,25 @@ export class EventStoreExternal {
         const exists = await this.store.exists(externalEvent.eventId)
         if (!exists) {
             // Only handle if new - idempotent processing
-            await this.store.append(externalEvent)
+            await this.store.appendEvent(externalEvent)
             return true
         }
         return false
     }
 
-    subscribeToEventSynchronously(handler: (event: ExternalEvent) => Promise<void>) {
-        this.eventBus.registerHandlerForEvent(handler)
+    subscribeToEventSynchronously(handler: (events: ExternalEvent[]) => Promise<void>) {
+        this.eventBus.registerHandlerForEvents(handler)
     }
 
-    subscribeToFailureSynchronously(handler: (event: ExternalEvent) => Promise<void>) {
-        this.failedEventBus.registerHandlerForEvent(handler)
+    subscribeToFailureSynchronously(handler: (events: ExternalEvent[]) => Promise<void>) {
+        this.failedEventBus.registerHandlerForEvents(handler)
     }
 
-    private async onAfterEventStored(event: ExternalEvent): Promise<void> {
-        await this.eventBus.callHandlers(event)
+    private async onAfterEventsStored(events: ExternalEvent[]): Promise<void> {
+        await this.eventBus.callHandlers(events)
     }
 
-    private async onAfterEventFailed(event: ExternalEvent): Promise<void> {
-        await this.failedEventBus.callHandlers(event)
+    private async onAfterEventsFailed(events: ExternalEvent[]): Promise<void> {
+        await this.failedEventBus.callHandlers(events)
     }
 }

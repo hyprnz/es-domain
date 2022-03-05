@@ -11,10 +11,10 @@ describe("EventStoreExternal", () => {
     let thespian: Thespian
     let count = 0
     let errorCount = 0
-    const handler = async (e: ExternalEvent): Promise<void> => {
+    const handler = async (events: ExternalEvent[]): Promise<void> => {
         count++
     }
-    const errorHandler = async (e: ExternalEvent): Promise<void> => {
+    const errorHandler = async (events: ExternalEvent[]): Promise<void> => {
         errorCount++
     }
 
@@ -41,7 +41,7 @@ describe("EventStoreExternal", () => {
             eventStoreExternal.subscribeToEventSynchronously(handler)
             eventStoreExternal.subscribeToFailureSynchronously(errorHandler)
             repository.setup(x => x.exists(event.eventId)).returns(() => Promise.resolve(false))
-            repository.setup(x => x.append(event)).returns(() => Promise.resolve())
+            repository.setup(x => x.appendEvent(event)).returns(() => Promise.resolve())
             await eventStoreExternal.process(event)
             assertThat(count).is(1)
             assertThat(errorCount).is(0)
@@ -50,7 +50,7 @@ describe("EventStoreExternal", () => {
             eventStoreExternal.subscribeToEventSynchronously(handler)
             eventStoreExternal.subscribeToFailureSynchronously(errorHandler)
             repository.setup(x => x.exists(event.eventId)).returns(() => Promise.resolve(false))
-            repository.setup(x => x.append(event)).returns(() => Promise.reject(new Error(`Ooops`)))
+            repository.setup(x => x.appendEvent(event)).returns(() => Promise.reject(new Error(`Ooops`)))
             await eventStoreExternal.process(event)
             assertThat(count).is(0)
             assertThat(errorCount).is(1)
@@ -59,7 +59,7 @@ describe("EventStoreExternal", () => {
             eventStoreExternal.subscribeToEventSynchronously(() => Promise.reject(new Error(`Oooops`)))
             eventStoreExternal.subscribeToFailureSynchronously(errorHandler)
             repository.setup(x => x.exists(event.eventId)).returns(() => Promise.resolve(false))
-            repository.setup(x => x.append(event)).returns(() => Promise.resolve())
+            repository.setup(x => x.appendEvent(event)).returns(() => Promise.resolve())
             await eventStoreExternal.process(event)
             assertThat(count).is(0)
             assertThat(errorCount).is(1)
@@ -70,7 +70,7 @@ describe("EventStoreExternal", () => {
             eventStoreExternal.subscribeToEventSynchronously(() => Promise.reject(new Error(`Oooops`)))
             eventStoreExternal.subscribeToFailureSynchronously(() => Promise.reject(new Error(`Doh`)))
             repository.setup(x => x.exists(event.eventId)).returns(() => Promise.resolve(false))
-            repository.setup(x => x.append(event)).returns(() => Promise.resolve())
+            repository.setup(x => x.appendEvent(event)).returns(() => Promise.resolve())
             return eventStoreExternal.process(event).then(() => {
                 throw new Error('Should not get here')
             }, (e: any) => {

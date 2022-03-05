@@ -26,7 +26,7 @@ describe("WriteModelMemoryRepository", () => {
         const uncomittedEvents = deviceAggregate.uncommittedChanges()
 
         const emittedEvents: Array<EntityEvent> = []
-        repository.subscribeToChanges(changes => changes.forEach(x => emittedEvents.push(x)))
+        repository.subscribeToChangesAsynchronously(changes => changes.forEach(x => emittedEvents.push(x)))
 
         const countEvents = await repository.save(deviceAggregate)
 

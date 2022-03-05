@@ -11,7 +11,7 @@ export class ExternalEventStoreInMemoryRepository implements ExternalEventStoreR
     private readonly processed = new Map<string, number>()
     private failed = new Map<string, ExternalEventStoreProcessingState>()
 
-    async append(externalEvent: ExternalEvent): Promise<void> {
+    async appendEvent(externalEvent: ExternalEvent): Promise<void> {
         this.store.set(externalEvent.eventId, externalEvent)
     }
 

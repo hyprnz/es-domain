@@ -20,7 +20,7 @@ describe("ExternalEventStoreInMemoryRepository", () => {
         })
         it("is present", async () => {
             const event: ExternalEvent = ExternalEventBuilder.make().to()
-            await externalEventStoreRepository.append(event)
+            await externalEventStoreRepository.appendEvent(event)
             const exists = await externalEventStoreRepository.exists(event.eventId)
             assertThat(exists).is(true)
         })

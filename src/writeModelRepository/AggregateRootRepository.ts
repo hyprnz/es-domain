@@ -7,11 +7,12 @@ import {WriteModelRepository} from './WriteModelRepository';
 import {AggregateEntity} from "../eventSourcing/AggregateEntity";
 import {OptimisticConcurrencyError} from "./OptimisticConcurrencyError";
 import {InternalEventStoreRepository} from "./InternalEventStoreRepository";
+import {EventBusInternal} from "../eventSourcing/EventBusInternal";
 
 export class AggregateRootRepository implements WriteModelRepository {
     private readonly eventEmitter = new EventEmitter();
 
-    constructor(private readonly eventStore: InternalEventStoreRepository) {
+    constructor(private readonly eventStore: InternalEventStoreRepository, private readonly eventBus = new EventBusInternal()) {
     }
 
     async save<T extends AggregateEntity>(aggregateRoot: T): Promise<number> {
@@ -34,7 +35,7 @@ export class AggregateRootRepository implements WriteModelRepository {
 
         const lastChange = changes[changes.length - 1]
         aggregateRoot.markChangesAsCommitted(lastChange.version);
-        this.onAfterEventsStored(changes)
+        await this.onAfterEventsStored(changes)
         return Promise.resolve(changes.length)
     }
 
@@ -52,14 +53,18 @@ export class AggregateRootRepository implements WriteModelRepository {
         return await this.eventStore.getEvents(id)
     }
 
-    subscribeToChanges(handler: (changes: Array<EntityEvent>) => void) {
+    subscribeToChangesAsynchronously(handler: (changes: Array<EntityEvent>) => void) {
         this.eventEmitter.addListener('events', handler)
     }
 
-    private onAfterEventsStored(changes: Array<EntityEvent>) {
-        if (changes.length) {
-            this.eventEmitter.emit('events', changes)
-        }
+    subscribeToChangesSynchronously(handler: (changes: Array<EntityEvent>) => Promise<void>): void {
+        this.eventBus.registerHandlerForEvents(handler)
+    }
+
+    private async onAfterEventsStored(changes: Array<EntityEvent>): Promise<void> {
+        if (changes.length === 0) return
+        await this.eventBus.callHandlers(changes)
+        this.eventEmitter.emit('events', changes)
     }
 }
 
