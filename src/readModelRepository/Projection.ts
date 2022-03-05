@@ -39,13 +39,12 @@ export function makeProjection<T extends Projection>(
     eventHandlers: Record<string, StaticProjectionEventHandler<T>>,
     defaultValue: (id: UUID) => T,
     idFactory?: (evt: ChangeEvent) => UUID
-)
-    : (events: Array<EntityEvent>, repository: ReadModelRepository) => Promise<void> {
+): (events: Array<EntityEvent>, repository: ReadModelRepository) => Promise<void> {
 
     const projection = async (events: Array<EntityEvent>, repository: ReadModelRepository): Promise<void> => {
         const cache: Record<string, ProjectionRow<T>> = {}
 
-        for (var evt of events) {
+        for (const evt of events) {
             const handler = eventHandlers[evt.event.eventType]
             if (handler) {
                 const id = idFactory ? idFactory(evt.event) : evt.event.entityId

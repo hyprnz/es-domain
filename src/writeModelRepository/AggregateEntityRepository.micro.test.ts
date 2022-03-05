@@ -1,5 +1,5 @@
 import * as Uuid from '../eventSourcing/UUID'
-import {AggregateEntityRepository} from './AggregateEntityRepository'
+import {AggregateRootRepository} from './AggregateRootRepository'
 import {assertThat, match} from 'mismatched'
 import {EntityEvent} from '../eventSourcing/MessageTypes'
 import {AggregateContainer} from '../eventSourcing/AggregateRootBase'
@@ -13,7 +13,7 @@ describe("WriteModelMemoryRepository", () => {
     let repository: WriteModelRepository
 
     beforeEach(() => {
-        repository = new AggregateEntityRepository(new InMemoryEventStoreRepository())
+        repository = new AggregateRootRepository(new InMemoryEventStoreRepository())
     })
 
     it("stores events", async () => {
@@ -44,13 +44,13 @@ describe("WriteModelMemoryRepository", () => {
         const device = deviceAggregate.rootEntity
         device.addAlarm(alarmId)
 
-        const uncomittedEvents = deviceAggregate.uncommittedChanges()
+        const uncommittedEvents = deviceAggregate.uncommittedChanges()
         await repository.save(deviceAggregate)
 
         // Compare Saved event to loaded make sure they are thesame
         const loadedEvents = await repository.loadEvents(deviceId)
 
-        assertThat(uncomittedEvents).is(loadedEvents)
+        assertThat(uncommittedEvents).is(loadedEvents)
         assertThat(loadedEvents).is(match.array.length(2))
     })
 

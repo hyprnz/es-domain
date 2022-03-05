@@ -30,16 +30,16 @@ describe("EventStoreExternal", () => {
         const event: ExternalEvent = ExternalEventBuilder.make().to()
 
         it("already processed", async () => {
-            eventStoreExternal.subscribeToEventSynchronously(event.eventType, handler)
-            eventStoreExternal.subscribeToFailureSynchronously(event.eventType, errorHandler)
+            eventStoreExternal.subscribeToEventSynchronously(handler)
+            eventStoreExternal.subscribeToFailureSynchronously(errorHandler)
             repository.setup(x => x.exists(event.eventId)).returns(() => Promise.resolve(true))
             await eventStoreExternal.process(event)
             assertThat(count).is(0)
             assertThat(errorCount).is(0)
         })
         it("processed for first time", async () => {
-            eventStoreExternal.subscribeToEventSynchronously(event.eventType, handler)
-            eventStoreExternal.subscribeToFailureSynchronously(event.eventType, errorHandler)
+            eventStoreExternal.subscribeToEventSynchronously(handler)
+            eventStoreExternal.subscribeToFailureSynchronously(errorHandler)
             repository.setup(x => x.exists(event.eventId)).returns(() => Promise.resolve(false))
             repository.setup(x => x.append(event)).returns(() => Promise.resolve())
             await eventStoreExternal.process(event)
@@ -47,8 +47,8 @@ describe("EventStoreExternal", () => {
             assertThat(errorCount).is(0)
         })
         it("processed for first time but has error appending", async () => {
-            eventStoreExternal.subscribeToEventSynchronously(event.eventType, handler)
-            eventStoreExternal.subscribeToFailureSynchronously(event.eventType, errorHandler)
+            eventStoreExternal.subscribeToEventSynchronously(handler)
+            eventStoreExternal.subscribeToFailureSynchronously(errorHandler)
             repository.setup(x => x.exists(event.eventId)).returns(() => Promise.resolve(false))
             repository.setup(x => x.append(event)).returns(() => Promise.reject(new Error(`Ooops`)))
             await eventStoreExternal.process(event)
@@ -56,8 +56,8 @@ describe("EventStoreExternal", () => {
             assertThat(errorCount).is(1)
         })
         it("processed for first time but has error handling", async () => {
-            eventStoreExternal.subscribeToEventSynchronously(event.eventType, () => Promise.reject(new Error(`Oooops`)))
-            eventStoreExternal.subscribeToFailureSynchronously(event.eventType, errorHandler)
+            eventStoreExternal.subscribeToEventSynchronously(() => Promise.reject(new Error(`Oooops`)))
+            eventStoreExternal.subscribeToFailureSynchronously(errorHandler)
             repository.setup(x => x.exists(event.eventId)).returns(() => Promise.resolve(false))
             repository.setup(x => x.append(event)).returns(() => Promise.resolve())
             await eventStoreExternal.process(event)
@@ -65,10 +65,10 @@ describe("EventStoreExternal", () => {
             assertThat(errorCount).is(1)
         })
         it("processed for first time but has error handling and in failed subscriber", async () => {
-            eventStoreExternal.subscribeToEventSynchronously(event.eventType, handler)
-            eventStoreExternal.subscribeToEventSynchronously(event.eventType, handler)
-            eventStoreExternal.subscribeToEventSynchronously(event.eventType, () => Promise.reject(new Error(`Oooops`)))
-            eventStoreExternal.subscribeToFailureSynchronously(event.eventType, () => Promise.reject(new Error(`Doh`)))
+            eventStoreExternal.subscribeToEventSynchronously(handler)
+            eventStoreExternal.subscribeToEventSynchronously(handler)
+            eventStoreExternal.subscribeToEventSynchronously(() => Promise.reject(new Error(`Oooops`)))
+            eventStoreExternal.subscribeToFailureSynchronously(() => Promise.reject(new Error(`Doh`)))
             repository.setup(x => x.exists(event.eventId)).returns(() => Promise.resolve(false))
             repository.setup(x => x.append(event)).returns(() => Promise.resolve())
             return eventStoreExternal.process(event).then(() => {

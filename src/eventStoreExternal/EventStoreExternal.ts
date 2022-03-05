@@ -1,7 +1,8 @@
 import {ExternalEvent} from "../eventSourcing/MessageTypes";
 import {ExternalEventStoreRepository} from "./ExternalEventStoreRepository";
 import {Logger, makeNoOpLogger} from "../eventSourcing/Logger";
-import {EventBus} from "../eventSourcing/EventBus";
+import {EventBusExternal} from "../eventSourcing/EventBusExternal";
+import {EventBusProcessor} from "../eventSourcing/EventBus";
 
 const EXTERNAL_EVENT = 'event'
 const EVENT_FAILED = 'failed'
@@ -15,8 +16,8 @@ export enum ExternalEventStoreProcessingState {
 
 // Used for idempotent processing of external events.
 export class EventStoreExternal {
-    private readonly eventBus = new EventBus();
-    private readonly failedEventBus = new EventBus();
+    private readonly eventBus = new EventBusExternal();
+    private readonly failedEventBus = new EventBusExternal();
 
     constructor(private store: ExternalEventStoreRepository, private readonly logger: Logger = makeNoOpLogger()) {
     }
@@ -54,12 +55,12 @@ export class EventStoreExternal {
         return false
     }
 
-    subscribeToEventSynchronously(eventType: string, handler: (event: ExternalEvent) => Promise<void>) {
-        this.eventBus.registerHandlerForEvent(eventType, handler)
+    subscribeToEventSynchronously(handler: (event: ExternalEvent) => Promise<void>) {
+        this.eventBus.registerHandlerForEvent(handler)
     }
 
-    subscribeToFailureSynchronously(eventType: string, handler: (event: ExternalEvent) => Promise<void>) {
-        this.failedEventBus.registerHandlerForEvent(eventType, handler)
+    subscribeToFailureSynchronously(handler: (event: ExternalEvent) => Promise<void>) {
+        this.failedEventBus.registerHandlerForEvent(handler)
     }
 
     private async onAfterEventStored(event: ExternalEvent): Promise<void> {

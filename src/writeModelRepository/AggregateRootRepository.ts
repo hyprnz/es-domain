@@ -8,7 +8,7 @@ import {AggregateEntity} from "../eventSourcing/AggregateEntity";
 import {OptimisticConcurrencyError} from "./OptimisticConcurrencyError";
 import {InternalEventStoreRepository} from "./InternalEventStoreRepository";
 
-export class AggregateEntityRepository implements WriteModelRepository {
+export class AggregateRootRepository implements WriteModelRepository {
     private readonly eventEmitter = new EventEmitter();
 
     constructor(private readonly eventStore: InternalEventStoreRepository) {

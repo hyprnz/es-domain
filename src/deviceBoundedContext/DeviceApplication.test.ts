@@ -2,7 +2,7 @@
 import * as Uuid from '../eventSourcing/UUID'
 import { EntityEvent } from "../eventSourcing/MessageTypes";
 import { ReadModelMemoryRepository } from "../readModelRepository/ReadModelMemoryRepository";
-import { AggregateEntityRepository } from "../writeModelRepository/AggregateEntityRepository";
+import { AggregateRootRepository } from "../writeModelRepository/AggregateRootRepository";
 import { allAlarmCountProjection, deviceAlarmCountProjection } from "./readModel/AlarmCountProjection";
 import { DeviceService } from "./service/DeviceService";
 import { alarmProjectionHandler } from '.';
@@ -22,7 +22,7 @@ describe('deviceApplication', () => {
   }
 
   // Setup Write side
-  const deviceWriteRepository = new AggregateEntityRepository(new InMemoryEventStoreRepository())
+  const deviceWriteRepository = new AggregateRootRepository(new InMemoryEventStoreRepository())
   deviceWriteRepository.subscribeToChanges(eventBus)
   const deviceService = new DeviceService(deviceWriteRepository)
 
