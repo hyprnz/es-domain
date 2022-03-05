@@ -1,5 +1,6 @@
 import {ExternalEvent} from "../eventSourcing/MessageTypes";
 import {ExternalEventStoreRepository} from "./ExternalEventStoreRepository";
+import {Logger, makeNoOpLogger} from "../eventSourcing/Logger";
 
 export enum ExternalEventStoreProcessingState {
     RECEIVED = 'RECEIVED',
@@ -8,8 +9,9 @@ export enum ExternalEventStoreProcessingState {
     PROCESSED = 'PROCESSED',
 }
 
+// Used for idempotent processing of external events.
 export class EventStoreExternal {
-    constructor(private store: ExternalEventStoreRepository) {
+    constructor(private store: ExternalEventStoreRepository, private readonly logger: Logger = makeNoOpLogger()) {
     }
 
     async process(
@@ -27,7 +29,7 @@ export class EventStoreExternal {
             }
             state = ExternalEventStoreProcessingState.PROCESSED
         } catch (err) {
-            // console.log(err)
+            this.logger.error(err)
             await this.store.recordProcessingFailure(externalEvent.eventId, state)
         }
     }
@@ -39,7 +41,8 @@ export class EventStoreExternal {
         if (!exists) {
             // Only handle if new - idempotent processing
             await this.store.append(externalEvent)
+            return true
         }
-        return exists
+        return false
     }
 }
