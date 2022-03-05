@@ -15,7 +15,6 @@ export class DeviceService {
   }
 
   async addDeviceAlarm(deviceId: Uuid.UUID, alarmId: Uuid.UUID): Promise<void> {
-
     const aggregate = await this.writeRepo.load(deviceId, DeviceService.deviceAggregateFactory)
     aggregate.rootEntity.addAlarm(alarmId)
     await this.writeRepo.save(aggregate)
@@ -23,7 +22,6 @@ export class DeviceService {
 
   async removeDeviceAlarm(deviceId: Uuid.UUID, alarmId: Uuid.UUID): Promise<void> {
     const aggregate = await this.writeRepo.load(deviceId, DeviceService.deviceAggregateFactory)
-
     const alarm = aggregate.rootEntity.findAlarm(alarmId)
     if (alarm) aggregate.rootEntity.destroyAlarm(alarm)
     await this.writeRepo.save(aggregate)

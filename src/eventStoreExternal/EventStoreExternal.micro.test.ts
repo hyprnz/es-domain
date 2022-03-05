@@ -1,51 +1,83 @@
 import {ExternalEventStoreRepository} from "./ExternalEventStoreRepository";
 import {ExternalEvent} from "../eventSourcing/MessageTypes";
 import {ExternalEventBuilder} from "./ExternalEventBuilder";
-import {EventStoreExternal, ExternalEventStoreProcessingState} from "./EventStoreExternal";
+import {EventStoreExternal} from "./EventStoreExternal";
 import {Thespian, TMocked} from "thespian";
+import {assertThat} from "mismatched";
 
 describe("EventStoreExternal", () => {
     let repository: TMocked<ExternalEventStoreRepository>
     let eventStoreExternal: EventStoreExternal
     let thespian: Thespian
+    let count = 0
+    let errorCount = 0
+    const handler = async (e: ExternalEvent): Promise<void> => {
+        count++
+    }
+    const errorHandler = async (e: ExternalEvent): Promise<void> => {
+        errorCount++
+    }
 
     beforeEach(() => {
         thespian = new Thespian()
         repository = thespian.mock()
         eventStoreExternal = new EventStoreExternal(repository.object)
+        count = 0
+        errorCount = 0
     })
 
     describe("process", () => {
         const event: ExternalEvent = ExternalEventBuilder.make().to()
 
         it("already processed", async () => {
+            eventStoreExternal.subscribeToEventSynchronously(event.eventType, handler)
+            eventStoreExternal.subscribeToFailureSynchronously(event.eventType, errorHandler)
             repository.setup(x => x.exists(event.eventId)).returns(() => Promise.resolve(true))
-            await eventStoreExternal.process(event, () => Promise.resolve())
+            await eventStoreExternal.process(event)
+            assertThat(count).is(0)
+            assertThat(errorCount).is(0)
         })
         it("processed for first time", async () => {
+            eventStoreExternal.subscribeToEventSynchronously(event.eventType, handler)
+            eventStoreExternal.subscribeToFailureSynchronously(event.eventType, errorHandler)
             repository.setup(x => x.exists(event.eventId)).returns(() => Promise.resolve(false))
             repository.setup(x => x.append(event)).returns(() => Promise.resolve())
-            repository.setup(x => x.markAsProcessed(event.eventId)).returns(() => Promise.resolve())
-            await eventStoreExternal.process(event, () => Promise.resolve())
+            await eventStoreExternal.process(event)
+            assertThat(count).is(1)
+            assertThat(errorCount).is(0)
         })
         it("processed for first time but has error appending", async () => {
+            eventStoreExternal.subscribeToEventSynchronously(event.eventType, handler)
+            eventStoreExternal.subscribeToFailureSynchronously(event.eventType, errorHandler)
             repository.setup(x => x.exists(event.eventId)).returns(() => Promise.resolve(false))
             repository.setup(x => x.append(event)).returns(() => Promise.reject(new Error(`Ooops`)))
-            repository.setup(x => x.recordProcessingFailure(event.eventId, ExternalEventStoreProcessingState.RECEIVED)).returns(() => Promise.resolve())
-            await eventStoreExternal.process(event, () => Promise.resolve())
+            await eventStoreExternal.process(event)
+            assertThat(count).is(0)
+            assertThat(errorCount).is(1)
         })
         it("processed for first time but has error handling", async () => {
+            eventStoreExternal.subscribeToEventSynchronously(event.eventType, () => Promise.reject(new Error(`Oooops`)))
+            eventStoreExternal.subscribeToFailureSynchronously(event.eventType, errorHandler)
             repository.setup(x => x.exists(event.eventId)).returns(() => Promise.resolve(false))
             repository.setup(x => x.append(event)).returns(() => Promise.resolve())
-            repository.setup(x => x.recordProcessingFailure(event.eventId, ExternalEventStoreProcessingState.APPENDED)).returns(() => Promise.resolve())
-            await eventStoreExternal.process(event, () => Promise.reject(new Error(`Ooops`)))
+            await eventStoreExternal.process(event)
+            assertThat(count).is(0)
+            assertThat(errorCount).is(1)
         })
-        it("processed for first time but has error marking as processed", async () => {
+        it("processed for first time but has error handling and in failed subscriber", async () => {
+            eventStoreExternal.subscribeToEventSynchronously(event.eventType, handler)
+            eventStoreExternal.subscribeToEventSynchronously(event.eventType, handler)
+            eventStoreExternal.subscribeToEventSynchronously(event.eventType, () => Promise.reject(new Error(`Oooops`)))
+            eventStoreExternal.subscribeToFailureSynchronously(event.eventType, () => Promise.reject(new Error(`Doh`)))
             repository.setup(x => x.exists(event.eventId)).returns(() => Promise.resolve(false))
             repository.setup(x => x.append(event)).returns(() => Promise.resolve())
-            repository.setup(x => x.markAsProcessed(event.eventId)).returns(() => Promise.reject(new Error(`Ooops`)))
-            repository.setup(x => x.recordProcessingFailure(event.eventId, ExternalEventStoreProcessingState.HANDLED)).returns(() => Promise.resolve())
-            await eventStoreExternal.process(event, () => Promise.resolve())
+            return eventStoreExternal.process(event).then(() => {
+                throw new Error('Should not get here')
+            }, (e: any) => {
+                assertThat(e.message).is(`Event bus error for event with id: ${event.id} eventId: ${event.eventId} for eventType: ${event.eventType} errors: Doh`)
+                assertThat(count).is(2)
+                assertThat(errorCount).is(0)
+            })
         })
     })
 

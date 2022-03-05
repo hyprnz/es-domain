@@ -1,6 +1,6 @@
-import { AbstractChangeEvent } from "../../eventSourcing/AbstractChangeEvent";
-import { ChangeEvent } from "../../eventSourcing/MessageTypes";
-import * as Uuid from "../../eventSourcing/UUID";
+import { AbstractChangeEvent } from "../../../eventSourcing/AbstractChangeEvent";
+import { ChangeEvent } from "../../../eventSourcing/MessageTypes";
+import * as Uuid from "../../../eventSourcing/UUID";
 
 export class DeviceDomainError  extends Error {
   constructor(public readonly aggregateRootId: Uuid.UUID, message:string){

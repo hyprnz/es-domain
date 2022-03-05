@@ -8,6 +8,7 @@ export class ExternalEventBuilder {
         this.externalEvent = {
             id: Uuid.createV4(),
             eventId: Uuid.createV4(),
+            eventType: 'some-event-type',
             correlationId: Uuid.createV4(),
             causationId: Uuid.createV4()
         }

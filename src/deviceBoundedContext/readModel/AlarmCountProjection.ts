@@ -1,5 +1,5 @@
 import * as Uuid from '../../eventSourcing/UUID'
-import { AlarmCreatedEvent, AlarmDestroyedEvent } from '../events/DeviceEvents'
+import { AlarmCreatedEvent, AlarmDestroyedEvent } from '../events/internal/DeviceEvents'
 import { ChangeEvent, EntityEvent} from '../../eventSourcing/MessageTypes'
 import { calculateNextAction, Projection, ProjectionRow, StaticProjectionEventHandler, persistReadModelState, makeProjection } from '../../readModelRepository/Projection'
 import {StaticEventHandler} from "../../eventSourcing/Entity";

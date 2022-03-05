@@ -10,6 +10,7 @@ export interface Message {
 
 export interface ExternalEvent extends Message {
     eventId: string
+    readonly eventType: string
 }
 
 

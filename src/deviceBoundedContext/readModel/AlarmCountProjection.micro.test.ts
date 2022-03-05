@@ -1,6 +1,6 @@
 import * as Uuid from '../../eventSourcing/UUID'
 import { Thespian, TMocked } from 'thespian'
-import { AlarmArmedEvent, AlarmCreatedEvent } from '../events/DeviceEvents'
+import { AlarmArmedEvent, AlarmCreatedEvent } from '../events/internal/DeviceEvents'
 import { alarmCountProjection } from '..'
 import { EntityEvent } from '../../eventSourcing/MessageTypes'
 import { match } from 'mismatched'

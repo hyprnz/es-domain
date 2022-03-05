@@ -26,12 +26,12 @@ describe("ExternalEventStoreInMemoryRepository", () => {
         })
     })
 
-    describe("markAsProcessed", () => {
-        it("adds event", async () => {
-            const event: ExternalEvent = ExternalEventBuilder.make().to()
-            await externalEventStoreRepository.append(event)
-            await externalEventStoreRepository.markAsProcessed(event.eventId)
-        })
-    })
+    // describe("markAsProcessed", () => {
+    //     it("adds event", async () => {
+    //         const event: ExternalEvent = ExternalEventBuilder.make().to()
+    //         await externalEventStoreRepository.append(event)
+    //         await externalEventStoreRepository.markAsProcessed(event.eventId)
+    //     })
+    // })
 
 })
