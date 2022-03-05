@@ -6,19 +6,19 @@ import {WriteModelRepositoryError as WriteModelRepositoryError} from "./WriteMod
 import {WriteModelRepository} from './WriteModelRepository';
 import {AggregateEntity} from "../eventSourcing/AggregateEntity";
 import {OptimisticConcurrencyError} from "./OptimisticConcurrencyError";
+import {InternalEventStoreRepository} from "./InternalEventStoreRepository";
 
-export class WriteModelMemoryRepository implements WriteModelRepository {
+export class AggregateEntityRepository implements WriteModelRepository {
     private readonly eventEmitter = new EventEmitter();
-    private readonly store = new Map<UUID, Array<EntityEvent>>()
 
-    constructor() {
+    constructor(private readonly eventStore: InternalEventStoreRepository) {
     }
 
-    save<T extends AggregateEntity>(aggregateRoot: T): Promise<number> {
+    async save<T extends AggregateEntity>(aggregateRoot: T): Promise<number> {
         const changes = aggregateRoot.uncommittedChanges()
         if (changes.length === 0) return Promise.resolve(0)
-        const committedEvents = this.store.get(aggregateRoot.id)
-        const found = !!committedEvents
+        const committedEvents = await this.eventStore.getEvents(aggregateRoot.id)
+        const found = committedEvents.length > 0
         if (found) {
             const committedVersion = committedEvents[committedEvents.length - 1].version + 1
             const firstUncommittedChangeVersion = changes[0].version
@@ -30,7 +30,7 @@ export class WriteModelMemoryRepository implements WriteModelRepository {
 
         // Insert vs update
         if (found) committedEvents.push(...changes)
-        else this.store.set(aggregateRoot.id, changes)
+        else await this.eventStore.appendEvents(aggregateRoot.id, changes)
 
         const lastChange = changes[changes.length - 1]
         aggregateRoot.markChangesAsCommitted(lastChange.version);
@@ -38,8 +38,8 @@ export class WriteModelMemoryRepository implements WriteModelRepository {
         return Promise.resolve(changes.length)
     }
 
-    load<T extends AggregateEntity>(id: UUID, activator: (id: Uuid.UUID) => T): Promise<T> {
-        const events = this.store.get(id)
+    async load<T extends AggregateEntity>(id: UUID, activator: (id: Uuid.UUID) => T): Promise<T> {
+        const events = await this.eventStore.getEvents(id)
         const found = !!events
         if (!found) throw new WriteModelRepositoryError(activator.name, `Failed to load aggregate id:${id}: NOT FOUND`)
 
@@ -48,9 +48,8 @@ export class WriteModelMemoryRepository implements WriteModelRepository {
         return Promise.resolve(aggregate)
     }
 
-    loadEvents(id: UUID): Promise<Array<EntityEvent>> {
-        const events = this.store.get(id) || []
-        return Promise.resolve(events)
+    async loadEvents(id: UUID): Promise<Array<EntityEvent>> {
+        return await this.eventStore.getEvents(id)
     }
 
     subscribeToChanges(handler: (changes: Array<EntityEvent>) => void) {

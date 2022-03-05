@@ -2,10 +2,11 @@
 import * as Uuid from '../eventSourcing/UUID'
 import { EntityEvent } from "../eventSourcing/MessageTypes";
 import { ReadModelMemoryRepository } from "../readModelRepository/ReadModelMemoryRepository";
-import { WriteModelMemoryRepository } from "../writeModelRepository/WriteModelMemoryRepository";
+import { AggregateEntityRepository } from "../writeModelRepository/AggregateEntityRepository";
 import { allAlarmCountProjection, deviceAlarmCountProjection } from "./readModel/AlarmCountProjection";
 import { DeviceService } from "./service/DeviceService";
 import { alarmProjectionHandler } from '.';
+import {InMemoryEventStoreRepository} from "../writeModelRepository/InMemoryEventStoreRepository";
 
 
 describe('deviceApplication', () => {
@@ -21,9 +22,9 @@ describe('deviceApplication', () => {
   }
 
   // Setup Write side
-  const deviceWriterepository = new WriteModelMemoryRepository()
-  deviceWriterepository.subscribeToChanges(eventBus)
-  const deviceservice = new DeviceService(deviceWriterepository)
+  const deviceWriteRepository = new AggregateEntityRepository(new InMemoryEventStoreRepository())
+  deviceWriteRepository.subscribeToChanges(eventBus)
+  const deviceService = new DeviceService(deviceWriteRepository)
 
   it('Updates entities and read models', async () => {
     // Perform actions
@@ -33,17 +34,17 @@ describe('deviceApplication', () => {
     const device2 = Uuid.createV4()
     const device2Alarms = [Uuid.createV4(), Uuid.createV4(), Uuid.createV4(), Uuid.createV4()]
 
-    await deviceservice.addNewDeviceToNetwork(device1)
+    await deviceService.addNewDeviceToNetwork(device1)
     for (var id of device1Alarms) {
-      await deviceservice.addDeviceAlarm(device1, id)
+      await deviceService.addDeviceAlarm(device1, id)
     }
 
-    await deviceservice.addNewDeviceToNetwork(device2)
+    await deviceService.addNewDeviceToNetwork(device2)
     for (var id of device2Alarms) {
-      await deviceservice.addDeviceAlarm(device2, id)
+      await deviceService.addDeviceAlarm(device2, id)
     }
 
-    await deviceservice.removeDeviceAlarm(device1, device1Alarms[0])
+    await deviceService.removeDeviceAlarm(device1, device1Alarms[0])
     readModelRepo.printAll()
   })
 

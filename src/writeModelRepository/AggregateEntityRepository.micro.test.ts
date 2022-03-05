@@ -1,18 +1,24 @@
 import * as Uuid from '../eventSourcing/UUID'
-import {WriteModelMemoryRepository} from './WriteModelMemoryRepository'
+import {AggregateEntityRepository} from './AggregateEntityRepository'
 import {assertThat, match} from 'mismatched'
 import {EntityEvent} from '../eventSourcing/MessageTypes'
 import {AggregateContainer} from '../eventSourcing/AggregateRootBase'
 import {Device} from '../deviceBoundedContext'
 import {WriteModelRepository} from './WriteModelRepository'
 import {OptimisticConcurrencyError} from "./OptimisticConcurrencyError";
+import {InMemoryEventStoreRepository} from "./InMemoryEventStoreRepository";
 
 describe("WriteModelMemoryRepository", () => {
+
+    let repository: WriteModelRepository
+
+    beforeEach(() => {
+        repository = new AggregateEntityRepository(new InMemoryEventStoreRepository())
+    })
 
     it("stores events", async () => {
         const deviceId = Uuid.createV4()
         const alarmId = Uuid.createV4()
-        const writeModelRepo: WriteModelRepository = new WriteModelMemoryRepository()
 
         const deviceAggregate = new AggregateContainer(Device, deviceId)
         deviceAggregate.rootEntity.addAlarm(alarmId)
@@ -20,9 +26,9 @@ describe("WriteModelMemoryRepository", () => {
         const uncomittedEvents = deviceAggregate.uncommittedChanges()
 
         const emittedEvents: Array<EntityEvent> = []
-        writeModelRepo.subscribeToChanges(changes => changes.forEach(x => emittedEvents.push(x)))
+        repository.subscribeToChanges(changes => changes.forEach(x => emittedEvents.push(x)))
 
-        const countEvents = await writeModelRepo.save(deviceAggregate)
+        const countEvents = await repository.save(deviceAggregate)
 
         assertThat(countEvents).withMessage("Stored Event count").is(2)
         assertThat(emittedEvents).withMessage("Emitted Events").is(match.array.length(2))
@@ -32,7 +38,6 @@ describe("WriteModelMemoryRepository", () => {
     it("loads events", async () => {
         const deviceId = Uuid.createV4()
         const alarmId = Uuid.createV4()
-        const writeModelRepo: WriteModelRepository = new WriteModelMemoryRepository()
 
         const deviceAggregate = new AggregateContainer(Device, deviceId)
 
@@ -40,10 +45,10 @@ describe("WriteModelMemoryRepository", () => {
         device.addAlarm(alarmId)
 
         const uncomittedEvents = deviceAggregate.uncommittedChanges()
-        writeModelRepo.save(deviceAggregate)
+        await repository.save(deviceAggregate)
 
         // Compare Saved event to loaded make sure they are thesame
-        const loadedEvents = await writeModelRepo.loadEvents(deviceId)
+        const loadedEvents = await repository.loadEvents(deviceId)
 
         assertThat(uncomittedEvents).is(loadedEvents)
         assertThat(loadedEvents).is(match.array.length(2))
@@ -52,16 +57,15 @@ describe("WriteModelMemoryRepository", () => {
     it('detects concurrency issue', async () => {
         const deviceId = Uuid.createV4()
         const alarmId = Uuid.createV4()
-        const writeModelRepo: WriteModelRepository = new WriteModelMemoryRepository()
 
         const deviceAggregate = new AggregateContainer(Device, deviceId)
 
         const device = deviceAggregate.rootEntity
         device.addAlarm(alarmId)
 
-        await writeModelRepo.save(deviceAggregate)
+        await repository.save(deviceAggregate)
 
-        const anotherDeviceAggregate = await writeModelRepo.load(
+        const anotherDeviceAggregate = await repository.load(
             deviceId,
             (id) => new AggregateContainer(Device),
         )
@@ -70,8 +74,8 @@ describe("WriteModelMemoryRepository", () => {
         device.addAlarm(Uuid.createV4())
         anotherDevice.addAlarm(Uuid.createV4())
 
-        await writeModelRepo.save(deviceAggregate)
-        await writeModelRepo.save(anotherDeviceAggregate)
+        await repository.save(deviceAggregate)
+        await repository.save(anotherDeviceAggregate)
             .then(
                 () => fail("Expected and Optimistic concurrency error here!!"),
                 (e: any) => {
