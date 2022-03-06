@@ -5,7 +5,7 @@ import { AggregateContainer } from '../../eventSourcing/AggregateRootBase'
 import { UNINITIALISED_AGGREGATE_VERSION, ChangeEvent, EntityEvent} from '../../eventSourcing/MessageTypes'
 import * as Uuid from '../../eventSourcing/UUID'
 import {Entity} from "../../eventSourcing/Entity";
-import {AggregateEntity} from "../../eventSourcing/AggregateEntity";
+import {Aggregate} from "../../eventSourcing/AggregateEntity";
 
 describe('Device', () => {
   describe('GenericAggregateRoot', () => {
@@ -96,5 +96,5 @@ describe('Device', () => {
     return { event: makeEventMatcher(event), version }
   }
 
-  const makeEntityMatcher = (entity: Entity | AggregateEntity) => match.obj.has({ id: entity.id })
+  const makeEntityMatcher = (entity: Entity | Aggregate) => match.obj.has({ id: entity.id })
 })

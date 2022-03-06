@@ -2,11 +2,11 @@ import { assertThat, match } from "mismatched";
 import { CosmosClient, CosmosClientOptions } from "@azure/cosmos";
 import { WriteModelCosmosSqlRepository } from "./WriteModelCosmosSqlRepository";
 
-import * as Uuid from "../../EventSourcing/UUID";
+import * as Uuid from "../../eventSourcing/UUID";
 import { Device } from "../../deviceBoundedContext/domain/Device"
 import { makeMigrator } from "./migrate";
-import { EntityEvent } from "../../EventSourcing/EventSourcingTypes";
-import { AggregateContainer } from "../../EventSourcing/AggregateRoot";
+import { AggregateContainer } from "../../eventSourcing/AggregateRootBase";
+import { EntityEvent } from "../../eventSourcing/MessageTypes";
 
 describe("WriteModelCosmosSqlRepository", () => {
   let writeModelRepo: WriteModelCosmosSqlRepository;
@@ -36,7 +36,7 @@ describe("WriteModelCosmosSqlRepository", () => {
     const uncomittedEvents = deviceAggregate.uncommittedChanges();
 
     const emittedEvents: Array<EntityEvent> = [];
-    writeModelRepo.subscribeToChanges((changes) =>
+    writeModelRepo.subscribeToChangesSynchronously((changes) =>
       changes.forEach((x) => emittedEvents.push(x))
     );
 

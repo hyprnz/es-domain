@@ -38,7 +38,7 @@ export const makeMigrator =  (client: CosmosClient, databaseId: string, containe
       // logger.debug("### Migration complete! ###");
     } catch (e) {
       // logger.error(new NestedError("There was an error creating the DB:", e));
-      console.error("There was an error creating:"));
+      console.error("There was an error creating:");
       throw e
     }
   }

@@ -7,10 +7,12 @@ import {
   OperationResponse
 } from "@azure/cosmos";
 import EventEmitter from "events";
+import { Aggregate } from "../../eventSourcing/AggregateEntity";
+import { ChangeEvent, EntityEvent } from "../../eventSourcing/MessageTypes";
 
-import * as Uuid from "../../EventSourcing/UUID";
-import { Aggregate, ChangeEvent, EntityEvent } from "../../EventSourcing/EventSourcingTypes";
-import { WriteModelRepository } from "../../EventSourcing/WriteModelTypes";
+import * as Uuid from "../../eventSourcing/UUID";
+import { WriteModelRepository } from "../../writeModelRepository/WriteModelRepository";
+
 
 // Flatterened version of event ?
 // Do we need to do this
@@ -97,7 +99,7 @@ export class WriteModelCosmosSqlRepository implements WriteModelRepository {
       .then((result) => result.resources.map(this.toEntityEvent));
   }
 
-  subscribeToChanges(handler: (changes: Array<EntityEvent>) => void) {
+  subscribeToChangesSynchronously(handler: (changes: Array<EntityEvent>) => void) {
     this.eventEmitter.addListener("events", handler);
   }
 

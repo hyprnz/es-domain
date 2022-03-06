@@ -4,7 +4,7 @@ import EventEmitter from "events";
 import {EntityEvent} from "../eventSourcing/MessageTypes";
 import {WriteModelRepositoryError as WriteModelRepositoryError} from "./WriteModelRepositoryError";
 import {WriteModelRepository} from './WriteModelRepository';
-import {AggregateEntity} from "../eventSourcing/AggregateEntity";
+import {Aggregate} from "../eventSourcing/AggregateEntity";
 import {OptimisticConcurrencyError} from "./OptimisticConcurrencyError";
 import {InternalEventStoreRepository} from "./InternalEventStoreRepository";
 import {EventBusInternal} from "../eventSourcing/EventBusInternal";
@@ -15,7 +15,7 @@ export class AggregateRootRepository implements WriteModelRepository {
     constructor(private readonly eventStore: InternalEventStoreRepository, private readonly eventBus = new EventBusInternal()) {
     }
 
-    async save<T extends AggregateEntity>(aggregateRoot: T): Promise<number> {
+    async save<T extends Aggregate>(aggregateRoot: T): Promise<number> {
         const changes = aggregateRoot.uncommittedChanges()
         if (changes.length === 0) return Promise.resolve(0)
         const committedEvents = await this.eventStore.getEvents(aggregateRoot.id)
@@ -39,7 +39,7 @@ export class AggregateRootRepository implements WriteModelRepository {
         return Promise.resolve(changes.length)
     }
 
-    async load<T extends AggregateEntity>(id: UUID, activator: (id: Uuid.UUID) => T): Promise<T> {
+    async load<T extends Aggregate>(id: UUID, activator: (id: Uuid.UUID) => T): Promise<T> {
         const events = await this.eventStore.getEvents(id)
         const found = !!events
         if (!found) throw new WriteModelRepositoryError(activator.name, `Failed to load aggregate id:${id}: NOT FOUND`)
@@ -53,11 +53,11 @@ export class AggregateRootRepository implements WriteModelRepository {
         return await this.eventStore.getEvents(id)
     }
 
-    subscribeToChangesAsynchronously(handler: (changes: Array<EntityEvent>) => void) {
+    subscribeToChangesSynchronously(handler: (changes: Array<EntityEvent>) => void) {
         this.eventEmitter.addListener('events', handler)
     }
 
-    subscribeToChangesSynchronously(handler: (changes: Array<EntityEvent>) => Promise<void>): void {
+    subscribeToChangesAsynchronously(handler: (changes: Array<EntityEvent>) => Promise<void>): void {
         this.eventBus.registerHandlerForEvents(handler)
     }
 

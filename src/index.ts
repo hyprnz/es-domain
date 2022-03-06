@@ -28,5 +28,5 @@ export {StaticEventHandler} from "./eventSourcing/Entity";
 export {EntityConstructor} from "./eventSourcing/Entity";
 export {Entity} from "./eventSourcing/Entity";
 export {ParentAggregate} from "./eventSourcing/AggregateEntity";
-export {AggregateEntity} from "./eventSourcing/AggregateEntity";
+export {Aggregate} from "./eventSourcing/AggregateEntity";
 export {ReadModelRepository} from "./readModelRepository/ReadModelRepository";

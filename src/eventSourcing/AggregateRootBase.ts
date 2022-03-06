@@ -3,7 +3,7 @@ import { AggregateError } from './AggregateError'
 import { ChangeEvent, EntityEvent, UNINITIALISED_AGGREGATE_VERSION} from './MessageTypes'
 import { EntityBase } from './EntityBase'
 import {EntityConstructor} from "./Entity";
-import {AggregateEntity, ParentAggregate} from "./AggregateEntity";
+import {Aggregate, ParentAggregate} from "./AggregateEntity";
 
 
 // For aggregate roots consider not extending them to be treated as an entity.
@@ -19,7 +19,7 @@ import {AggregateEntity, ParentAggregate} from "./AggregateEntity";
 /** @deprecated - Will soon make this private to module and start using 'AggregateContainer' in the future 
  * 
 */
-export abstract class AggregateRootBase implements AggregateEntity {
+abstract class AggregateBase implements Aggregate {
   
   id: Uuid.UUID
   get changeVersion() : number { return this.version}
@@ -91,7 +91,7 @@ export abstract class AggregateRootBase implements AggregateEntity {
 }
 
 
-export class AggregateContainer<T extends EntityBase> extends AggregateRootBase {
+export class AggregateContainer<T extends EntityBase> extends AggregateBase {
   public readonly rootEntity: T 
 
   constructor(activator: EntityConstructor<T>, id?:Uuid.UUID){

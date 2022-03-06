@@ -1,7 +1,7 @@
 import * as Uuid from "./UUID";
 import {ChangeEvent, EntityEvent} from "./MessageTypes";
 
-export interface AggregateEntity {
+export interface Aggregate {
     readonly id: Uuid.UUID
     readonly changeVersion: number
 
