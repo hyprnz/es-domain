@@ -2,6 +2,9 @@ import {ExternalEvent} from "../eventSourcing/MessageTypes";
 import {ExternalEventStoreRepository} from "./ExternalEventStoreRepository";
 import {Logger, makeNoOpLogger} from "../eventSourcing/Logger";
 import {EventBusExternal} from "../eventSourcing/EventBusExternal";
+import {retryOnSpecificErrors} from "../eventSourcing/Retry";
+import {OptimisticConcurrencyError} from "../writeModelRepository/OptimisticConcurrencyError";
+import {EventStoreExternalError} from "./EventStoreExternalError";
 
 export enum ExternalEventStoreProcessingState {
     RECEIVED = 'RECEIVED',
@@ -26,14 +29,12 @@ export class EventStoreExternal {
             const appended = await this.appendEvent(externalEvent)
             if (appended) {
                 state = ExternalEventStoreProcessingState.APPENDED
-                await this.onAfterEventsStored([externalEvent])
+                await retryOnSpecificErrors(() => this.onAfterEventsStored([externalEvent]), this.logger, [OptimisticConcurrencyError])
                 state = ExternalEventStoreProcessingState.HANDLED
             }
             state = ExternalEventStoreProcessingState.PROCESSED
         } catch (err) {
-            // TODO: specific error with all info for logging
-            this.logger.error(`External event store failed for id: ${externalEvent.id} with state: ${state}`)
-            this.logger.error(err)
+            this.logger.error(new EventStoreExternalError(externalEvent.id, externalEvent.eventId, state))
             await this.onAfterEventsFailed([externalEvent])
             this.logger.debug(`Handled failure for event id: ${externalEvent.id} with state: ${state}`)
         }
