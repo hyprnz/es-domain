@@ -18,9 +18,11 @@
     "test:ci": "npm run test:micro --  --ci --watchAll=false --reporters=default --reporters=jest-junit"
   },
   "peerDependencies": {
+    "@azure/cosmos": "^3.14",
     "uuid": "^8.3"
   },
   "devDependencies": {
+    "@azure/cosmos": "^3.14.1",
     "@types/jest": "~27.0.1",
     "@types/node": "~16.4.14",
     "@types/uuid": "~8.3.1",
