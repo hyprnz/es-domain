@@ -24,7 +24,7 @@ export class AggregateRootRepository implements WriteModelRepository {
             const committedVersion = committedEvents[committedEvents.length - 1].version + 1
             const firstUncommittedChangeVersion = changes[0].version
             if (committedVersion !== firstUncommittedChangeVersion) {
-                const error = new OptimisticConcurrencyError(aggregateRoot.id, committedVersion, firstUncommittedChangeVersion)
+                const error = new OptimisticConcurrencyError(aggregateRoot.id, firstUncommittedChangeVersion)
                 return Promise.reject(error)
             }
         }

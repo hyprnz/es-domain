@@ -8,7 +8,7 @@ import {WriteModelRepository} from './WriteModelRepository'
 import {OptimisticConcurrencyError} from "./OptimisticConcurrencyError";
 import {InMemoryEventStoreRepository} from "./InMemoryEventStoreRepository";
 
-describe("WriteModelMemoryRepository", () => {
+describe("AggregateRootRepository", () => {
 
     let repository: WriteModelRepository
 
@@ -80,7 +80,7 @@ describe("WriteModelMemoryRepository", () => {
                 () => fail("Expected and Optimistic concurrency error here!!"),
                 (e: any) => {
                     assertThat(e instanceof OptimisticConcurrencyError).is(true)
-                    assertThat(e.message).is(`Optimistic concurrency error for aggregate root id: ${device.id}, expected event version:${3} but received ${2}, Suggested solution is to retry`)
+                    assertThat(e.message).is(`Optimistic concurrency error for aggregate root id: ${device.id}, version: ${2}`)
                 }
             )
     })

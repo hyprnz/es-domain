@@ -12,6 +12,7 @@ import { ChangeEvent, EntityEvent } from "../../eventSourcing/MessageTypes";
 
 import * as Uuid from "../../eventSourcing/UUID";
 import { WriteModelRepository } from "../../writeModelRepository/WriteModelRepository";
+import {OptimisticConcurrencyError} from "../../writeModelRepository/OptimisticConcurrencyError";
 
 
 // Flatterened version of event ?
@@ -55,12 +56,8 @@ export class WriteModelCosmosSqlRepository implements WriteModelRepository {
 
     if (code === 207) {
       const isConflicted = statusResult.result.some((x: OperationResponse) => x.statusCode === StatusCodes.Conflict);
-
       if (isConflicted) {
-        throw new WriteModelRepositoryError(
-          "AggregateRoot",
-          `Optimistic concurrency error detected, Suggested solution is to retry`
-        );
+        throw new OptimisticConcurrencyError(aggregateRoot.id, aggregateRoot.changeVersion);
       }
     }
 

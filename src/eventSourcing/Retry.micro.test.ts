@@ -17,7 +17,7 @@ describe('retry and retryOnTimeout', () => {
 
         runWithOptimisticError(passOnCallCount: number): Promise<any> {
             this.counter++;
-            return passOnCallCount === this.counter ? Promise.resolve(100) : Promise.reject(new OptimisticConcurrencyError('1', 2, 2));
+            return passOnCallCount === this.counter ? Promise.resolve(100) : Promise.reject(new OptimisticConcurrencyError('1', 2));
         }
     }
 
@@ -51,14 +51,14 @@ describe('retry and retryOnTimeout', () => {
 
         it('error retries then catches on specific error', () => {
             return retryOnSpecificErrors(() => test.runWithOptimisticError(100), logger, [OptimisticConcurrencyError], 2, 1, 'act').catch(e => {
-                assertThat(e.message).is("Optimistic concurrency error for aggregate root id: 1, expected event version:2 but received 2, Suggested solution is to retry");
+                assertThat(e.message).is("Optimistic concurrency error for aggregate root id: 1, version: 2");
                 assertThat(test.counter).is(3);
             });
         });
 
         it('error does not retry when different specific error', () => {
             return retryOnSpecificErrors(() => test.runWithOptimisticError(100), logger, [WriteModelRepositoryError], 2, 1, 'act').catch(e => {
-                assertThat(e.message).is("Optimistic concurrency error for aggregate root id: 1, expected event version:2 but received 2, Suggested solution is to retry");
+                assertThat(e.message).is("Optimistic concurrency error for aggregate root id: 1, version: 2");
                 assertThat(test.counter).is(1);
             });
         });
