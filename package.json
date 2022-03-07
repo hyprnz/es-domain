@@ -3,7 +3,7 @@
   "version": "0.0.1-alpha",
   "type": "commonjs",
   "author": {
-    "name": "Blair Jacobs"
+    "name": "HYPR"
   },
   "licenses": [{"type": "MIT"}],
   "main": "dist/src/index.js",

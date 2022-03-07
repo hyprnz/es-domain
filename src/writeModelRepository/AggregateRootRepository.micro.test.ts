@@ -23,16 +23,20 @@ describe("AggregateRootRepository", () => {
         const deviceAggregate = new AggregateContainer(Device, deviceId)
         deviceAggregate.rootEntity.addAlarm(alarmId)
 
-        const uncomittedEvents = deviceAggregate.uncommittedChanges()
+        const uncommittedEvents = deviceAggregate.uncommittedChanges()
 
-        const emittedEvents: Array<EntityEvent> = []
-        repository.subscribeToChangesSynchronously(changes => changes.forEach(x => emittedEvents.push(x)))
+        let emittedEvents: Array<EntityEvent> = []
+        const handler = async (changes: Array<EntityEvent>) => {
+            emittedEvents = emittedEvents.concat(changes)
+            return
+        }
+        repository.subscribeToChangesSynchronously(changes => handler(changes))
 
         const countEvents = await repository.save(deviceAggregate)
 
         assertThat(countEvents).withMessage("Stored Event count").is(2)
         assertThat(emittedEvents).withMessage("Emitted Events").is(match.array.length(2))
-        assertThat(uncomittedEvents).is(emittedEvents)
+        assertThat(uncommittedEvents).is(emittedEvents)
     })
 
     it("loads events", async () => {

@@ -5,45 +5,33 @@ import {EntityEvent} from "../eventSourcing/MessageTypes";
 import {WriteModelRepositoryError as WriteModelRepositoryError} from "./WriteModelRepositoryError";
 import {WriteModelRepository} from './WriteModelRepository';
 import {Aggregate} from "../eventSourcing/AggregateEntity";
-import {OptimisticConcurrencyError} from "./OptimisticConcurrencyError";
 import {InternalEventStoreRepository} from "./InternalEventStoreRepository";
 import {EventBusInternal} from "../eventSourcing/EventBusInternal";
 
 export class AggregateRootRepository implements WriteModelRepository {
     private readonly eventEmitter = new EventEmitter();
 
-    constructor(private readonly eventStore: InternalEventStoreRepository, private readonly eventBus = new EventBusInternal()) {
+    constructor(private readonly eventStore: InternalEventStoreRepository,
+                private readonly eventBusSync = new EventBusInternal(),
+    ) {
     }
 
     async save<T extends Aggregate>(aggregateRoot: T): Promise<number> {
         const changes = aggregateRoot.uncommittedChanges()
-        if (changes.length === 0) return Promise.resolve(0)
-        const committedEvents = await this.eventStore.getEvents(aggregateRoot.id)
-        const found = committedEvents.length > 0
-        if (found) {
-            const committedVersion = committedEvents[committedEvents.length - 1].version + 1
-            const firstUncommittedChangeVersion = changes[0].version
-            if (committedVersion !== firstUncommittedChangeVersion) {
-                const error = new OptimisticConcurrencyError(aggregateRoot.id, firstUncommittedChangeVersion)
-                return Promise.reject(error)
-            }
+        if (changes.length === 0) {
+            return Promise.resolve(0)
         }
-
-        // Insert vs update
-        if (found) committedEvents.push(...changes)
-        else await this.eventStore.appendEvents(aggregateRoot.id, changes)
-
-        const lastChange = changes[changes.length - 1]
-        aggregateRoot.markChangesAsCommitted(lastChange.version);
+        await this.eventStore.appendEvents(aggregateRoot.id, changes[0].version, changes)
+        aggregateRoot.markChangesAsCommitted(changes[changes.length - 1].version);
         await this.onAfterEventsStored(changes)
-        return Promise.resolve(changes.length)
+        return changes.length
     }
 
     async load<T extends Aggregate>(id: UUID, activator: (id: Uuid.UUID) => T): Promise<T> {
         const events = await this.eventStore.getEvents(id)
-        const found = !!events
-        if (!found) throw new WriteModelRepositoryError(activator.name, `Failed to load aggregate id:${id}: NOT FOUND`)
-
+        if (events.length === 0) {
+            throw new WriteModelRepositoryError(activator.name, `Failed to load aggregate id:${id}: NOT FOUND`)
+        }
         const aggregate = activator(id)
         aggregate.loadFromHistory(events)
         return Promise.resolve(aggregate)
@@ -53,17 +41,17 @@ export class AggregateRootRepository implements WriteModelRepository {
         return await this.eventStore.getEvents(id)
     }
 
-    subscribeToChangesSynchronously(handler: (changes: Array<EntityEvent>) => void) {
-        this.eventEmitter.addListener('events', handler)
+    subscribeToChangesSynchronously(handler: (changes: Array<EntityEvent>) => Promise<void>) {
+        this.eventBusSync.registerHandlerForEvents(handler)
     }
 
     subscribeToChangesAsynchronously(handler: (changes: Array<EntityEvent>) => Promise<void>): void {
-        this.eventBus.registerHandlerForEvents(handler)
+        this.eventEmitter.addListener('events', handler)
     }
 
     private async onAfterEventsStored(changes: Array<EntityEvent>): Promise<void> {
         if (changes.length === 0) return
-        await this.eventBus.callHandlers(changes)
+        await this.eventBusSync.callHandlers(changes)
         this.eventEmitter.emit('events', changes)
     }
 }
