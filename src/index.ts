@@ -21,7 +21,7 @@ export {
 
 export {EntityBase} from './eventSourcing/EntityBase'
 export {AbstractChangeEvent} from './eventSourcing/AbstractChangeEvent'
-export {AggregateContainer} from './eventSourcing/AggregateRootBase'
+export {AggregateContainer} from './eventSourcing/AggregateContainer'
 
 export * as example from './deviceBoundedContext';
 export {StaticEventHandler} from "./eventSourcing/Entity";

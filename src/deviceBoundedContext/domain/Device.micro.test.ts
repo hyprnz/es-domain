@@ -1,7 +1,7 @@
 import { assertThat, match } from 'mismatched'
 import { Device } from '..'
 import * as deviceEvents from "../events/internal/DeviceEvents"
-import { AggregateContainer } from '../../eventSourcing/AggregateRootBase'
+import { AggregateContainer } from '../../eventSourcing/AggregateContainer'
 import { UNINITIALISED_AGGREGATE_VERSION, ChangeEvent, EntityEvent} from '../../eventSourcing/MessageTypes'
 import * as Uuid from '../../eventSourcing/UUID'
 import {Entity} from "../../eventSourcing/Entity";

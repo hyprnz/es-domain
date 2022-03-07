@@ -1,5 +1,5 @@
 import {Device} from "..";
-import {AggregateContainer} from "../../eventSourcing/AggregateRootBase";
+import {AggregateContainer} from "../../eventSourcing/AggregateContainer";
 import * as Uuid from "../../eventSourcing/UUID";
 import {WriteModelRepository} from "../../writeModelRepository/WriteModelRepository";
 

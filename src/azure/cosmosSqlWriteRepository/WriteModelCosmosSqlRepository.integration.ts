@@ -4,9 +4,9 @@ import {WriteModelCosmosSqlRepository} from "./WriteModelCosmosSqlRepository";
 
 import * as Uuid from "../../eventSourcing/UUID";
 import {Device} from "../../deviceBoundedContext"
-import {makeMigrator} from "./migrate";
-import {AggregateContainer} from "../../eventSourcing/AggregateRootBase";
-import {EntityEvent} from "../../eventSourcing/MessageTypes";
+import { makeMigrator } from "./migrate";
+import { AggregateContainer } from "../../eventSourcing/AggregateContainer";
+import { EntityEvent } from "../../eventSourcing/MessageTypes";
 
 describe("WriteModelCosmosSqlRepository", () => {
     let writeModelRepo: WriteModelCosmosSqlRepository;

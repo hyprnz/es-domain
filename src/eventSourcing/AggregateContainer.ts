@@ -16,31 +16,37 @@ import {Aggregate, ParentAggregate} from "./Aggregate";
 //        Though if we have a layered system, the service layer could be responsible for creating aggregate roots 
 //        It just passes / makes use of the entities to perform domain actions
 
-/** @deprecated - Will soon make this private to module and start using 'AggregateContainer' in the future 
- * 
-*/
-abstract class AggregateBase implements Aggregate {
-  
-  id: Uuid.UUID
-  get changeVersion() : number { return this.version}
+export class AggregateContainer<T extends EntityBase> implements Aggregate {
+  public id: Uuid.UUID
+  public readonly rootEntity: T 
 
   private version: number
   private changes: Array<EntityEvent> = []
+
   protected thisAsParent: ParentAggregate 
 
-  protected constructor(){
-    // Uninitialised, we are going to load an existing
-    this.id = Uuid.EmptyUUID
-    this.version = UNINITIALISED_AGGREGATE_VERSION
+  constructor(activator: EntityConstructor<T>, id?:Uuid.UUID){
+    if(id) this.id = id
+    else this.id = Uuid.EmptyUUID
 
+    this.version = UNINITIALISED_AGGREGATE_VERSION
     this.thisAsParent = {
       id: () => this.id,
-      addChangeEvent: (evt) => this.changes.push({
-        event:evt, 
-        version: UNINITIALISED_AGGREGATE_VERSION
-      })
+      addChangeEvent: (evt) => {
+        const currentVersion = this.changes.length 
+          ? this.changes[this.changes.length - 1].version
+          : this.version
+        this.changes.push({
+          event:evt, 
+          version: currentVersion + 1
+        })
+      }
     }
+
+    this.rootEntity = new activator(this.thisAsParent, id)
   }
+
+  get changeVersion() : number { return this.version}
 
   loadFromHistory(history: EntityEvent[]): void{
     history.forEach(evt => {
@@ -55,10 +61,8 @@ abstract class AggregateBase implements Aggregate {
   }
 
   uncommittedChanges(): EntityEvent[] {
-    // Probably a better way of doing this, must preserve order
-    const uncommited = [...this.changes]
-    uncommited.forEach((e, index) => e.version = this.version + index + 1)
-    return uncommited
+    return [...this.changes]
+
   }
 
   markChangesAsCommitted(version: number): void {
@@ -82,29 +86,9 @@ abstract class AggregateBase implements Aggregate {
   
   /** Actions an event on the domain object */
   private applyEvent(evt: ChangeEvent){
-    const eventHandler = this.makeEventHandler(evt)
-    if(!eventHandler) throw new AggregateError( this.toString(), `AggregateRoot Event Handlers not found for eventType:${evt.eventType}`) 
-    eventHandler()    
-  }
-
-  protected abstract makeEventHandler(evt: ChangeEvent) : (() => void) | undefined
-}
-
-
-export class AggregateContainer<T extends EntityBase> extends AggregateBase {
-  public readonly rootEntity: T 
-
-  constructor(activator: EntityConstructor<T>, id?:Uuid.UUID){
-    super()
-    if(id) this.id = id
-    this.rootEntity = new activator(this.thisAsParent, id)
-  }
-
-  protected makeEventHandler(evt: ChangeEvent): (() => void) | undefined {
-    return () => {
-      this.rootEntity.applyChangeEvent(evt)
-      this.id = evt.aggregateRootId
-    }
+    this.rootEntity.applyChangeEvent(evt)
+    this.id = evt.aggregateRootId
   }
 }
+
 

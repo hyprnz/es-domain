@@ -1,8 +1,8 @@
 import * as Uuid from '../eventSourcing/UUID'
 import {AggregateRootRepository} from './AggregateRootRepository'
 import {assertThat, match} from 'mismatched'
-import {ChangeEvent, EntityEvent} from '../eventSourcing/MessageTypes'
-import {AggregateContainer} from '../eventSourcing/AggregateRootBase'
+import {EntityEvent} from '../eventSourcing/MessageTypes'
+import {AggregateContainer} from '../eventSourcing/AggregateContainer'
 import {Device} from '../deviceBoundedContext'
 import {WriteModelRepository} from './WriteModelRepository'
 import {OptimisticConcurrencyError} from "./OptimisticConcurrencyError";
