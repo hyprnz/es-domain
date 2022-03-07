@@ -6,6 +6,7 @@ import {retryOnSpecificErrors} from "../eventSourcing/Retry";
 import {OptimisticConcurrencyError} from "../writeModelRepository/OptimisticConcurrencyError";
 import {EventStoreExternalError} from "./EventStoreExternalError";
 import {EventBusEventFailed, EventFailed} from "./EventBusExternalFailure";
+import {IdempotencyError} from "./IdempotencyError";
 
 export enum ExternalEventStoreProcessingState {
     RECEIVED = 'RECEIVED',
@@ -57,7 +58,7 @@ export class EventStoreExternal {
             await this.store.appendEvent(externalEvent)
             return true
         } catch (err) {
-            if (err instanceof OptimisticConcurrencyError) {
+            if (err instanceof IdempotencyError) {
                 return false
             } else {
                 throw err;

@@ -3,7 +3,7 @@ import {ExternalEventStoreInMemoryRepository} from "./ExternalEventStoreInMemory
 import {ExternalEventStoreRepository} from "./ExternalEventStoreRepository";
 import {ExternalEvent} from "../eventSourcing/MessageTypes";
 import {ExternalEventBuilder} from "./ExternalEventBuilder";
-import {OptimisticConcurrencyError} from "../writeModelRepository/OptimisticConcurrencyError";
+import {IdempotencyError} from "./IdempotencyError";
 
 describe("ExternalEventStoreInMemoryRepository", () => {
     let externalEventStoreRepository: ExternalEventStoreRepository = new ExternalEventStoreInMemoryRepository()
@@ -23,7 +23,7 @@ describe("ExternalEventStoreInMemoryRepository", () => {
             return externalEventStoreRepository.appendEvent(event).then(() => {
                 throw new Error('Should not get here')
             }, (err: any) => {
-                assertThat(err instanceof OptimisticConcurrencyError).is(true)
+                assertThat(err instanceof IdempotencyError).is(true)
             })
         })
     })

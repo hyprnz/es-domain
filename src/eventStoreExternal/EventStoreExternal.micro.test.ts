@@ -6,6 +6,7 @@ import {Thespian, TMocked} from "thespian";
 import {assertThat} from "mismatched";
 import {OptimisticConcurrencyError} from "../writeModelRepository/OptimisticConcurrencyError";
 import {EventFailed} from "./EventBusExternalFailure";
+import {IdempotencyError} from "./IdempotencyError";
 
 describe("EventStoreExternal", () => {
     let repository: TMocked<ExternalEventStoreRepository>
@@ -34,7 +35,7 @@ describe("EventStoreExternal", () => {
         it("already processed", async () => {
             eventStoreExternal.subscribeToEventsSynchronously(handler)
             eventStoreExternal.subscribeToFailureSynchronously(errorHandler)
-            repository.setup(x => x.appendEvent(event)).returns(() => Promise.reject(new OptimisticConcurrencyError(event.id, event.eventId)))
+            repository.setup(x => x.appendEvent(event)).returns(() => Promise.reject(new IdempotencyError(event.id, event.eventId)))
             await eventStoreExternal.process(event)
             assertThat(count).is(0)
             assertThat(errorCount).is(0)
