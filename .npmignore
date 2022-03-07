@@ -4,6 +4,10 @@ deviceBoundedContext/
 junit.xml
 tsconfig.tsbuildinfo
 
+*.test.js
+*.test.d.ts
+*.integration.js
+*.integration.d.ts
 *.tgz
 *.json
 jest.config*
