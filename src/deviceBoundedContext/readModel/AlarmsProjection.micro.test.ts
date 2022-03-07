@@ -25,6 +25,8 @@ describe('AlarmsProjection', ()=>{
     const events: Array<EntityEvent> = [
       {version:0, event:{
         id: Uuid.createV4(), 
+        correlationId: Uuid.createV4(), 
+        causationId: Uuid.createV4(), 
         entityId:alarmId, 
         aggregateRootId:aggregateRootId, 
         payload: {},
@@ -47,6 +49,8 @@ describe('AlarmsProjection', ()=>{
     const events = [
       {version:0, event:{
         id: Uuid.createV4(), 
+        correlationId: Uuid.createV4(), 
+        causationId: Uuid.createV4(), 
         entityId:alarmId, 
         aggregateRootId:aggregateRootId, 
         payload: {},
@@ -55,6 +59,8 @@ describe('AlarmsProjection', ()=>{
       
       {version:1, event:{
         id: Uuid.createV4(), 
+        correlationId: Uuid.createV4(), 
+        causationId: Uuid.createV4(), 
         entityId:alarmId, 
         aggregateRootId:aggregateRootId, 
         eventType: AlarmArmedEvent.eventType, 

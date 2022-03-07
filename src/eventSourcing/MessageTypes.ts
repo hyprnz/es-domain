@@ -14,8 +14,7 @@ export interface ExternalEvent extends Message {
 }
 
 
-export interface ChangeEvent {
-    readonly id: Uuid.UUID
+export interface ChangeEvent extends Message {
     readonly eventType: string
     readonly entityId: Uuid.UUID
     readonly aggregateRootId: Uuid.UUID
