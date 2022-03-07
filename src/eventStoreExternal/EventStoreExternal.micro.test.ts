@@ -5,6 +5,7 @@ import {EventStoreExternal} from "./EventStoreExternal";
 import {Thespian, TMocked} from "thespian";
 import {assertThat} from "mismatched";
 import {OptimisticConcurrencyError} from "../writeModelRepository/OptimisticConcurrencyError";
+import {EventFailed} from "./EventBusExternalFailure";
 
 describe("EventStoreExternal", () => {
     let repository: TMocked<ExternalEventStoreRepository>
@@ -15,7 +16,7 @@ describe("EventStoreExternal", () => {
     const handler = async (events: ExternalEvent[]): Promise<void> => {
         count++
     }
-    const errorHandler = async (events: ExternalEvent[]): Promise<void> => {
+    const errorHandler = async (events: EventFailed[]): Promise<void> => {
         errorCount++
     }
 

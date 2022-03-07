@@ -1,5 +1,5 @@
-import {ExternalEvent} from "./MessageTypes";
-import {EventBus, EventBusProcessor} from "./EventBus";
+import {ExternalEvent} from "../eventSourcing/MessageTypes";
+import {EventBus, EventBusProcessor} from "../eventSourcing/EventBus";
 
 export class EventBusExternal implements EventBus<ExternalEvent> {
     constructor(private eventBusProcessor: EventBusProcessor<ExternalEvent> = new EventBusProcessor<ExternalEvent>()) {

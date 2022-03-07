@@ -1,10 +1,11 @@
 import {ExternalEvent} from "../eventSourcing/MessageTypes";
 import {ExternalEventStoreRepository} from "./ExternalEventStoreRepository";
 import {Logger, makeNoOpLogger} from "../eventSourcing/Logger";
-import {EventBusExternal} from "../eventSourcing/EventBusExternal";
+import {EventBusExternal} from "./EventBusExternal";
 import {retryOnSpecificErrors} from "../eventSourcing/Retry";
 import {OptimisticConcurrencyError} from "../writeModelRepository/OptimisticConcurrencyError";
 import {EventStoreExternalError} from "./EventStoreExternalError";
+import {EventBusEventFailed, EventFailed} from "./EventBusExternalFailure";
 
 export enum ExternalEventStoreProcessingState {
     RECEIVED = 'RECEIVED',
@@ -16,7 +17,7 @@ export enum ExternalEventStoreProcessingState {
 // Used for idempotent processing of external events.
 export class EventStoreExternal {
     private readonly eventBus = new EventBusExternal();
-    private readonly failedEventBus = new EventBusExternal();
+    private readonly eventBusFailed = new EventBusEventFailed();
 
     constructor(private store: ExternalEventStoreRepository, private readonly logger: Logger = makeNoOpLogger()) {
     }
@@ -29,15 +30,24 @@ export class EventStoreExternal {
             const appended = await this.appendEvent(externalEvent)
             if (appended) {
                 state = ExternalEventStoreProcessingState.APPENDED
-                await retryOnSpecificErrors(() => this.onAfterEventsStored([externalEvent]), this.logger, [OptimisticConcurrencyError])
+                await this.handle(externalEvent)
                 state = ExternalEventStoreProcessingState.HANDLED
             }
             state = ExternalEventStoreProcessingState.PROCESSED
         } catch (err) {
             this.logger.error(new EventStoreExternalError(externalEvent.id, externalEvent.eventId, state))
-            await this.onAfterEventsFailed([externalEvent])
+            await this.onAfterEventFailed({
+                id: externalEvent.id,
+                eventType: externalEvent.eventType,
+                eventId: externalEvent.eventId,
+                state
+            })
             this.logger.debug(`Handled failure for event id: ${externalEvent.id} with state: ${state}`)
         }
+    }
+
+    private async handle(externalEvent: ExternalEvent) {
+        await retryOnSpecificErrors(() => this.onAfterEventsStored([externalEvent]), this.logger, [OptimisticConcurrencyError])
     }
 
     private async appendEvent(
@@ -59,15 +69,15 @@ export class EventStoreExternal {
         this.eventBus.registerHandlerForEvents(handler)
     }
 
-    subscribeToFailureSynchronously(handler: (events: ExternalEvent[]) => Promise<void>) {
-        this.failedEventBus.registerHandlerForEvents(handler)
+    subscribeToFailureSynchronously(handler: (events: EventFailed[]) => Promise<void>) {
+        this.eventBusFailed.registerHandlerForEvents(handler)
     }
 
     private async onAfterEventsStored(events: ExternalEvent[]): Promise<void> {
         await this.eventBus.callHandlers(events)
     }
 
-    private async onAfterEventsFailed(events: ExternalEvent[]): Promise<void> {
-        await this.failedEventBus.callHandlers(events)
+    private async onAfterEventFailed(event: EventFailed): Promise<void> {
+        await this.eventBusFailed.callHandlers(event)
     }
 }
