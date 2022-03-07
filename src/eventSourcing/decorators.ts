@@ -13,9 +13,9 @@ import { EventSourcedEntity } from "./Entity";
  * 
  * @example
  * \@Emits(DogAdoptedEvent)
- * private adopt(data: { name: string }): void {
- *   // `data` is the payload specific to this call
- *   this.name = data.name
+ * private adopt(payload: { name: string }): void {
+ *   // `payload` is the data specific to this call
+ *   this.name = payload.name
  * 
  *   // state changes inherent to action/event type
  *   this.hasOwner = true
@@ -30,24 +30,16 @@ export const Emits = <E extends AbstractChangeEvent>(ChangeEvent: ChangeEventCon
         const originalMethod = descriptor.value;
         if (!originalMethod) throw new Error('State change method not implemented')
 
-        Reflect.defineMetadata(
-            `${ChangeEvent.eventType}Handler`,
-            originalMethod,
-            entity
-        )
+        registerEventHandler(entity, ChangeEvent.eventType, originalMethod)
+
         descriptor.value = function (this: EventSourcedEntity, payload: E["payload"]) {
             originalMethod.call(this, payload);
+
             this.aggregate.addChangeEvent(new ChangeEvent(this.aggregate.id(), this.id, payload));
         }
     }
 }
 
-// NOT CURRENTLY USED... (would prevent needed to register in child entity constructors)
-export function ChildEntity<T extends { new(...args: any[]): EventSourcedEntity }>(BaseEntity: T) {
-  return class extends BaseEntity {
-    constructor(...args: any[]) {
-      super(...args);
-      this.aggregate.registerEntity(this)
-    }
-  };
+function registerEventHandler(entity: Object, eventType: string, handler: (() => void) | ((payload: Record<string, any>) => void)): void {
+  Reflect.defineMetadata(`${eventType}Handler`, handler, entity)
 }
