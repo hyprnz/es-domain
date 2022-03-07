@@ -1,7 +1,7 @@
 import {ExternalEventStoreRepository} from "./ExternalEventStoreRepository";
 import {ExternalEvent} from "../eventSourcing/MessageTypes";
 import {ExternalEventBuilder} from "./ExternalEventBuilder";
-import {EventStoreExternal} from "./EventStoreExternal";
+import {EventStoreExternal, ExternalEventStoreProcessingState} from "./EventStoreExternal";
 import {Thespian, TMocked} from "thespian";
 import {assertThat} from "mismatched";
 import {IdempotencyError} from "./IdempotencyError";
@@ -71,7 +71,10 @@ describe("EventStoreExternal", () => {
             return eventStoreExternal.process(event).then(() => {
                 throw new Error('Should not get here')
             }, (e: any) => {
-                assertThat(e.message).is(`Event bus error for events: ${JSON.stringify(event)} errors: Doh`)
+                assertThat(e.message).is(`Event bus error for events: ${JSON.stringify({
+                    ...event,
+                    state: ExternalEventStoreProcessingState.APPENDED
+                })} errors: Doh`)
                 assertThat(count).is(2)
                 assertThat(errorCount).is(0)
             })

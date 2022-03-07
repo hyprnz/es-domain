@@ -1,7 +1,7 @@
 import {ExternalEvent} from "../eventSourcing/MessageTypes";
 import {ExternalEventStoreRepository} from "./ExternalEventStoreRepository";
 import {Logger, makeNoOpLogger} from "../eventSourcing/Logger";
-import {EventBusExternal} from "./EventBusExternal";
+import {EventBusExternal, FailedExternalEvent} from "./EventBusExternal";
 import {retryOnSpecificErrors} from "../eventSourcing/Retry";
 import {OptimisticConcurrencyError} from "../writeModelRepository/OptimisticConcurrencyError";
 import {EventStoreExternalError} from "./EventStoreExternalError";
@@ -36,7 +36,7 @@ export class EventStoreExternal {
             state = ExternalEventStoreProcessingState.PROCESSED
         } catch (err) {
             this.logger.error(new EventStoreExternalError(externalEvent.id, externalEvent.eventId, state))
-            await this.onAfterEventFailed(externalEvent)
+            await this.onAfterEventFailed({...externalEvent, state})
             this.logger.debug(`Handled failure for event id: ${externalEvent.id} with state: ${state}`)
         }
     }
@@ -64,7 +64,7 @@ export class EventStoreExternal {
         this.eventBus.registerHandlerForEvents(handler)
     }
 
-    subscribeToFailureSynchronously(handler: (events: ExternalEvent[]) => Promise<void>) {
+    subscribeToFailureSynchronously(handler: (events: FailedExternalEvent[]) => Promise<void>) {
         this.eventBusFailed.registerHandlerForEvents(handler)
     }
 
@@ -72,7 +72,7 @@ export class EventStoreExternal {
         await this.eventBus.callHandlers(events)
     }
 
-    private async onAfterEventFailed(event: ExternalEvent): Promise<void> {
+    private async onAfterEventFailed(event: FailedExternalEvent): Promise<void> {
         await this.eventBusFailed.callHandlers([event])
     }
 }
