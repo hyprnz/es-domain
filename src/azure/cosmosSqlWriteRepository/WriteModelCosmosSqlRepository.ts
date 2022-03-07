@@ -34,6 +34,7 @@ export class WriteModelCosmosSqlRepository implements WriteModelRepository, Inte
         const changes = aggregateRoot.uncommittedChanges();
         if (changes.length === 0) return Promise.resolve(0);
         const lastChange = changes[changes.length - 1];
+        this.appendEvents(aggregateRoot.id, lastChange.version, changes)
         aggregateRoot.markChangesAsCommitted(lastChange.version);
         this.onAfterEventsStored(changes);
         return changes.length;
@@ -93,7 +94,7 @@ export class WriteModelCosmosSqlRepository implements WriteModelRepository, Inte
         return result;
     }
 
-    async appendEvents(id: UUID, changeVersion: number, changes: EntityEvent[]): Promise<void> {
+    async appendEvents(aggregateId: UUID, changeVersion: number, changes: EntityEvent[]): Promise<void> {
         // const options = {
         //   disableAutomaticIdGeneration: true,
         //   consistencyLevel: 'Eventual'
@@ -109,7 +110,7 @@ export class WriteModelCosmosSqlRepository implements WriteModelRepository, Inte
         // NOTE: Batch sizes are limited to 100!!
         const statusResult = await this.store.items.batch(
             operations,
-            id
+            aggregateId
         );
 
         const code = statusResult.code ?? 200;
@@ -123,7 +124,7 @@ export class WriteModelCosmosSqlRepository implements WriteModelRepository, Inte
         if (code === 207) {
             const isConflicted = statusResult.result.some((x: OperationResponse) => x.statusCode === StatusCodes.Conflict);
             if (isConflicted) {
-                throw new OptimisticConcurrencyError(id, changeVersion);
+                throw new OptimisticConcurrencyError(aggregateId, changeVersion);
             }
         }
     }
