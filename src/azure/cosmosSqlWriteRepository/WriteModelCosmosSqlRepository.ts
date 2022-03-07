@@ -40,13 +40,12 @@ export class WriteModelCosmosSqlRepository implements WriteModelRepository, Inte
 
     async load<T extends Aggregate>(id: Uuid.UUID, activator: (id: Uuid.UUID) => T): Promise<T> {
         const events = await this.loadEvents(id);
-        const found = !!events;
-        if (!found)
+        if (events.length === 0) {
             throw new WriteModelRepositoryError(
                 activator.name,
                 `Failed to load aggregate id:${id}: NOT FOUND`
             );
-
+        }
         const aggregate = activator(id);
         aggregate.loadFromHistory(events);
         return aggregate;
@@ -93,22 +92,13 @@ export class WriteModelCosmosSqlRepository implements WriteModelRepository, Inte
         return result;
     }
 
-    private toPersistable(clock: string, change: EntityEvent): JSONObject {
-        return {
-            version: change.version,
-            // dateTimeOfEvent: clock,
-
-            ...change.event,
-        };
-    }
-
     async appendEvents(id: UUID, changeVersion: number, changes: EntityEvent[]): Promise<void> {
         // const options = {
         //   disableAutomaticIdGeneration: true,
         //   consistencyLevel: 'Eventual'
         // }
         const clock = new Date().toISOString();
-        const models = changes.map((x) => this.toPersistable(clock, x));
+        const models = changes.map((x) => toPersistable(clock, x));
         const operations: Array<CreateOperationInput> = models.map((x) => ({
             // partitionKey: aggregateRoot.id,
             operationType: BulkOperationType.Create,
@@ -151,4 +141,14 @@ export class WriteModelCosmosSqlRepository implements WriteModelRepository, Inte
             .fetchAll()
             .then((result) => result.resources.map(this.toEntityEvent));
     }
+}
+
+
+const toPersistable = (clock: string, change: EntityEvent): JSONObject => {
+    return {
+        version: change.version,
+        // dateTimeOfEvent: clock,
+
+        ...change.event,
+    };
 }

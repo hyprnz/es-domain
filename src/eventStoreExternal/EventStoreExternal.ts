@@ -43,13 +43,16 @@ export class EventStoreExternal {
     private async appendEvent(
         externalEvent: ExternalEvent,
     ): Promise<boolean> {
-        const exists = await this.store.exists(externalEvent.eventId)
-        if (!exists) {
-            // Only handle if new - idempotent processing
+        try {
             await this.store.appendEvent(externalEvent)
             return true
+        } catch (err) {
+            if (err instanceof OptimisticConcurrencyError) {
+                return false
+            } else {
+                throw err;
+            }
         }
-        return false
     }
 
     subscribeToEventsSynchronously(handler: (events: ExternalEvent[]) => Promise<void>) {

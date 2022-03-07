@@ -1,9 +1,9 @@
-import * as Uuid from '../eventSourcing/UUID'
 import {assertThat} from 'mismatched'
 import {ExternalEventStoreInMemoryRepository} from "./ExternalEventStoreInMemoryRepository";
 import {ExternalEventStoreRepository} from "./ExternalEventStoreRepository";
 import {ExternalEvent} from "../eventSourcing/MessageTypes";
 import {ExternalEventBuilder} from "./ExternalEventBuilder";
+import {OptimisticConcurrencyError} from "../writeModelRepository/OptimisticConcurrencyError";
 
 describe("ExternalEventStoreInMemoryRepository", () => {
     let externalEventStoreRepository: ExternalEventStoreRepository = new ExternalEventStoreInMemoryRepository()
@@ -12,26 +12,19 @@ describe("ExternalEventStoreInMemoryRepository", () => {
         externalEventStoreRepository = new ExternalEventStoreInMemoryRepository()
     })
 
-    describe("exists", () => {
+    describe("appendEvent", () => {
         it("not present", async () => {
-            const eventId = Uuid.createV4()
-            const exists = await externalEventStoreRepository.exists(eventId)
-            assertThat(exists).is(false)
+            const event: ExternalEvent = ExternalEventBuilder.make().to()
+            await externalEventStoreRepository.appendEvent(event)
         })
         it("is present", async () => {
             const event: ExternalEvent = ExternalEventBuilder.make().to()
             await externalEventStoreRepository.appendEvent(event)
-            const exists = await externalEventStoreRepository.exists(event.eventId)
-            assertThat(exists).is(true)
+            return externalEventStoreRepository.appendEvent(event).then(() => {
+                throw new Error('Should not get here')
+            }, (err: any) => {
+                assertThat(err instanceof OptimisticConcurrencyError).is(true)
+            })
         })
     })
-
-    // describe("markAsProcessed", () => {
-    //     it("adds event", async () => {
-    //         const event: ExternalEvent = ExternalEventBuilder.make().to()
-    //         await externalEventStoreRepository.append(event)
-    //         await externalEventStoreRepository.markAsProcessed(event.eventId)
-    //     })
-    // })
-
 })
