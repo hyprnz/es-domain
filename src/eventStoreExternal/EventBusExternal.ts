@@ -3,7 +3,7 @@ import {EventBus, EventBusProcessor} from "../eventSourcing/EventBus";
 import {ExternalEventStoreProcessingState} from "./EventStoreExternal";
 
 export interface FailedExternalEvent extends ExternalEvent {
-    state: ExternalEventStoreProcessingState
+    processingState: ExternalEventStoreProcessingState
 }
 
 export class EventBusExternal implements EventBus<ExternalEvent> {

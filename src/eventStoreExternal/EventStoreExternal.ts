@@ -36,7 +36,7 @@ export class EventStoreExternal {
             state = ExternalEventStoreProcessingState.PROCESSED
         } catch (err) {
             this.logger.error(new EventStoreExternalError(externalEvent.id, externalEvent.eventId, state))
-            await this.onAfterEventFailed({...externalEvent, state})
+            await this.onAfterEventFailed({...externalEvent, processingState: state})
             this.logger.debug(`Handled failure for event id: ${externalEvent.id} with state: ${state}`)
         }
     }

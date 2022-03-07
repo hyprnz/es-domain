@@ -73,7 +73,7 @@ describe("EventStoreExternal", () => {
             }, (e: any) => {
                 assertThat(e.message).is(`Event bus error for events: ${JSON.stringify({
                     ...event,
-                    state: ExternalEventStoreProcessingState.APPENDED
+                    processingState: ExternalEventStoreProcessingState.APPENDED
                 })} errors: Doh`)
                 assertThat(count).is(2)
                 assertThat(errorCount).is(0)
