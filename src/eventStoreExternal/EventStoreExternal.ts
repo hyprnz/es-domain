@@ -5,7 +5,6 @@ import {EventBusExternal} from "./EventBusExternal";
 import {retryOnSpecificErrors} from "../eventSourcing/Retry";
 import {OptimisticConcurrencyError} from "../writeModelRepository/OptimisticConcurrencyError";
 import {EventStoreExternalError} from "./EventStoreExternalError";
-import {EventBusEventFailed, EventFailed} from "./EventBusExternalFailure";
 import {IdempotencyError} from "./IdempotencyError";
 
 export enum ExternalEventStoreProcessingState {
@@ -18,7 +17,7 @@ export enum ExternalEventStoreProcessingState {
 // Used for idempotent processing of external events.
 export class EventStoreExternal {
     private readonly eventBus = new EventBusExternal();
-    private readonly eventBusFailed = new EventBusEventFailed();
+    private readonly eventBusFailed = new EventBusExternal();
 
     constructor(private store: ExternalEventStoreRepository, private readonly logger: Logger = makeNoOpLogger()) {
     }
@@ -37,12 +36,7 @@ export class EventStoreExternal {
             state = ExternalEventStoreProcessingState.PROCESSED
         } catch (err) {
             this.logger.error(new EventStoreExternalError(externalEvent.id, externalEvent.eventId, state))
-            await this.onAfterEventFailed({
-                id: externalEvent.id,
-                eventType: externalEvent.eventType,
-                eventId: externalEvent.eventId,
-                state
-            })
+            await this.onAfterEventFailed(externalEvent)
             this.logger.debug(`Handled failure for event id: ${externalEvent.id} with state: ${state}`)
         }
     }
@@ -70,7 +64,7 @@ export class EventStoreExternal {
         this.eventBus.registerHandlerForEvents(handler)
     }
 
-    subscribeToFailureSynchronously(handler: (events: EventFailed[]) => Promise<void>) {
+    subscribeToFailureSynchronously(handler: (events: ExternalEvent[]) => Promise<void>) {
         this.eventBusFailed.registerHandlerForEvents(handler)
     }
 
@@ -78,7 +72,7 @@ export class EventStoreExternal {
         await this.eventBus.callHandlers(events)
     }
 
-    private async onAfterEventFailed(event: EventFailed): Promise<void> {
-        await this.eventBusFailed.callHandlers(event)
+    private async onAfterEventFailed(event: ExternalEvent): Promise<void> {
+        await this.eventBusFailed.callHandlers([event])
     }
 }

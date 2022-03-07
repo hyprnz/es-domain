@@ -1,4 +1,4 @@
-import {EntityEvent} from "./MessageTypes";
+import {ChangeEvent, EntityEvent} from "./MessageTypes";
 import {EventBus, EventBusProcessor} from "./EventBus";
 
 export class EventBusInternal implements EventBus<EntityEvent> {
@@ -6,12 +6,10 @@ export class EventBusInternal implements EventBus<EntityEvent> {
     }
 
     async callHandlers<T extends EntityEvent>(events: T[]): Promise<void> {
-        for (const event of events) {
-            await this.eventBusProcessor.callHandlers(event.event.id, event.event.eventType, event.event.id, event)
-        }
+        await this.eventBusProcessor.callHandlers(events)
     }
 
     registerHandlerForEvents<T extends EntityEvent>(handler: (e: T[]) => Promise<unknown>): void {
-        this.eventBusProcessor.registerHandlerForEvent(handler)
+        this.eventBusProcessor.registerHandlerForEvents(handler)
     }
 }

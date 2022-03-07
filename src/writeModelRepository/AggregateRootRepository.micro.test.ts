@@ -1,7 +1,7 @@
 import * as Uuid from '../eventSourcing/UUID'
 import {AggregateRootRepository} from './AggregateRootRepository'
 import {assertThat, match} from 'mismatched'
-import {EntityEvent} from '../eventSourcing/MessageTypes'
+import {ChangeEvent, EntityEvent} from '../eventSourcing/MessageTypes'
 import {AggregateContainer} from '../eventSourcing/AggregateRootBase'
 import {Device} from '../deviceBoundedContext'
 import {WriteModelRepository} from './WriteModelRepository'

@@ -6,13 +6,11 @@ export class EventBusExternal implements EventBus<ExternalEvent> {
     }
 
     async callHandlers<T extends ExternalEvent>(events: T[]): Promise<void> {
-        for (const event of events) {
-            await this.eventBusProcessor.callHandlers(event.id, event.eventType, event.eventId, event)
-        }
+        await this.eventBusProcessor.callHandlers(events)
     }
 
     registerHandlerForEvents<T extends ExternalEvent>(handler: (events: T[]) => Promise<unknown>): void {
-        this.eventBusProcessor.registerHandlerForEvent(handler)
+        this.eventBusProcessor.registerHandlerForEvents(handler)
     }
 }
 

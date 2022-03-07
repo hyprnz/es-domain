@@ -4,8 +4,6 @@ import {ExternalEventBuilder} from "./ExternalEventBuilder";
 import {EventStoreExternal} from "./EventStoreExternal";
 import {Thespian, TMocked} from "thespian";
 import {assertThat} from "mismatched";
-import {OptimisticConcurrencyError} from "../writeModelRepository/OptimisticConcurrencyError";
-import {EventFailed} from "./EventBusExternalFailure";
 import {IdempotencyError} from "./IdempotencyError";
 
 describe("EventStoreExternal", () => {
@@ -17,7 +15,7 @@ describe("EventStoreExternal", () => {
     const handler = async (events: ExternalEvent[]): Promise<void> => {
         count++
     }
-    const errorHandler = async (events: EventFailed[]): Promise<void> => {
+    const errorHandler = async (events: ExternalEvent[]): Promise<void> => {
         errorCount++
     }
 
@@ -73,7 +71,7 @@ describe("EventStoreExternal", () => {
             return eventStoreExternal.process(event).then(() => {
                 throw new Error('Should not get here')
             }, (e: any) => {
-                assertThat(e.message).is(`Event bus error for event with id: ${event.id} eventId: ${event.eventId} for eventType: ${event.eventType} errors: Doh`)
+                assertThat(e.message).is(`Event bus error for events: ${JSON.stringify(event)} errors: Doh`)
                 assertThat(count).is(2)
                 assertThat(errorCount).is(0)
             })
