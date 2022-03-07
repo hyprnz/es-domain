@@ -36,11 +36,7 @@ export interface WriteModelRepository {
      * @argument handler A callback function that will receive an array of changes (Unit of work) related to a single aggregate.*/
     subscribeToChangesSynchronously(handler: (changes: Array<EntityEvent>) => Promise<void>): void
 
-    /** Asynchronously subscribe to events that are being committed to persistence, this can be used to feed events
-     * to down stream services to create other side effects such as Projections
-     * @argument handler A callback function that will receive an array of changes (Unit of work) related to a single aggregate.*/
-    subscribeToChangesAsynchronously(handler: (changes: Array<EntityEvent>) => Promise<void>): void
-
+    
     /** Utility function, not sure if its going to be needed or not but is useful */
     loadEvents(id: UUID): Promise<Array<EntityEvent>>
 }
