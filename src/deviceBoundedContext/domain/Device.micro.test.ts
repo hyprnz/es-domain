@@ -5,7 +5,7 @@ import { AggregateContainer } from '../../eventSourcing/AggregateRootBase'
 import { UNINITIALISED_AGGREGATE_VERSION, ChangeEvent, EntityEvent} from '../../eventSourcing/MessageTypes'
 import * as Uuid from '../../eventSourcing/UUID'
 import {Entity} from "../../eventSourcing/Entity";
-import {Aggregate} from "../../eventSourcing/AggregateEntity";
+import {Aggregate} from "../../eventSourcing/Aggregate";
 
 describe('Device', () => {
   describe('GenericAggregateRoot', () => {

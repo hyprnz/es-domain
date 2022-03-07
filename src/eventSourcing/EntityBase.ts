@@ -2,7 +2,7 @@ import * as Uuid from './UUID'
 import { AggregateError } from './AggregateError'
 import { ChangeEvent} from './MessageTypes'
 import {Entity} from "./Entity";
-import {ParentAggregate} from "./AggregateEntity";
+import {ParentAggregate} from "./Aggregate";
 
 export abstract class EntityBase implements Entity {
   public id: Uuid.UUID

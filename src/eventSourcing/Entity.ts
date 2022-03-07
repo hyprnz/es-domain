@@ -1,6 +1,6 @@
 import * as Uuid from "./UUID";
 import {ChangeEvent} from "./MessageTypes";
-import {ParentAggregate} from "./AggregateEntity";
+import {ParentAggregate} from "./Aggregate";
 
 export interface Entity {
     readonly id: Uuid.UUID

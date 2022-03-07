@@ -3,7 +3,7 @@ import { AggregateError } from './AggregateError'
 import { ChangeEvent, EntityEvent, UNINITIALISED_AGGREGATE_VERSION} from './MessageTypes'
 import { EntityBase } from './EntityBase'
 import {EntityConstructor} from "./Entity";
-import {Aggregate, ParentAggregate} from "./AggregateEntity";
+import {Aggregate, ParentAggregate} from "./Aggregate";
 
 
 // For aggregate roots consider not extending them to be treated as an entity.

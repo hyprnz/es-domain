@@ -1,5 +1,5 @@
-import {UUID} from "../eventSourcing/UUID";
-import {Aggregate} from "../eventSourcing/AggregateEntity";
+import { UUID } from "../eventSourcing/UUID";
+import {Aggregate} from "../eventSourcing/Aggregate";
 import {EntityEvent} from "../eventSourcing/MessageTypes";
 
 /** Write model uses only 2 keys.

@@ -7,8 +7,9 @@ import {
     StatusCodes
 } from "@azure/cosmos";
 import EventEmitter from "events";
-import {Aggregate} from "../../eventSourcing/AggregateEntity";
-import {ChangeEvent, EntityEvent} from "../../eventSourcing/MessageTypes";
+import { Aggregate } from "../../eventSourcing/Aggregate";
+import { ChangeEvent, EntityEvent } from "../../eventSourcing/MessageTypes";
+
 import * as Uuid from "../../eventSourcing/UUID";
 import {UUID} from "../../eventSourcing/UUID";
 import {WriteModelRepository} from "../../writeModelRepository/WriteModelRepository";

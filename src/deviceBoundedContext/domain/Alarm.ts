@@ -3,7 +3,7 @@ import { EntityBase } from "../../eventSourcing/EntityBase";
 import { ChangeEvent} from "../../eventSourcing/MessageTypes";
 import { AlarmArmedEvent, AlarmCreatedEvent, AlarmDestroyedEvent, AlarmDisarmedEvent, AlarmTriggeredEvent, DeviceDomainError } from "../events/internal/DeviceEvents";
 import {StaticEventHandler} from "../../eventSourcing/Entity";
-import {ParentAggregate} from "../../eventSourcing/AggregateEntity";
+import {ParentAggregate} from "../../eventSourcing/Aggregate";
 
 export class Alarm extends EntityBase {    
   private isArmed: boolean = false

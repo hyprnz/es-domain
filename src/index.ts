@@ -27,6 +27,6 @@ export * as example from './deviceBoundedContext';
 export {StaticEventHandler} from "./eventSourcing/Entity";
 export {EntityConstructor} from "./eventSourcing/Entity";
 export {Entity} from "./eventSourcing/Entity";
-export {ParentAggregate} from "./eventSourcing/AggregateEntity";
-export {Aggregate} from "./eventSourcing/AggregateEntity";
+export {ParentAggregate} from "./eventSourcing/Aggregate";
+export {Aggregate} from "./eventSourcing/Aggregate";
 export {ReadModelRepository} from "./readModelRepository/ReadModelRepository";

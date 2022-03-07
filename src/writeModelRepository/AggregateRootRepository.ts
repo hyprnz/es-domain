@@ -4,7 +4,7 @@ import EventEmitter from "events";
 import {EntityEvent} from "../eventSourcing/MessageTypes";
 import {WriteModelRepositoryError as WriteModelRepositoryError} from "./WriteModelRepositoryError";
 import {WriteModelRepository} from './WriteModelRepository';
-import {Aggregate} from "../eventSourcing/AggregateEntity";
+import {Aggregate} from "../eventSourcing/Aggregate";
 import {InternalEventStoreRepository} from "./InternalEventStoreRepository";
 import {EventBusInternal} from "../eventSourcing/EventBusInternal";
 
