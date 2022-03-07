@@ -1,11 +1,16 @@
 import * as Uuid from "./UUID";
 import {ChangeEvent} from "./MessageTypes";
-import {ParentAggregate} from "./Aggregate";
+import {Parent, ParentAggregate} from "./Aggregate";
 
 export interface Entity {
     readonly id: Uuid.UUID
 
     applyChangeEvent(event: ChangeEvent): void
+}
+
+export interface EventSourcedEntity {
+    readonly id: Uuid.UUID
+    readonly aggregate: Parent
 }
 
 export interface EntityConstructor<T extends Entity> {

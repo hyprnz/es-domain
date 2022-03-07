@@ -19,10 +19,10 @@ export interface ChangeEvent {
     readonly eventType: string
     readonly entityId: Uuid.UUID
     readonly aggregateRootId: Uuid.UUID
+    readonly payload: Record<string, any>
 }
 
 export interface EntityEvent {
     version: number
     readonly event: ChangeEvent
 }
-

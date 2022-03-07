@@ -31,7 +31,7 @@ export class AlarmCreatedEvent extends AbstractChangeEvent {
 
 export class AlarmArmedEvent extends AbstractChangeEvent {
   static readonly  eventType = 'Alarm.ArmedEvent'
-  constructor(aggregateRootId: Uuid.UUID, alarmId: Uuid.UUID, public threshold: number){
+  constructor(aggregateRootId: Uuid.UUID, alarmId: Uuid.UUID, public payload: { threshold: number }){
     super(AlarmArmedEvent.eventType, aggregateRootId, alarmId)    
   } 
 

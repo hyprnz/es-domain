@@ -5,7 +5,11 @@
   "author": {
     "name": "HYPR"
   },
-  "licenses": [{"type": "MIT"}],
+  "licenses": [
+    {
+      "type": "MIT"
+    }
+  ],
   "main": "dist/src/index.js",
   "types": "dist/src/index.d.ts",
   "description": "A library for handling event sourced domain models",
@@ -19,6 +23,7 @@
   },
   "peerDependencies": {
     "@azure/cosmos": "^3.14",
+    "reflect-metadata": "^0.1.13",
     "uuid": "^8.3"
   },
   "devDependencies": {
@@ -29,6 +34,7 @@
     "jest": "~27.3.1",
     "jest-junit": "~13.0.0",
     "mismatched": "~2.9.0",
+    "reflect-metadata": "^0.1.13",
     "thespian": "~2.9.0",
     "ts-jest": "~27.0.7",
     "ts-node": "~10.4.0",

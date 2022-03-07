@@ -24,7 +24,7 @@ export class Alarm extends EntityBase {
       throw new DeviceDomainError(this.parentId, "Alarm threshold Failed Validation")
     }
     if(!this.isArmed) {
-      this.applyChange(new AlarmArmedEvent(this.parentId, this.id, alarmThreshold))    
+      this.applyChange(new AlarmArmedEvent(this.parentId, this.id, { threshold: alarmThreshold }))    
     }
   }
 
@@ -64,7 +64,7 @@ export class Alarm extends EntityBase {
     [AlarmArmedEvent.eventType]: [(alarm, evt) => {
       AlarmArmedEvent.assertIsAlarmArmedEvent(evt)
       alarm.isArmed = true; 
-      alarm.threshold = evt.threshold
+      alarm.threshold = evt.payload.threshold
     }],
     [AlarmTriggeredEvent.eventType]:[(alarm) => alarm.isTriggered = true],
     [AlarmDestroyedEvent.eventType]:[() => {}]

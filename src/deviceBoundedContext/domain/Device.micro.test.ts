@@ -55,7 +55,7 @@ describe('Device', () => {
         assertThat(events).is([
           makeEntityEventMatcher(new deviceEvents.DeviceCreatedEvent(deviceId, deviceId), 0),
           makeEntityEventMatcher(new deviceEvents.AlarmCreatedEvent(deviceId, alarmId), 1),
-          makeEntityEventMatcher(new deviceEvents.AlarmArmedEvent(deviceId, alarmId, 20), 2),
+          makeEntityEventMatcher(new deviceEvents.AlarmArmedEvent(deviceId, alarmId, { threshold: 20 }), 2),
         ])
 
         // const hydratedDevice = new DeviceAggregateRoot()

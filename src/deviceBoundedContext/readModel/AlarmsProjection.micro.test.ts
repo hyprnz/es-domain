@@ -27,6 +27,7 @@ describe('AlarmsProjection', ()=>{
         id: Uuid.createV4(), 
         entityId:alarmId, 
         aggregateRootId:aggregateRootId, 
+        payload: {},
         eventType: AlarmCreatedEvent.eventType
       }},                 
     ]
@@ -48,6 +49,7 @@ describe('AlarmsProjection', ()=>{
         id: Uuid.createV4(), 
         entityId:alarmId, 
         aggregateRootId:aggregateRootId, 
+        payload: {},
         eventType: AlarmCreatedEvent.eventType
       }},      
       
@@ -56,8 +58,9 @@ describe('AlarmsProjection', ()=>{
         entityId:alarmId, 
         aggregateRootId:aggregateRootId, 
         eventType: AlarmArmedEvent.eventType, 
-        threshold:10, 
-        isArmed: true
+        payload: {
+          threshold:10, 
+        },
       }}
     ]
     repository.setup(x => x.find(projectionName, alarmId))
