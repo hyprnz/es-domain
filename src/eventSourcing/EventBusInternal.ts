@@ -1,5 +1,6 @@
 import {ChangeEvent, EntityEvent} from "./MessageTypes";
-import {EventBus, EventBusProcessor} from "./EventBus";
+import {EventBus} from "./EventBus";
+import {EventBusProcessor} from "./EventBusProcessor";
 
 export class EventBusInternal implements EventBus<EntityEvent> {
     constructor(private eventBusProcessor: EventBusProcessor<EntityEvent> = new EventBusProcessor<EntityEvent>()) {
