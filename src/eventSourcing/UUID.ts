@@ -14,6 +14,11 @@ export function assertValidUUID(input: string): asserts input is UUID {
   }
 }
 
+export function makeFromString(uuid:string): UUID {
+  assertValidUUID(uuid)
+  return uuid
+}
+
 export function makeWelKnownUuid(uuid:string): UUID{
   assertValidUUID(uuid)
   return uuid

@@ -1,9 +1,9 @@
 import * as Uuid from './UUID'
 import { AggregateError } from './AggregateError'
-import { ChangeEvent, EntityEvent, UNINITIALISED_AGGREGATE_VERSION} from './MessageTypes'
+import { ChangeEvent, EntityEvent, UNINITIALISED_AGGREGATE_VERSION } from './MessageTypes'
 import { EntityBase } from './EntityBase'
-import {EntityConstructor} from "./Entity";
-import {Aggregate, ParentAggregate} from "./Aggregate";
+import { EntityConstructor } from "./Entity";
+import { Aggregate, ParentAggregate } from "./Aggregate";
 
 
 // For aggregate roots consider not extending them to be treated as an entity.
@@ -18,26 +18,28 @@ import {Aggregate, ParentAggregate} from "./Aggregate";
 
 export class AggregateContainer<T extends EntityBase> implements Aggregate {
   public id: Uuid.UUID
-  public readonly rootEntity: T 
+  public readonly rootEntity: T
 
   private version: number
   private changes: Array<EntityEvent> = []
+  protected thisAsParent: ParentAggregate
+  private causationId?: Uuid.UUID;
+  private correlationId?: Uuid.UUID;
 
-  protected thisAsParent: ParentAggregate 
+  get changeVersion(): number { return this.version }
 
-  constructor(activator: EntityConstructor<T>, id?:Uuid.UUID){
-    if(id) this.id = id
-    else this.id = Uuid.EmptyUUID
-
+  constructor(activator: EntityConstructor<T>, id?: Uuid.UUID) {
+    this.id = id ?? Uuid.EmptyUUID
     this.version = UNINITIALISED_AGGREGATE_VERSION
     this.thisAsParent = {
       id: () => this.id,
       addChangeEvent: (evt) => {
-        const currentVersion = this.changes.length 
+        const currentVersion = this.changes.length
           ? this.changes[this.changes.length - 1].version
           : this.version
+
         this.changes.push({
-          event:evt, 
+          event: evt,
           version: currentVersion + 1
         })
       }
@@ -46,13 +48,11 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
     this.rootEntity = new activator(this.thisAsParent, id)
   }
 
-  get changeVersion() : number { return this.version}
-
-  loadFromHistory(history: EntityEvent[]): void{
+  loadFromHistory(history: EntityEvent[]): void {
     history.forEach(evt => {
       const expectedVersion = this.version + 1
-      if(expectedVersion !== evt.version){
-        throw new AggregateError( typeof this,  'Failed to load unexpected event version') 
+      if (expectedVersion !== evt.version) {
+        throw new AggregateError(typeof this, 'Failed to load unexpected event version')
       }
 
       this.applyEvent(evt.event)
@@ -61,7 +61,15 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
   }
 
   uncommittedChanges(): EntityEvent[] {
-    return [...this.changes]
+    return this.changes.map(x => ({
+      version: x.version,
+      event: {
+        ...x.event,
+        causationId:  this.causationId ?? x.event.causationId,
+        correlationId: this.correlationId ?? x.event.causationId,
+      },
+    })
+    )
 
   }
 
@@ -70,22 +78,31 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
     this.version = version
   }
 
-  toString(){
+  toString() {
     return `AggregateRoot:${this.id}, Version:${this.changeVersion}`
   }
 
+  withCausation(causationId: Uuid.UUID): this {
+    this.causationId = causationId
+    return this
+  }
+
+  withCorrelation(correlationId: Uuid.UUID): this {
+    this.correlationId = correlationId
+    return this
+  }
 
   /** Applies a new chnage to the Domain Object */
-  protected applyChange(evt: ChangeEvent){
+  protected applyChange(evt: ChangeEvent) {
     this.applyEvent(evt)
     this.changes.push({
-      event:evt, 
+      event: evt,
       version: UNINITIALISED_AGGREGATE_VERSION
     })
   }
-  
+
   /** Actions an event on the domain object */
-  private applyEvent(evt: ChangeEvent){
+  private applyEvent(evt: ChangeEvent) {
     this.rootEntity.applyChangeEvent(evt)
     this.id = evt.aggregateRootId
   }
