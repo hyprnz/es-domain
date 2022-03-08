@@ -12,6 +12,14 @@ export class ExternalEventStoreInMemoryRepository implements ExternalEventStoreR
         this.store.set(externalEvent.eventId, externalEvent)
     }
 
+    async getByEventId(eventId: string): Promise<ExternalEvent> {
+        const event = this.store.get(eventId)
+        if (!event) {
+            throw new Error(`Unable to find event with eventId: ${eventId}`)
+        }
+        return event
+    }
+
     private async exists(eventId: string): Promise<boolean> {
         return this.store.has(eventId)
     }
