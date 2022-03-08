@@ -1,32 +1,18 @@
 export * as Uuid from './eventSourcing/UUID'
-export {AggregateError} from './eventSourcing/AggregateError'
-export {
-    ChangeEvent,
-    EntityEvent,
-    Message
-} from './eventSourcing/MessageTypes'
-export {WriteModelRepository} from './writeModelRepository/WriteModelRepository'
-export {
-    makeProjection,
-    Projection,
-    ProjectionRow,
-    ProjectionAction,
-    StaticProjectionEventHandler,
-
-} from './readModelRepository/Projection'
-export {EntityBase} from './eventSourcing/EntityBase'
-export {AbstractChangeEvent} from './eventSourcing/AbstractChangeEvent'
-export {AggregateContainer} from './eventSourcing/AggregateContainer'
-export {StaticEventHandler} from "./eventSourcing/Entity";
-export {EntityConstructor} from "./eventSourcing/Entity";
-export {Entity} from "./eventSourcing/Entity";
-export {ParentAggregate} from "./eventSourcing/Aggregate";
-export {Aggregate} from "./eventSourcing/Aggregate";
-export {ReadModelRepository} from "./readModelRepository/ReadModelRepository";
-export {InMemoryEventStoreRepository} from "./writeModelRepository/InMemoryEventStoreRepository";
-export {AggregateRootRepository} from "./writeModelRepository/AggregateRootRepository";
-export {ExternalEventStoreInMemoryRepository} from "./eventStoreExternal/ExternalEventStoreInMemoryRepository";
-export {EventStoreExternal} from "./eventStoreExternal/EventStoreExternal";
-export {ExternalEventBuilder} from "./eventStoreExternal/ExternalEventBuilder";
-
+export * from './eventSourcing/AggregateError'
+export * from './eventSourcing/MessageTypes'
+export * from './writeModelRepository/WriteModelRepository'
+export * from './readModelRepository/Projection'
+export * from './eventSourcing/EntityBase'
+export * from './eventSourcing/AbstractChangeEvent'
+export * from './eventSourcing/AggregateContainer'
+export * from "./eventSourcing/Entity";
+export * from "./eventSourcing/Aggregate";
+export * from "./eventSourcing/Aggregate";
+export * from "./readModelRepository/ReadModelRepository";
+export * from "./writeModelRepository/InMemoryEventStoreRepository";
+export * from "./writeModelRepository/AggregateRootRepository";
+export * from "./eventStoreExternal/ExternalEventStoreInMemoryRepository";
+export * from "./eventStoreExternal/EventStoreExternal";
+export * from "./eventStoreExternal/ExternalEventBuilder";
 export * as example from './deviceBoundedContext';
