@@ -1,18 +1,17 @@
-import { Parent } from '../../eventSourcing/Aggregate'
-import { Emits } from '../../eventSourcing/decorators'
-import { EventSourcedEntity } from '../../eventSourcing/Entity'
-import { UUID } from '../../eventSourcing/UUID'
+import { Parent } from '../../eventSourcing/Aggregate';
+import { Emits, Entity } from '../../eventSourcing/decorators';
+import { EventSourcedEntity } from '../../eventSourcing/Entity';
+import { UUID } from '../../eventSourcing/UUID';
 import { AdoptDogPayload, CreatePersonPayload, DogAdoptedEvent, PersonCreatedEvent } from '../events/personEvents'
 import { Dog } from './Dog'
 
+@Entity
 export class Person implements EventSourcedEntity {
   private name?: string
   private isCool?: boolean
   private dogs: Dog[] = []
 
-  constructor(readonly id: UUID, readonly aggregate: Parent) {
-    aggregate.registerEntity(this)
-  }
+  constructor(readonly id: UUID, readonly aggregate: Parent) {}
 
   create(firstName: string, lastName: string): Person {
     // validation/invariant checks

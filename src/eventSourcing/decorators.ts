@@ -2,6 +2,16 @@ import 'reflect-metadata'
 import { AbstractChangeEvent, ChangeEventConstructor } from './AbstractChangeEvent'
 import { EventSourcedEntity } from './Entity'
 
+/** Registers an entity with its aggregate for event handler management */
+export function Entity<T extends { new(...args: any[]): EventSourcedEntity }>(BaseEntity: T) {
+  return class extends BaseEntity {
+    constructor(...args: any[]) {
+      super(...args);
+      this.aggregate.registerEntity(this)
+    }
+  };
+}
+
 /**
  *
  * @param ChangeEvent Event emitted by this method, and reduced by this method on rehydration.
