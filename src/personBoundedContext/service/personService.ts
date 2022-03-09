@@ -17,15 +17,15 @@ export class PersonService {
   }
 
   async adoptDog(personId: Uuid.UUID, dogId: Uuid.UUID, dogName: string): Promise<void> {
-    const personAggregate = await this.writeRepo.load(personId, PersonService.makePersonAggregate)
-    personAggregate.rootEntity.adoptDog({ dogId, dogName })
-    await this.writeRepo.save(personAggregate)
+    // const personAggregate = await this.writeRepo.load(personId, new EventSourcedAggregate())
+    // personAggregate.rootEntity.adoptDog({ dogId, dogName })
+    // await this.writeRepo.save(personAggregate)
   }
 
   async microchipDog(personId: Uuid.UUID, dogId: Uuid.UUID): Promise<void> {
-    const personAggregate = await this.writeRepo.load(personId, PersonService.makePersonAggregate)
-    const dog = personAggregate.rootEntity.findDog(dogId)
-    if (dog) dog.microchip()
-    await this.writeRepo.save(personAggregate)
+    // const personAggregate = await this.writeRepo.load(personId, PersonService.makePersonAggregate)
+    // const dog = personAggregate.rootEntity.findDog(dogId)
+    // if (dog) dog.microchip()
+    // await this.writeRepo.save(personAggregate)
   }
 }

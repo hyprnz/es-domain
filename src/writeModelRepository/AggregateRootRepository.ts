@@ -27,12 +27,11 @@ export class AggregateRootRepository implements WriteModelRepository {
         return changes.length
     }
 
-    async load<T extends Aggregate>(id: UUID, activator: (id: Uuid.UUID) => T): Promise<T> {
+    async load<T extends Aggregate>(id: UUID, aggregate: T): Promise<T> {
         const events = await this.eventStore.getEvents(id)
         if (events.length === 0) {
-            throw new WriteModelRepositoryError(activator.name, `Failed to load aggregate id:${id}: NOT FOUND`)
+            throw new WriteModelRepositoryError("AggregateContainer", `Failed to load aggregate id:${id}: NOT FOUND`)
         }
-        const aggregate = activator(id)
         aggregate.loadFromHistory(events)
         return Promise.resolve(aggregate)
     }

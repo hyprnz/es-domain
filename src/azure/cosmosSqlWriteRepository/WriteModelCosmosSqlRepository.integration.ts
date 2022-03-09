@@ -79,7 +79,7 @@ describe("WriteModelCosmosSqlRepository", () => {
 
         const anotherDeviceAggregate = await writeModelRepo.load(
             deviceId,
-            () => new AggregateContainer(Device, deviceId)
+            new AggregateContainer(Device)
         );
         const anotherDevice = anotherDeviceAggregate.rootEntity;
 

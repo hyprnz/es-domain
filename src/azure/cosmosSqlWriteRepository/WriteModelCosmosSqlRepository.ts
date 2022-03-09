@@ -39,15 +39,14 @@ export class WriteModelCosmosSqlRepository implements WriteModelRepository {
         return changes.length;
     }
 
-    async load<T extends Aggregate>(id: Uuid.UUID, activator: (id: Uuid.UUID) => T): Promise<T> {
+    async load<T extends Aggregate>(id: Uuid.UUID, aggregate: T): Promise<T> {
         const events = await this.loadEvents(id);
         if (events.length === 0) {
             throw new WriteModelRepositoryError(
-                activator.name,
+                "AggregateContainer",
                 `Failed to load aggregate id:${id}: NOT FOUND`
             );
         }
-        const aggregate = activator(id);
         aggregate.loadFromHistory(events);
         return aggregate;
     }

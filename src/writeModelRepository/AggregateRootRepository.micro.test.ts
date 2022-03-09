@@ -56,6 +56,43 @@ describe("AggregateRootRepository", () => {
 
         assertThat(uncommittedEvents).is(loadedEvents)
         assertThat(loadedEvents).is(match.array.length(2))
+    
+    })
+
+    it("loads entities from events", async () => {
+        const deviceId = Uuid.createV4()
+        const alarmId = Uuid.createV4()
+
+        const deviceAggregate = new AggregateContainer(Device, deviceId)
+
+        const device = deviceAggregate.rootEntity
+        device.addAlarm(alarmId)
+
+        const alarm = deviceAggregate.rootEntity.findAlarm(alarmId)
+        await repository.save(deviceAggregate)
+
+        const rehydratedAggregate = await repository.load(deviceId, new AggregateContainer(Device))
+        const foundAlarm = rehydratedAggregate.rootEntity.findAlarm(alarmId)
+        assertThat(foundAlarm).isNot(undefined)
+        assertThat(foundAlarm).is(alarm)
+    })
+
+    it("loads entities from events without creating new events", async () => {
+        const deviceId = Uuid.createV4()
+        const alarmId = Uuid.createV4()
+
+        const deviceAggregate = new AggregateContainer(Device, deviceId)
+
+        const device = deviceAggregate.rootEntity
+        device.addAlarm(alarmId)
+
+        // changes stored, uncommitted changes cleared
+        await repository.save(deviceAggregate)
+
+        const rehydratedAggregate = await repository.load(deviceId, new AggregateContainer(Device))
+        const uncommittedEvents = rehydratedAggregate.uncommittedChanges()
+        // rehydration should not result in new events
+        assertThat(uncommittedEvents).is(match.array.length(0))
     })
 
     it('detects concurrency issue', async () => {
@@ -71,7 +108,7 @@ describe("AggregateRootRepository", () => {
 
         const anotherDeviceAggregate = await repository.load(
             deviceId,
-            (id) => new AggregateContainer(Device),
+            new AggregateContainer(Device),
         )
         const anotherDevice = anotherDeviceAggregate.rootEntity
 

@@ -29,7 +29,7 @@ export interface WriteModelRepository {
      * @argument id The id of the Aggregate Root to load
      * @argument activator As we do not have reflection in typescript we must provide either an instance or an activation function
      */
-    load<T extends Aggregate>(id: UUID, activator: (id: UUID) => T): Promise<T>
+    load<T extends Aggregate>(id: UUID, aggregate: T): Promise<T>
 
     /** Synchronously subscribe to events that are being committed to persistence, this can be used to feed events
      * to down stream services to create other side effects such as Projections
