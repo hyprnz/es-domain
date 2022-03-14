@@ -14,7 +14,6 @@ export class Alarm extends EntityBase {
     super(parent)
 
     if(id){
-      // This is a new object
       this.applyChange(new AlarmCreatedEvent(this.parentId, id))
     }
   }

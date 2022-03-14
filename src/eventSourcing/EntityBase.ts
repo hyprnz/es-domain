@@ -25,7 +25,7 @@ export abstract class EntityBase implements Entity {
   /** Applies a new change to the Domain Object */
   protected applyChange(evt: ChangeEvent): void {
     this.applyEvent(evt)
-    this.parent.addChangeEvent(evt) //TOOD : Should just store against the parent with out performing any actions
+    this.parent.addChangeEvent(evt) // TODO : Should just store against the parent without performing any actions
   }
 
   // Applies an existing event to the Entity

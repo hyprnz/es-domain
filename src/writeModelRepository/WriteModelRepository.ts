@@ -23,7 +23,7 @@ export interface WriteModelRepository {
     /** Persists an AggregateRoots uncommited events
      * @argument aggregateRoot The aggregateroot to persist
      */
-    save<T extends Aggregate>(aggregateRoot: T): Promise<number>
+    save<T extends Aggregate>(aggregate: T): Promise<number>
 
     /**Loads an aggregate root from persistence
      * @argument id The id of the Aggregate Root to load

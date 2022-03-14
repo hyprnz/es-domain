@@ -7,6 +7,7 @@ import {Device} from '../deviceBoundedContext'
 import {WriteModelRepository} from './WriteModelRepository'
 import {OptimisticConcurrencyError} from "./OptimisticConcurrencyError";
 import {InMemoryEventStoreRepository} from "./InMemoryEventStoreRepository";
+import {DeviceAggregate} from "../deviceBoundedContext/domain/DeviceAggregate";
 
 describe("AggregateRootRepository", () => {
 
@@ -20,7 +21,7 @@ describe("AggregateRootRepository", () => {
         const deviceId = Uuid.createV4()
         const alarmId = Uuid.createV4()
 
-        const deviceAggregate = new AggregateContainer(Device, deviceId)
+        const deviceAggregate = new DeviceAggregate().withDevice(deviceId)
         deviceAggregate.rootEntity.addAlarm(alarmId)
 
         const uncommittedEvents = deviceAggregate.uncommittedChanges()
@@ -43,7 +44,7 @@ describe("AggregateRootRepository", () => {
         const deviceId = Uuid.createV4()
         const alarmId = Uuid.createV4()
 
-        const deviceAggregate = new AggregateContainer(Device, deviceId)
+        const deviceAggregate = new DeviceAggregate().withDevice(deviceId)
 
         const device = deviceAggregate.rootEntity
         device.addAlarm(alarmId)
@@ -63,7 +64,7 @@ describe("AggregateRootRepository", () => {
         const deviceId = Uuid.createV4()
         const alarmId = Uuid.createV4()
 
-        const deviceAggregate = new AggregateContainer(Device, deviceId)
+        const deviceAggregate = new DeviceAggregate().withDevice(deviceId)
 
         const device = deviceAggregate.rootEntity
         device.addAlarm(alarmId)
@@ -71,7 +72,7 @@ describe("AggregateRootRepository", () => {
         const alarm = deviceAggregate.rootEntity.findAlarm(alarmId)
         await repository.save(deviceAggregate)
 
-        const rehydratedAggregate = await repository.load(deviceId, new AggregateContainer(Device))
+        const rehydratedAggregate = await repository.load(deviceId, new DeviceAggregate())
         const foundAlarm = rehydratedAggregate.rootEntity.findAlarm(alarmId)
         assertThat(foundAlarm).isNot(undefined)
         assertThat(foundAlarm).is(alarm)
@@ -81,7 +82,7 @@ describe("AggregateRootRepository", () => {
         const deviceId = Uuid.createV4()
         const alarmId = Uuid.createV4()
 
-        const deviceAggregate = new AggregateContainer(Device, deviceId)
+        const deviceAggregate = new DeviceAggregate().withDevice(deviceId)
 
         const device = deviceAggregate.rootEntity
         device.addAlarm(alarmId)
@@ -89,7 +90,7 @@ describe("AggregateRootRepository", () => {
         // changes stored, uncommitted changes cleared
         await repository.save(deviceAggregate)
 
-        const rehydratedAggregate = await repository.load(deviceId, new AggregateContainer(Device))
+        const rehydratedAggregate = await repository.load(deviceId, new DeviceAggregate())
         const uncommittedEvents = rehydratedAggregate.uncommittedChanges()
         // rehydration should not result in new events
         assertThat(uncommittedEvents).is(match.array.length(0))
@@ -99,7 +100,7 @@ describe("AggregateRootRepository", () => {
         const deviceId = Uuid.createV4()
         const alarmId = Uuid.createV4()
 
-        const deviceAggregate = new AggregateContainer(Device, deviceId)
+        const deviceAggregate = new DeviceAggregate().withDevice(deviceId)
 
         const device = deviceAggregate.rootEntity
         device.addAlarm(alarmId)
@@ -108,7 +109,7 @@ describe("AggregateRootRepository", () => {
 
         const anotherDeviceAggregate = await repository.load(
             deviceId,
-            new AggregateContainer(Device),
+            new DeviceAggregate(),
         )
         const anotherDevice = anotherDeviceAggregate.rootEntity
 
