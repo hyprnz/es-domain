@@ -2,8 +2,7 @@ import * as Uuid from './UUID'
 import {AggregateError} from './AggregateError'
 import {ChangeEvent, EntityEvent, UNINITIALISED_AGGREGATE_VERSION} from './MessageTypes'
 import {EntityBase} from './EntityBase'
-import {EntityConstructor} from "./Entity";
-import {Aggregate, ParentAggregate} from "./Aggregate";
+import {Aggregate} from "./Aggregate";
 
 
 // For aggregate roots consider not extending them to be treated as an entity.
@@ -21,7 +20,6 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
 
     private version: number
     private changes: Array<EntityEvent> = []
-    protected thisAsParent: ParentAggregate
     private causationId?: Uuid.UUID;
     private correlationId?: Uuid.UUID;
 
@@ -36,33 +34,16 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
         return this._rootEntity
     }
 
+    set rootEntity(value) {
+        this._rootEntity = value
+    }
+
     get id(): Uuid.UUID {
         return this.rootEntity.id
     }
 
-    protected constructor(protected activator: EntityConstructor<T>) {
+    constructor() {
         this.version = UNINITIALISED_AGGREGATE_VERSION
-        this.thisAsParent = {
-            id: () => this.id,
-            addChangeEvent: (evt) => {
-                const currentVersion = this.changes.length
-                    ? this.changes[this.changes.length - 1].version
-                    : this.version
-
-                this.changes.push({
-                    event: evt,
-                    version: currentVersion + 1
-                })
-            }
-        }
-    }
-
-    protected createRoot(id: Uuid.UUID): void {
-        this._rootEntity = new this.activator(this.thisAsParent, id)
-    }
-
-    protected createRootForLoading(): void {
-        this._rootEntity = new this.activator(this.thisAsParent)
     }
 
     loadFromHistory(history: EntityEvent[]): void {
@@ -110,11 +91,13 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
     }
 
     /** Applies a new chnage to the Domain Object */
-    protected applyChange(evt: ChangeEvent) {
-        this.applyEvent(evt)
+    protected observe(evt: ChangeEvent) {
+        const currentVersion = this.changes.length
+            ? this.changes[this.changes.length - 1].version
+            : this.version
         this.changes.push({
             event: evt,
-            version: UNINITIALISED_AGGREGATE_VERSION
+            version: currentVersion + 1
         })
     }
 

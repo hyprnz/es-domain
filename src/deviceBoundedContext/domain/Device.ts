@@ -5,22 +5,19 @@ import {EntityBase} from '../../eventSourcing/EntityBase'
 import {ChangeEvent} from '../../eventSourcing/MessageTypes'
 import {AlarmCreatedEvent, AlarmDestroyedEvent, DeviceCreatedEvent} from '../events/internal/DeviceEvents'
 import {StaticEventHandler} from "../../eventSourcing/Entity";
-import {ParentAggregate} from "../../eventSourcing/Aggregate";
+import {ChangeObserver} from "../../eventSourcing/Aggregate";
 
 export class Device extends EntityBase {
     private alarms: Map<Uuid.UUID, Alarm> = new Map<Uuid.UUID, Alarm>()
 
-    constructor(parent: ParentAggregate, id?: Uuid.UUID) {
+    constructor(parent: ChangeObserver) {
         super(parent)
-        if(id){
-            this.applyChange(new DeviceCreatedEvent(id, id))
-        }
     }
 
     addAlarm(id: Uuid.UUID): Alarm {
         const alarm = this.alarms.get(id)
         if (alarm) return alarm
-        this.applyChange(new AlarmCreatedEvent(this.parentId, id))
+        this.applyChangeEventWithObserver(new AlarmCreatedEvent(this.id, id))
         return this.findAlarm(id)!
     }
 
@@ -28,7 +25,7 @@ export class Device extends EntityBase {
         const foundAlarm = this.alarms.get(alarm.id)
         if (!foundAlarm) return
 
-        this.applyChange(new AlarmDestroyedEvent(this.parentId, alarm.id))
+        this.applyChangeEventWithObserver(new AlarmDestroyedEvent(this.id, alarm.id))
     }
 
     findAlarm(id: Uuid.UUID): Alarm | undefined {
@@ -63,7 +60,7 @@ export class Device extends EntityBase {
         [DeviceCreatedEvent.eventType]: [(device, evt) => device.id = evt.aggregateRootId],
 
         [AlarmCreatedEvent.eventType]: [(device, evt) => {
-            const alarm = new Alarm(device.parent)
+            const alarm = new Alarm(device.observer)
             alarm.applyChangeEvent(evt)
             device.alarms.set(alarm.id, alarm)
         }],

@@ -1,40 +1,45 @@
 import * as Uuid from './UUID'
-import { AggregateError } from './AggregateError'
-import { ChangeEvent} from './MessageTypes'
+import {AggregateError} from './AggregateError'
+import {ChangeEvent} from './MessageTypes'
 import {Entity} from "./Entity";
-import {ParentAggregate} from "./Aggregate";
+import {ChangeObserver} from "./Aggregate";
 
 export abstract class EntityBase implements Entity {
-  public id: Uuid.UUID
-  protected get parentId() {return this.parent.id()}
-  // private handlers = new Map<string, { handlers: Array<EventHandler> }>()
+    private _id: Uuid.UUID | undefined
+    get id(): Uuid.UUID {
+        if (!this._id) {
+            throw new Error(`Entity id not initialised`)
+        }
+        return this._id
+    }
+    set id(value) {
+        this._id = value
+    }
 
-  protected constructor(protected parent: ParentAggregate) {
-    // Uninitialised Entity, we are going to load an exisitng 
-    this.id = Uuid.EmptyUUID
-  }
+    protected constructor(protected observer: ChangeObserver) {
+    }
 
-  applyChangeEvent(evt: ChangeEvent): void {
-    this.applyEvent(evt)
-  }
+    applyChangeEvent(evt: ChangeEvent): void {
+        this.applyEvent(evt)
+    }
 
-  toString() {
-    return `Entity ${this.id}, Parent:${this.parent.id}`
-  }
+    toString() {
+        return `Entity ${this.id}}`
+    }
 
-  /** Applies a new change to the Domain Object */
-  protected applyChange(evt: ChangeEvent): void {
-    this.applyEvent(evt)
-    this.parent.addChangeEvent(evt) // TODO : Should just store against the parent without performing any actions
-  }
+    /** Applies a new change to the Domain Object */
+    applyChangeEventWithObserver(evt: ChangeEvent): void {
+        this.applyEvent(evt)
+        this.observer(evt)
+    }
 
-  // Applies an existing event to the Entity
-  private applyEvent(evt: ChangeEvent) {
-    const eventHandler = this.makeEventHandler(evt)
-    if (!eventHandler) throw new AggregateError(this.toString(), `Event Handlers not found for eventType:${evt.eventType}`)
-    eventHandler()
-  }
+    /** Applies an existing event to the Entity **/
+    private applyEvent(evt: ChangeEvent) {
+        const eventHandler = this.makeEventHandler(evt)
+        if (!eventHandler) throw new AggregateError(this.toString(), `Event Handlers not found for eventType:${evt.eventType}`)
+        eventHandler()
+    }
 
-  protected abstract makeEventHandler(evt: ChangeEvent) : (() => void) | undefined
+    protected abstract makeEventHandler(evt: ChangeEvent): (() => void) | undefined
 }
 

@@ -11,7 +11,7 @@ import {DeviceAggregate} from "./DeviceAggregate";
 describe('Device', () => {
     describe('GenericAggregateRoot', () => {
         describe('Event Sourceing Basics', () => {
-            it('Uninitilaised', () => {
+            it('Uninitialised', () => {
                 const aggregate = new DeviceAggregate()
                 assertThat(aggregate.uncommittedChanges()).is([])
                 assertThat(aggregate.changeVersion).is(UNINITIALISED_AGGREGATE_VERSION)
