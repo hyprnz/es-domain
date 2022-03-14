@@ -2,7 +2,7 @@ import * as Uuid from './UUID'
 import {AggregateError} from './AggregateError'
 import {ChangeEvent} from './MessageTypes'
 import {Entity} from "./Entity";
-import {ChangeObserver} from "./Aggregate";
+import {EntityChangedObserver} from "./Aggregate";
 
 export abstract class EntityBase implements Entity {
     private _id: Uuid.UUID | undefined
@@ -16,10 +16,11 @@ export abstract class EntityBase implements Entity {
         this._id = value
     }
 
-    protected constructor(protected observer: ChangeObserver) {
+    protected constructor(protected observer: EntityChangedObserver) {
     }
 
-    applyChangeEvent(evt: ChangeEvent): void {
+    /** Handles change event when loading through handlers */
+    handleChangeEvent(evt: ChangeEvent): void {
         this.applyEvent(evt)
     }
 
@@ -28,7 +29,7 @@ export abstract class EntityBase implements Entity {
     }
 
     /** Applies a new change to the Domain Object */
-    applyChangeEventWithObserver(evt: ChangeEvent): void {
+    applyChangeEvent(evt: ChangeEvent): void {
         this.applyEvent(evt)
         this.observer(evt)
     }

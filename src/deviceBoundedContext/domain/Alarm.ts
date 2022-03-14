@@ -10,7 +10,7 @@ import {
     DeviceDomainError
 } from "../events/internal/DeviceEvents";
 import {StaticEventHandler} from "../../eventSourcing/Entity";
-import {ChangeObserver} from "../../eventSourcing/Aggregate";
+import {EntityChangedObserver} from "../../eventSourcing/Aggregate";
 
 export class Alarm extends EntityBase {
     private _deviceId: Uuid.UUID | undefined
@@ -29,7 +29,7 @@ export class Alarm extends EntityBase {
     private threshold: number = 0;
     private isTriggered: boolean = false;
 
-    constructor(observer: ChangeObserver) {
+    constructor(observer: EntityChangedObserver) {
         super(observer)
     }
 
@@ -38,29 +38,29 @@ export class Alarm extends EntityBase {
             throw new DeviceDomainError(this.deviceId, "Alarm threshold Failed Validation")
         }
         if (!this.isArmed) {
-            this.applyChangeEventWithObserver(new AlarmArmedEvent(this.deviceId, this.id, {threshold: alarmThreshold}))
+            this.applyChangeEvent(new AlarmArmedEvent(this.deviceId, this.id, {threshold: alarmThreshold}))
         }
     }
 
     disarmAlarm(): void {
         if (this.isArmed) {
-            this.applyChangeEventWithObserver(new AlarmDisarmedEvent(this.deviceId, this.id))
+            this.applyChangeEvent(new AlarmDisarmedEvent(this.deviceId, this.id))
         }
     }
 
-    isAlarmTriggered(value: number): boolean {
+    maybeTrigger(value: number): boolean {
         if (value < this.threshold) return false
 
         if (this.isArmed && !this.isTriggered) {
             // Emit trigger event
-            this.applyChangeEventWithObserver(new AlarmTriggeredEvent(this.deviceId, this.id))
+            this.applyChangeEvent(new AlarmTriggeredEvent(this.deviceId, this.id))
         }
 
         return true
     }
 
     toString() {
-        return `Alarm:${this.id}`
+        return `Alarm: ${this.id}`
     }
 
     protected override makeEventHandler(evt: ChangeEvent): (() => void) | undefined {

@@ -8,7 +8,7 @@ export class DeviceAggregate extends AggregateContainer<Device> {
 
     withDevice(id: Uuid.UUID): this {
         this.rootEntity = new Device((evt)=>this.observe(evt))
-        this.rootEntity.applyChangeEventWithObserver(new DeviceCreatedEvent(id, id))
+        this.rootEntity.applyChangeEvent(new DeviceCreatedEvent(id, id))
         return this
     }
 

@@ -5,7 +5,6 @@ import { Aggregate, Parent } from './Aggregate'
 import { EventSourcedEntity } from './Entity'
 import { EntityEvent, UNINITIALISED_AGGREGATE_VERSION } from './MessageTypes'
 
-
 export class EventSourcedAggregate<T extends EventSourcedEntity> implements Aggregate {
   id: UUID
   public readonly rootEntity: T 

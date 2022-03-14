@@ -5,19 +5,19 @@ import {EntityBase} from '../../eventSourcing/EntityBase'
 import {ChangeEvent} from '../../eventSourcing/MessageTypes'
 import {AlarmCreatedEvent, AlarmDestroyedEvent, DeviceCreatedEvent} from '../events/internal/DeviceEvents'
 import {StaticEventHandler} from "../../eventSourcing/Entity";
-import {ChangeObserver} from "../../eventSourcing/Aggregate";
+import {EntityChangedObserver} from "../../eventSourcing/Aggregate";
 
 export class Device extends EntityBase {
     private alarms: Map<Uuid.UUID, Alarm> = new Map<Uuid.UUID, Alarm>()
 
-    constructor(parent: ChangeObserver) {
-        super(parent)
+    constructor(observer: EntityChangedObserver) {
+        super(observer)
     }
 
     addAlarm(id: Uuid.UUID): Alarm {
         const alarm = this.alarms.get(id)
         if (alarm) return alarm
-        this.applyChangeEventWithObserver(new AlarmCreatedEvent(this.id, id))
+        this.applyChangeEvent(new AlarmCreatedEvent(this.id, id))
         return this.findAlarm(id)!
     }
 
@@ -25,7 +25,7 @@ export class Device extends EntityBase {
         const foundAlarm = this.alarms.get(alarm.id)
         if (!foundAlarm) return
 
-        this.applyChangeEventWithObserver(new AlarmDestroyedEvent(this.id, alarm.id))
+        this.applyChangeEvent(new AlarmDestroyedEvent(this.id, alarm.id))
     }
 
     findAlarm(id: Uuid.UUID): Alarm | undefined {
@@ -33,21 +33,21 @@ export class Device extends EntityBase {
     }
 
     telemetryReceived(value: number): void {
-        this.alarms.forEach(x => x.isAlarmTriggered(value))
+        this.alarms.forEach(x => x.maybeTrigger(value))
     }
 
     toString() {
-        return `DeviceEntity:${this.id}`
+        return `Device: ${this.id}`
     }
 
     protected override makeEventHandler(evt: ChangeEvent): (() => void) | undefined {
         const handlers: Array<() => void> = []
 
-        const handler = Device.eventHandlers[evt.eventType]
+        const handler:Array<StaticEventHandler<Device>> = Device.eventHandlers[evt.eventType]
         if (handler) handlers.push(() => handler.forEach(x => x.call(this, this, evt)))
 
         const child = this.alarms.get(evt.entityId)
-        if (child) handlers.push(() => child.applyChangeEvent(evt))
+        if (child) handlers.push(() => child.handleChangeEvent(evt))
 
         return (handlers.length)
             ? () => {
@@ -61,7 +61,7 @@ export class Device extends EntityBase {
 
         [AlarmCreatedEvent.eventType]: [(device, evt) => {
             const alarm = new Alarm(device.observer)
-            alarm.applyChangeEvent(evt)
+            alarm.handleChangeEvent(evt)
             device.alarms.set(alarm.id, alarm)
         }],
 
@@ -70,7 +70,7 @@ export class Device extends EntityBase {
             if (!alarmToDelete) throw new AggregateError(device.toString(), `Alarm Not Found, Alarm of id:${evt.entityId} missing from Device`)
 
             device.alarms.delete(alarmToDelete.id)
-            alarmToDelete.applyChangeEvent(evt)
+            alarmToDelete.handleChangeEvent(evt)
         }]
     }
 

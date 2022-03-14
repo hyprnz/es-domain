@@ -14,13 +14,7 @@ export interface Aggregate {
     markChangesAsCommitted(version: number): void
 }
 
-export type ChangeObserver = (event: ChangeEvent) => void
-
-// export interface ParentAggregate {
-//     id(): Uuid.UUID,
-//
-//     addChangeEvent(event: ChangeEvent): void
-// }
+export type EntityChangedObserver = (event: ChangeEvent) => void
 
 export interface Parent {
     id(): Uuid.UUID,

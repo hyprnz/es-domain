@@ -17,8 +17,6 @@ import {Aggregate} from "./Aggregate";
 
 export class AggregateContainer<T extends EntityBase> implements Aggregate {
     public _rootEntity: T | undefined
-
-    private version: number
     private changes: Array<EntityEvent> = []
     private causationId?: Uuid.UUID;
     private correlationId?: Uuid.UUID;
@@ -42,8 +40,7 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
         return this.rootEntity.id
     }
 
-    constructor() {
-        this.version = UNINITIALISED_AGGREGATE_VERSION
+    constructor(private version = UNINITIALISED_AGGREGATE_VERSION) {
     }
 
     loadFromHistory(history: EntityEvent[]): void {
@@ -103,7 +100,7 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
 
     /** Actions an event on the domain object */
     private applyEvent(evt: ChangeEvent) {
-        this.rootEntity.applyChangeEvent(evt)
+        this.rootEntity.handleChangeEvent(evt)
     }
 }
 

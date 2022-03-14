@@ -6,6 +6,7 @@ import {allAlarmCountProjection, deviceAlarmCountProjection} from "./readModel/A
 import {DeviceService} from "./service/DeviceService";
 import {alarmProjectionHandler} from '.';
 import {InMemoryEventStoreRepository} from "../writeModelRepository/InMemoryEventStoreRepository";
+import {DeviceRepository} from "./service/DeviceRepository";
 
 
 describe('deviceApplication', () => {
@@ -23,7 +24,7 @@ describe('deviceApplication', () => {
     // Setup Write side
     const deviceWriteRepository = new AggregateRootRepository(new InMemoryEventStoreRepository())
     deviceWriteRepository.subscribeToChangesSynchronously(eventBus)
-    const deviceService = new DeviceService(deviceWriteRepository)
+    const deviceService = new DeviceService(new DeviceRepository(deviceWriteRepository))
 
     it('Updates entities and read models', async () => {
         // Perform actions

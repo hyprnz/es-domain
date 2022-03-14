@@ -3,10 +3,9 @@ import {CosmosClient, CosmosClientOptions} from "@azure/cosmos";
 import {WriteModelCosmosSqlRepository} from "./WriteModelCosmosSqlRepository";
 
 import * as Uuid from "../../eventSourcing/UUID";
-import {Device} from "../../deviceBoundedContext"
-import { makeMigrator } from "./migrate";
-import { AggregateContainer } from "../../eventSourcing/AggregateContainer";
-import { EntityEvent } from "../../eventSourcing/MessageTypes";
+import {makeMigrator} from "./migrate";
+import {EntityEvent} from "../../eventSourcing/MessageTypes";
+import {DeviceAggregate} from "../../deviceBoundedContext/domain/DeviceAggregate";
 
 describe("WriteModelCosmosSqlRepository", () => {
     let writeModelRepo: WriteModelCosmosSqlRepository;
@@ -30,7 +29,7 @@ describe("WriteModelCosmosSqlRepository", () => {
         const deviceId = Uuid.createV4();
         const alarmId = Uuid.createV4();
 
-        const deviceAggregate = new AggregateContainer(Device, deviceId);
+        const deviceAggregate = new DeviceAggregate().withDevice(deviceId)
         deviceAggregate.rootEntity.addAlarm(alarmId);
 
         const uncomittedEvents = deviceAggregate.uncommittedChanges();
@@ -53,7 +52,7 @@ describe("WriteModelCosmosSqlRepository", () => {
         const deviceId = Uuid.createV4();
         const alarmId = Uuid.createV4();
 
-        const deviceAggregate = new AggregateContainer(Device, deviceId)
+        const deviceAggregate = new DeviceAggregate().withDevice(deviceId)
 
         const device = deviceAggregate.rootEntity;
         device.addAlarm(alarmId);
@@ -72,14 +71,14 @@ describe("WriteModelCosmosSqlRepository", () => {
         const deviceId = Uuid.createV4();
         const alarmId = Uuid.createV4();
 
-        const deviceAggregate = new AggregateContainer(Device, deviceId);
+        const deviceAggregate = new DeviceAggregate().withDevice(deviceId)
         const device = deviceAggregate.rootEntity;
         device.addAlarm(alarmId);
         await writeModelRepo.save(deviceAggregate);
 
         const anotherDeviceAggregate = await writeModelRepo.load(
             deviceId,
-            new AggregateContainer(Device)
+            new DeviceAggregate()
         );
         const anotherDevice = anotherDeviceAggregate.rootEntity;
 
