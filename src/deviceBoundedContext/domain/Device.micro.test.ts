@@ -1,7 +1,6 @@
 import {assertThat, match} from 'mismatched'
 import {Device} from '..'
 import * as deviceEvents from "../events/internal/DeviceEvents"
-import {AggregateContainer} from '../../eventSourcing/AggregateContainer'
 import {ChangeEvent, EntityEvent, UNINITIALISED_AGGREGATE_VERSION} from '../../eventSourcing/MessageTypes'
 import * as Uuid from '../../eventSourcing/UUID'
 import {Entity} from "../../eventSourcing/Entity";
@@ -34,8 +33,6 @@ describe('Device', () => {
                 aggregate.loadFromHistory(history)
                 assertThat(aggregate.id).is(id)
                 assertThat(aggregate.changeVersion).is(0)
-
-                assertThat(aggregate.rootEntity.id).is(aggregate.id)
             })
         })
 
@@ -44,9 +41,7 @@ describe('Device', () => {
                 const deviceId = Uuid.createV4()
                 const alarmId = Uuid.createV4()
                 const aggregate = new DeviceAggregate().withDevice(deviceId) //+1
-                // const device = new DeviceAggregateRoot(deviceId) //+1 Event
-                const device = aggregate.rootEntity
-                const alarm = device.addAlarm(alarmId) //+1 Event
+                const alarm = aggregate.addAlarm(alarmId) //+1 Event
                 alarm.armAlarm(20) //+1 Event
 
                 const events = aggregate.uncommittedChanges()
@@ -61,9 +56,9 @@ describe('Device', () => {
 
                 const hydratedAggregate = new DeviceAggregate()
                 hydratedAggregate.loadFromHistory(events)
-                assertThat(hydratedAggregate).is(makeEntityMatcher(device))
+                assertThat(hydratedAggregate).is(makeEntityMatcher(aggregate))
 
-                hydratedAggregate.rootEntity.telemetryReceived(21)
+                hydratedAggregate.telemetryReceived(21)
                 const uncommitted = hydratedAggregate.uncommittedChanges()
                 assertThat(uncommitted).is([
                     makeEntityEventMatcher(new deviceEvents.AlarmTriggeredEvent(hydratedAggregate.id, alarm.id), 3)
@@ -74,16 +69,14 @@ describe('Device', () => {
                 const deviceId = Uuid.createV4()
                 const alarmId = Uuid.createV4()
                 const aggregate = new DeviceAggregate().withDevice(deviceId) //+1
-                const device = aggregate.rootEntity
-                const alarm = device.addAlarm(alarmId) //+1 Event
-                assertThat(device.findAlarm(alarm.id)).isNot(undefined)
+                const alarm = aggregate.addAlarm(alarmId) //+1 Event
+                assertThat(aggregate.findAlarm(alarm.id)).isNot(undefined)
 
                 const lastChange = aggregate.uncommittedChanges()
                 aggregate.markChangesAsCommitted(lastChange.length)
 
-
-                device.destroyAlarm(alarm) //+1
-                assertThat(device.findAlarm(alarm.id)).is(undefined)
+                aggregate.destroyAlarm(alarm.id) //+1
+                assertThat(aggregate.findAlarm(alarm.id)).is(undefined)
                 assertThat(aggregate.uncommittedChanges().map(x => x.event))
                     .is([makeEventMatcher(new deviceEvents.AlarmDestroyedEvent(aggregate.id, alarm.id))])
             })

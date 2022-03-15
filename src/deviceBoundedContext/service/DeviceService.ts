@@ -11,21 +11,19 @@ export class DeviceService {
 
     async addDeviceAlarm(deviceId: Uuid.UUID, alarmId: Uuid.UUID): Promise<void> {
         const aggregate = await this.repository.load(deviceId)
-        aggregate.rootEntity.addAlarm(alarmId)
+        aggregate.addAlarm(alarmId)
         await this.repository.save(aggregate)
     }
 
     async removeDeviceAlarm(deviceId: Uuid.UUID, alarmId: Uuid.UUID): Promise<void> {
         const aggregate = await this.repository.load(deviceId)
-        const alarm = aggregate.rootEntity.findAlarm(alarmId)
-        if (alarm) aggregate.rootEntity.destroyAlarm(alarm)
+        aggregate.destroyAlarm(alarmId)
         await this.repository.save(aggregate)
     }
 
     async triggerAlarm(deviceId: Uuid.UUID, alarmId: Uuid.UUID) {
-        // TODO: trigger alarms on device
         const aggregate = await this.repository.load(deviceId)
-        const alarm = aggregate.rootEntity.findAlarm(alarmId)
-        alarm?.maybeTrigger(10)
+        aggregate.maybeTriggerAlarm(alarmId)
+        await this.repository.save(aggregate)
     }
 }

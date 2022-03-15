@@ -30,9 +30,9 @@ describe("WriteModelCosmosSqlRepository", () => {
         const alarmId = Uuid.createV4();
 
         const deviceAggregate = new DeviceAggregate().withDevice(deviceId)
-        deviceAggregate.rootEntity.addAlarm(alarmId);
+        deviceAggregate.addAlarm(alarmId);
 
-        const uncomittedEvents = deviceAggregate.uncommittedChanges();
+        const uncommittedEvents = deviceAggregate.uncommittedChanges();
 
         const emittedEvents: Array<EntityEvent> = [];
         writeModelRepo.subscribeToChangesSynchronously((changes) =>
@@ -45,7 +45,7 @@ describe("WriteModelCosmosSqlRepository", () => {
         assertThat(emittedEvents)
             .withMessage("Emitted Events")
             .is(match.array.length(2));
-        assertThat(uncomittedEvents).is(emittedEvents);
+        assertThat(uncommittedEvents).is(emittedEvents);
     });
 
     it("loads events", async () => {
@@ -53,14 +53,12 @@ describe("WriteModelCosmosSqlRepository", () => {
         const alarmId = Uuid.createV4();
 
         const deviceAggregate = new DeviceAggregate().withDevice(deviceId)
-
-        const device = deviceAggregate.rootEntity;
-        device.addAlarm(alarmId);
+        deviceAggregate.addAlarm(alarmId);
 
         const uncomittedEvents = deviceAggregate.uncommittedChanges();
         await writeModelRepo.save(deviceAggregate);
 
-        // Compare Saved event to loaded make sure they are thesame
+        // Compare Saved event to loaded make sure they are the same
         const loadedEvents = await writeModelRepo.loadEvents(deviceId);
 
         assertThat(loadedEvents).is(match.array.length(2));
@@ -72,19 +70,17 @@ describe("WriteModelCosmosSqlRepository", () => {
         const alarmId = Uuid.createV4();
 
         const deviceAggregate = new DeviceAggregate().withDevice(deviceId)
-        const device = deviceAggregate.rootEntity;
-        device.addAlarm(alarmId);
+        deviceAggregate.addAlarm(alarmId);
         await writeModelRepo.save(deviceAggregate);
 
         const anotherDeviceAggregate = await writeModelRepo.load(
             deviceId,
             new DeviceAggregate()
         );
-        const anotherDevice = anotherDeviceAggregate.rootEntity;
 
         // Make changes to both
-        device.addAlarm(Uuid.createV4());
-        anotherDevice.addAlarm(Uuid.createV4());
+        deviceAggregate.addAlarm(Uuid.createV4());
+        anotherDeviceAggregate.addAlarm(Uuid.createV4());
 
         assertThat(deviceAggregate.changeVersion)
             .withMessage("deviceAggregate version")

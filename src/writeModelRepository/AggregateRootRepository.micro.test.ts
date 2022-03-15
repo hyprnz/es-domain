@@ -22,7 +22,7 @@ describe("AggregateRootRepository", () => {
         const alarmId = Uuid.createV4()
 
         const deviceAggregate = new DeviceAggregate().withDevice(deviceId)
-        deviceAggregate.rootEntity.addAlarm(alarmId)
+        deviceAggregate.addAlarm(alarmId)
 
         const uncommittedEvents = deviceAggregate.uncommittedChanges()
 
@@ -45,9 +45,7 @@ describe("AggregateRootRepository", () => {
         const alarmId = Uuid.createV4()
 
         const deviceAggregate = new DeviceAggregate().withDevice(deviceId)
-
-        const device = deviceAggregate.rootEntity
-        device.addAlarm(alarmId)
+        deviceAggregate.addAlarm(alarmId)
 
         const uncommittedEvents = deviceAggregate.uncommittedChanges()
         await repository.save(deviceAggregate)
@@ -66,14 +64,13 @@ describe("AggregateRootRepository", () => {
 
         const deviceAggregate = new DeviceAggregate().withDevice(deviceId)
 
-        const device = deviceAggregate.rootEntity
-        device.addAlarm(alarmId)
+        deviceAggregate.addAlarm(alarmId)
 
-        const alarm = deviceAggregate.rootEntity.findAlarm(alarmId)
+        const alarm = deviceAggregate.findAlarm(alarmId)
         await repository.save(deviceAggregate)
 
         const rehydratedAggregate = await repository.load(deviceId, new DeviceAggregate())
-        const foundAlarm = rehydratedAggregate.rootEntity.findAlarm(alarmId)
+        const foundAlarm = rehydratedAggregate.findAlarm(alarmId)
         assertThat(foundAlarm).isNot(undefined)
         assertThat(foundAlarm).is(alarm)
     })
@@ -83,9 +80,8 @@ describe("AggregateRootRepository", () => {
         const alarmId = Uuid.createV4()
 
         const deviceAggregate = new DeviceAggregate().withDevice(deviceId)
-
-        const device = deviceAggregate.rootEntity
-        device.addAlarm(alarmId)
+        deviceAggregate
+            .addAlarm(alarmId)
 
         // changes stored, uncommitted changes cleared
         await repository.save(deviceAggregate)
@@ -101,20 +97,16 @@ describe("AggregateRootRepository", () => {
         const alarmId = Uuid.createV4()
 
         const deviceAggregate = new DeviceAggregate().withDevice(deviceId)
-
-        const device = deviceAggregate.rootEntity
-        device.addAlarm(alarmId)
-
+        deviceAggregate.addAlarm(alarmId)
         await repository.save(deviceAggregate)
 
         const anotherDeviceAggregate = await repository.load(
             deviceId,
             new DeviceAggregate(),
         )
-        const anotherDevice = anotherDeviceAggregate.rootEntity
 
-        device.addAlarm(Uuid.createV4())
-        anotherDevice.addAlarm(Uuid.createV4())
+        deviceAggregate.addAlarm(Uuid.createV4())
+        anotherDeviceAggregate.addAlarm(Uuid.createV4())
 
         await repository.save(deviceAggregate)
         await repository.save(anotherDeviceAggregate)
@@ -122,7 +114,7 @@ describe("AggregateRootRepository", () => {
                 () => fail("Expected and Optimistic concurrency error here!!"),
                 (e: any) => {
                     assertThat(e instanceof OptimisticConcurrencyError).is(true)
-                    assertThat(e.message).is(`Optimistic concurrency error for aggregate root id: ${device.id}, version: ${2}`)
+                    assertThat(e.message).is(`Optimistic concurrency error for aggregate root id: ${deviceAggregate.id}, version: ${2}`)
                 }
             )
     })

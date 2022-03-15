@@ -4,17 +4,6 @@ import {ChangeEvent, EntityEvent, UNINITIALISED_AGGREGATE_VERSION} from './Messa
 import {EntityBase} from './EntityBase'
 import {Aggregate} from "./Aggregate";
 
-
-// For aggregate roots consider not extending them to be treated as an entity.
-// Instead aggregate root could become a container that has one entity that is the RootEntity of the Aggregate !!
-// this would be a switch from inheritance to composition
-// This may be a little clunky to use, but worth exploring
-// PROS : we would end up with a single implementation of aggregateRoot with a generic for the RootEntity Type
-// CONS : When we create and hydrate an aggregate root, we then need to access the root entity via a getter. 
-//        We must still hold on to the aggregate root as it would be needed to persist any changes.
-//        Though if we have a layered system, the service layer could be responsible for creating aggregate roots 
-//        It just passes / makes use of the entities to perform domain actions
-
 export class AggregateContainer<T extends EntityBase> implements Aggregate {
     public _rootEntity: T | undefined
     private changes: Array<EntityEvent> = []
@@ -25,14 +14,14 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
         return this.version
     }
 
-    get rootEntity(): T {
+    protected get rootEntity(): T {
         if (!this._rootEntity) {
             throw new Error(`Root has not been initialised`)
         }
         return this._rootEntity
     }
 
-    set rootEntity(value) {
+    protected set rootEntity(value) {
         this._rootEntity = value
     }
 
@@ -87,7 +76,7 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
         return this
     }
 
-    /** Applies a new chnage to the Domain Object */
+    /** Applies a new change to the Domain Object */
     protected observe(evt: ChangeEvent) {
         const currentVersion = this.changes.length
             ? this.changes[this.changes.length - 1].version
