@@ -8,39 +8,39 @@ import {Aggregate} from "../../eventSourcing/Aggregate";
 
 export class DeviceAggregate implements Aggregate {
 
-    constructor(private aggregateContainer: AggregateContainer<Device> = new AggregateContainer<Device>()) {
+    constructor(private aggregate: AggregateContainer<Device> = new AggregateContainer<Device>()) {
     }
 
     private get root(): Device {
-        return this.aggregateContainer.rootEntity
+        return this.aggregate.rootEntity
     }
 
     get changeVersion(): number {
-        return this.aggregateContainer.changeVersion
+        return this.aggregate.changeVersion
     }
 
     get id(): UUID {
-        return this.aggregateContainer.id
+        return this.aggregate.id
     }
 
     markChangesAsCommitted(version: number): void {
-        this.aggregateContainer.markChangesAsCommitted(version)
+        this.aggregate.markChangesAsCommitted(version)
     }
 
     uncommittedChanges(): Array<EntityEvent> {
-        return this.aggregateContainer.uncommittedChanges()
+        return this.aggregate.uncommittedChanges()
     }
 
     withDevice(id: Uuid.UUID): this {
-        this.aggregateContainer.rootEntity = new Device((evt) => this.aggregateContainer.observe(evt))
+        this.aggregate.rootEntity = new Device((evt) => this.aggregate.observe(evt))
         this.root.applyChangeEvent(new DeviceCreatedEvent(id, id))
 
         return this
     }
 
     loadFromHistory(history: EntityEvent[]): void {
-        this.aggregateContainer.rootEntity = new Device((evt) => this.aggregateContainer.observe(evt))
-        this.aggregateContainer.loadFromHistory(history)
+        this.aggregate.rootEntity = new Device((evt) => this.aggregate.observe(evt))
+        this.aggregate.loadFromHistory(history)
     }
 
     addAlarm(alarmId: Uuid.UUID): Alarm {
