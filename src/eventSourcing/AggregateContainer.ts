@@ -14,14 +14,14 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
         return this.version
     }
 
-    protected get rootEntity(): T {
+    get rootEntity(): T {
         if (!this._rootEntity) {
             throw new Error(`Root has not been initialised`)
         }
         return this._rootEntity
     }
 
-    protected set rootEntity(value) {
+    set rootEntity(value) {
         this._rootEntity = value
     }
 
@@ -76,8 +76,8 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
         return this
     }
 
-    /** Applies a new change to the Domain Object */
-    protected observe(evt: ChangeEvent) {
+    /** Observes a new change to the Domain Object */
+    observe(evt: ChangeEvent) {
         const currentVersion = this.changes.length
             ? this.changes[this.changes.length - 1].version
             : this.version

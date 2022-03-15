@@ -6,7 +6,6 @@ export interface Aggregate {
     readonly id: Uuid.UUID
     readonly changeVersion: number
 
-
     loadFromHistory(events: Array<EntityEvent>): void
 
     uncommittedChanges(): Array<EntityEvent>

@@ -1,41 +1,70 @@
 import {Alarm, Device} from '..'
 import * as Uuid from '../../eventSourcing/UUID'
+import {UUID} from '../../eventSourcing/UUID'
 import {AggregateContainer} from "../../eventSourcing/AggregateContainer";
 import {EntityEvent} from "../../eventSourcing/MessageTypes";
 import {DeviceCreatedEvent} from "../events/internal/DeviceEvents";
+import {Aggregate} from "../../eventSourcing/Aggregate";
 
-export class DeviceAggregate extends AggregateContainer<Device> {
+export class DeviceAggregate implements Aggregate {
+
+    constructor(private aggregateContainer: AggregateContainer<Device> = new AggregateContainer<Device>()) {
+    }
+
+    private get root(): Device {
+        return this.aggregateContainer.rootEntity
+    }
+
+    get changeVersion(): number {
+        return this.aggregateContainer.changeVersion
+    }
+
+    get id(): UUID {
+        return this.aggregateContainer.id
+    }
+
+    markChangesAsCommitted(version: number): void {
+        this.aggregateContainer.markChangesAsCommitted(version)
+    }
+
+    uncommittedChanges(): Array<EntityEvent> {
+        return this.aggregateContainer.uncommittedChanges()
+    }
 
     withDevice(id: Uuid.UUID): this {
-        this.rootEntity = new Device((evt) => this.observe(evt))
-        this.rootEntity.applyChangeEvent(new DeviceCreatedEvent(id, id))
+        this.aggregateContainer.rootEntity = new Device((evt) => this.aggregateContainer.observe(evt))
+        this.root.applyChangeEvent(new DeviceCreatedEvent(id, id))
+
         return this
     }
 
     loadFromHistory(history: EntityEvent[]): void {
-        this.rootEntity = new Device((evt) => this.observe(evt))
-        super.loadFromHistory(history)
+        this.aggregateContainer.rootEntity = new Device((evt) => this.aggregateContainer.observe(evt))
+        this.aggregateContainer.loadFromHistory(history)
     }
 
     addAlarm(alarmId: Uuid.UUID): Alarm {
-        return this.rootEntity.addAlarm(alarmId)
+        return this.root.addAlarm(alarmId)
     }
 
     destroyAlarm(alarmId: Uuid.UUID): void {
-        const alarm = this.rootEntity.findAlarm(alarmId)
-        if (alarm) this.rootEntity.destroyAlarm(alarm)
+        const alarm = this.root.findAlarm(alarmId)
+        if (alarm) this.root.destroyAlarm(alarm)
     }
 
-    maybeTriggerAlarm(alarmId: Uuid.UUID): void {
-        const alarm = this.rootEntity.findAlarm(alarmId)
-        alarm?.maybeTrigger(10)
+    maybeTriggerAlarm(alarmId: Uuid.UUID): boolean {
+        const alarm = this.root.findAlarm(alarmId)
+        if (!alarm) {
+            return false
+        }
+        return alarm.maybeTrigger(10)
     }
 
     findAlarm(alarmId: Uuid.UUID): Alarm | undefined {
-        return this.rootEntity.findAlarm(alarmId)
+        return this.root.findAlarm(alarmId)
     }
 
     telemetryReceived(value: number): void {
-        return this.rootEntity.telemetryReceived(value)
+        return this.root.telemetryReceived(value)
     }
 }
