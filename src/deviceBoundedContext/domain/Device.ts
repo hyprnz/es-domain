@@ -1,77 +1,83 @@
-import {Alarm} from '..'
+import { Alarm } from '..'
 import * as Uuid from '../../eventSourcing/UUID'
-import {AggregateError} from '../../eventSourcing/AggregateError'
-import {EntityBase} from '../../eventSourcing/EntityBase'
-import {ChangeEvent} from '../../eventSourcing/MessageTypes'
-import {AlarmCreatedEvent, AlarmDestroyedEvent, DeviceCreatedEvent} from '../events/internal/DeviceEvents'
-import {StaticEventHandler} from "../../eventSourcing/Entity";
-import {EntityChangedObserver} from "../../eventSourcing/Aggregate";
+import { AggregateError } from '../../eventSourcing/AggregateError'
+import { EntityBase } from '../../eventSourcing/EntityBase'
+import { ChangeEvent } from '../../eventSourcing/MessageTypes'
+import { AlarmCreatedEvent, AlarmDestroyedEvent, DeviceCreatedEvent } from '../events/internal/DeviceEvents'
+import { StaticEventHandler } from '../../eventSourcing/Entity'
+import { EntityChangedObserver } from '../../eventSourcing/Aggregate'
 
-export class Device extends EntityBase {
-    private alarms: Map<Uuid.UUID, Alarm> = new Map<Uuid.UUID, Alarm>()
+declare const opaque_type: unique symbol
+export type DeviceId = Uuid.UUID & { [opaque_type]: true }
 
-    constructor(observer: EntityChangedObserver) {
-        super(observer)
-    }
+export class Device extends EntityBase<DeviceId> {
+  private alarms: Map<Uuid.UUID, Alarm> = new Map<Uuid.UUID, Alarm>()
 
-    addAlarm(id: Uuid.UUID): Alarm {
-        const alarm = this.alarms.get(id)
-        if (alarm) return alarm
-        this.applyChangeEvent(AlarmCreatedEvent.make(Uuid.createV4, { deviceId: this.id, alarmId: id }))
-        return this.findAlarm(id)!
-    }
+  constructor(observer: EntityChangedObserver) {
+    super(observer)
+  }
 
-    destroyAlarm(alarm: Alarm): void {
-        const foundAlarm = this.alarms.get(alarm.id)
-        if (!foundAlarm) return
+  addAlarm(id: Uuid.UUID): Alarm {
+    const alarm = this.alarms.get(id)
+    if (alarm) return alarm
+    this.applyChangeEvent(AlarmCreatedEvent.make(Uuid.createV4, { deviceId: this.id, alarmId: id }))
+    return this.findAlarm(id)!
+  }
 
-        this.applyChangeEvent(AlarmDestroyedEvent.make(Uuid.createV4, { deviceId: this.id, alarmId: alarm.id }))
-    }
+  destroyAlarm(alarm: Alarm): void {
+    const foundAlarm = this.alarms.get(alarm.id)
+    if (!foundAlarm) return
 
-    findAlarm(id: Uuid.UUID): Alarm | undefined {
-        return this.alarms.get(id)
-    }
+    this.applyChangeEvent(AlarmDestroyedEvent.make(Uuid.createV4, { deviceId: this.id, alarmId: alarm.id }))
+  }
 
-    telemetryReceived(value: number): void {
-        this.alarms.forEach(x => x.maybeTrigger(value))
-    }
+  findAlarm(id: Uuid.UUID): Alarm | undefined {
+    return this.alarms.get(id)
+  }
 
-    toString() {
-        return `Device: ${this.id}`
-    }
+  telemetryReceived(value: number): void {
+    this.alarms.forEach(x => x.maybeTrigger(value))
+  }
 
-    protected override makeEventHandler(evt: ChangeEvent): (() => void) | undefined {
-        const handlers: Array<() => void> = []
+  toString() {
+    return `Device: ${this.id}`
+  }
 
-        const handler:Array<StaticEventHandler<Device>> = Device.eventHandlers[evt.eventType]
-        if (handler) handlers.push(() => handler.forEach(x => x.call(this, this, evt)))
+  protected override makeEventHandler(evt: ChangeEvent): (() => void) | undefined {
+    const handlers: Array<() => void> = []
 
-        const child = this.alarms.get(evt.entityId)
-        if (child) handlers.push(() => child.handleChangeEvent(evt))
+    const handler: Array<StaticEventHandler<Device>> = Device.eventHandlers[evt.eventType]
+    if (handler) handlers.push(() => handler.forEach(x => x.call(this, this, evt)))
 
-        return (handlers.length)
-            ? () => {
-                handlers.forEach(x => x())
-            }
-            : undefined
-    }
+    const child = this.alarms.get(evt.entityId)
+    if (child) handlers.push(() => child.handleChangeEvent(evt))
 
-    private static readonly eventHandlers: Record<string, Array<StaticEventHandler<Device>>> = {
-        [DeviceCreatedEvent.eventType]: [(device, evt) => device.id = evt.aggregateRootId],
+    return handlers.length
+      ? () => {
+          handlers.forEach(x => x())
+        }
+      : undefined
+  }
 
-        [AlarmCreatedEvent.eventType]: [(device, evt) => {
-            const alarm = new Alarm(device.observer)
-            alarm.handleChangeEvent(evt)
-            device.alarms.set(alarm.id, alarm)
-        }],
+  private static readonly eventHandlers: Record<string, Array<StaticEventHandler<Device>>> = {
+    [DeviceCreatedEvent.eventType]: [(device, evt) => (device.id = evt.aggregateRootId)],
 
-        [AlarmDestroyedEvent.eventType]: [(device, evt) => {
-            const alarmToDelete = device.alarms.get(evt.entityId)
-            if (!alarmToDelete) throw new AggregateError(device.toString(), `Alarm Not Found, Alarm of id:${evt.entityId} missing from Device`)
+    [AlarmCreatedEvent.eventType]: [
+      (device, evt) => {
+        const alarm = new Alarm(device.observer)
+        alarm.handleChangeEvent(evt)
+        device.alarms.set(alarm.id, alarm)
+      }
+    ],
 
-            device.alarms.delete(alarmToDelete.id)
-            alarmToDelete.handleChangeEvent(evt)
-        }]
-    }
+    [AlarmDestroyedEvent.eventType]: [
+      (device, evt) => {
+        const alarmToDelete = device.alarms.get(evt.entityId)
+        if (!alarmToDelete) throw new AggregateError(device.toString(), `Alarm Not Found, Alarm of id:${evt.entityId} missing from Device`)
 
+        device.alarms.delete(alarmToDelete.id)
+        alarmToDelete.handleChangeEvent(evt)
+      }
+    ]
+  }
 }
