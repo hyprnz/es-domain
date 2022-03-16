@@ -1,6 +1,7 @@
 import * as Uuid from './UUID'
 import {ChangeEvent} from "./MessageTypes";
 
+/* @deprecated use discriminated type instead */
 export abstract class AbstractChangeEvent implements ChangeEvent {
     readonly id: Uuid.UUID;
     readonly correlationId: Uuid.UUID;

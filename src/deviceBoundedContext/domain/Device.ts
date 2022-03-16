@@ -17,7 +17,7 @@ export class Device extends EntityBase {
     addAlarm(id: Uuid.UUID): Alarm {
         const alarm = this.alarms.get(id)
         if (alarm) return alarm
-        this.applyChangeEvent(new AlarmCreatedEvent(this.id, id))
+        this.applyChangeEvent(AlarmCreatedEvent.make(Uuid.createV4, { deviceId: this.id, alarmId: id }))
         return this.findAlarm(id)!
     }
 
@@ -25,7 +25,7 @@ export class Device extends EntityBase {
         const foundAlarm = this.alarms.get(alarm.id)
         if (!foundAlarm) return
 
-        this.applyChangeEvent(new AlarmDestroyedEvent(this.id, alarm.id))
+        this.applyChangeEvent(AlarmDestroyedEvent.make(Uuid.createV4, { deviceId: this.id, alarmId: alarm.id }))
     }
 
     findAlarm(id: Uuid.UUID): Alarm | undefined {

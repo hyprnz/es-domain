@@ -14,9 +14,9 @@ const defaultValue =  (id: Uuid.UUID): CurrentAlarmsProjection => ( { id, versio
 const eventHandlers: Record<string, StaticProjectionEventHandler<CurrentAlarmsProjection>> = {
   [AlarmCreatedEvent.eventType]: (state, evt) => { state.isActive = false; return 'update' },
   [AlarmArmedEvent.eventType]: (state, evt) => {
-    AlarmArmedEvent.assertIsAlarmArmedEvent(evt)
+    AlarmArmedEvent.assertAlarmArmedEvent(evt)
     state.isActive = true,
-    state.threshold = evt.payload.threshold
+    state.threshold = evt.threshold
     return 'update'
   },
   [AlarmDestroyedEvent.eventType]: (state, evt) => { return 'delete' }

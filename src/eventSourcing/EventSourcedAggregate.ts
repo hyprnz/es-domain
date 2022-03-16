@@ -4,6 +4,7 @@ import { AggregateError } from './AggregateError'
 import { Aggregate, Parent } from './Aggregate'
 import { EventSourcedEntity } from './Entity'
 import { EntityEvent, UNINITIALISED_AGGREGATE_VERSION } from './MessageTypes'
+import { ChangeEvent } from '..'
 
 export class EventSourcedAggregate<T extends EventSourcedEntity> implements Aggregate {
   id: UUID
@@ -50,7 +51,7 @@ export class EventSourcedAggregate<T extends EventSourcedEntity> implements Aggr
       }
 
       const handler = this.getEventHandler(evt.event.eventType)
-      handler(evt.event.payload)
+      handler(evt.event)
 
       this.version = evt.version
     })
@@ -70,7 +71,7 @@ export class EventSourcedAggregate<T extends EventSourcedEntity> implements Aggr
     return `AggregateRoot:${this.id}, Version:${this.version}`
   }
 
-  private getEventHandler (eventType: string): (payload: Record<string, any>) => void {
+  private getEventHandler (eventType: string): (event: ChangeEvent) => void {
     for (const entity of this.entities) {
       const handler = Reflect.getMetadata(`${eventType}Handler`, entity)
       if (handler) return (payload) => handler.call(entity, payload)

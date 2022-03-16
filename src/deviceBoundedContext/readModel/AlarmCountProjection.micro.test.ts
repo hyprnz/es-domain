@@ -3,7 +3,6 @@ import { Thespian, TMocked } from 'thespian'
 import { AlarmArmedEvent, AlarmCreatedEvent } from '../events/internal/DeviceEvents'
 import { alarmCountProjection } from '..'
 import { EntityEvent } from '../../eventSourcing/MessageTypes'
-import { match } from 'mismatched'
 import {ReadModelRepository} from "../../readModelRepository/ReadModelRepository";
 
 
@@ -30,7 +29,6 @@ describe('AlarmsCountProjection', ()=>{
         causationId: Uuid.createV4(), 
         entityId:alarmId, 
         aggregateRootId:aggregateRootId, 
-        payload: {},
         eventType: AlarmCreatedEvent.eventType
       }},                 
     ]

@@ -38,13 +38,13 @@ export class Alarm extends EntityBase {
             throw new DeviceDomainError(this.deviceId, "Alarm threshold Failed Validation")
         }
         if (!this.isArmed) {
-            this.applyChangeEvent(new AlarmArmedEvent(this.deviceId, this.id, {threshold: alarmThreshold}))
+            this.applyChangeEvent(AlarmArmedEvent.make(Uuid.createV4, { deviceId: this.deviceId, alarmId: this.id, threshold: alarmThreshold}))
         }
     }
 
     disarmAlarm(): void {
         if (this.isArmed) {
-            this.applyChangeEvent(new AlarmDisarmedEvent(this.deviceId, this.id))
+            this.applyChangeEvent(AlarmDisarmedEvent.make(Uuid.createV4, { deviceId: this.deviceId, alarmId: this.id}))
         }
     }
 
@@ -53,7 +53,7 @@ export class Alarm extends EntityBase {
 
         if (this.isArmed && !this.isTriggered) {
             // Emit trigger event
-            this.applyChangeEvent(new AlarmTriggeredEvent(this.deviceId, this.id))
+            this.applyChangeEvent(AlarmTriggeredEvent.make(Uuid.createV4, { deviceId: this.deviceId, alarmId: this.id}))
         }
 
         return true
@@ -83,9 +83,10 @@ export class Alarm extends EntityBase {
         }],
         [AlarmDisarmedEvent.eventType]: [(alarm) => alarm.isArmed = false],
         [AlarmArmedEvent.eventType]: [(alarm, evt) => {
-            AlarmArmedEvent.assertIsAlarmArmedEvent(evt)
-            alarm.isArmed = true;
-            alarm.threshold = evt.payload.threshold
+            if (AlarmArmedEvent.isAlarmArmedEvent(evt)) {
+              alarm.isArmed = true
+              alarm.threshold = evt.threshold
+            }
         }],
         [AlarmTriggeredEvent.eventType]: [(alarm) => alarm.isTriggered = true],
         [AlarmDestroyedEvent.eventType]: [() => {
