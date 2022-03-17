@@ -6,6 +6,7 @@ import {Aggregate} from "./Aggregate";
 
 export class AggregateContainer<T extends EntityBase> implements Aggregate {
     public _rootEntity: T | undefined
+    private events: Array<EntityEvent> = []
     private changes: Array<EntityEvent> = []
     private causationId?: Uuid.UUID;
     private correlationId?: Uuid.UUID;
@@ -33,6 +34,7 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
     }
 
     loadFromHistory(history: EntityEvent[]): void {
+        this.events = this.events.concat(history)
         history.forEach(evt => {
             const expectedVersion = this.version + 1
             if (expectedVersion !== evt.version) {
@@ -76,15 +78,20 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
         return this
     }
 
-    /** Observes a new change to the Domain Object */
+    /** Observes a new change to a Domain Object */
     observe(evt: ChangeEvent) {
-        const currentVersion = this.changes.length
+        const entityEvent = {
+            event: evt,
+            version: this.currentVersionFromChanges() + 1
+        }
+        this.changes.push(entityEvent)
+        this.events.push(entityEvent)
+    }
+
+    private currentVersionFromChanges(): number {
+        return this.changes.length
             ? this.changes[this.changes.length - 1].version
             : this.version
-        this.changes.push({
-            event: evt,
-            version: currentVersion + 1
-        })
     }
 
     /** Actions an event on the domain object */

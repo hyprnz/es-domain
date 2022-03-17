@@ -2,7 +2,7 @@ import {ExternalEvent} from "../eventSourcing/MessageTypes";
 import * as Uuid from "../eventSourcing/UUID";
 
 export class ExternalEventBuilder {
-    private externalEvent: ExternalEvent
+    private readonly externalEvent: ExternalEvent
 
     private constructor() {
         this.externalEvent = {

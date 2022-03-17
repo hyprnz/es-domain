@@ -34,7 +34,6 @@ export class DeviceAggregate implements Aggregate {
     withDevice(id: Uuid.UUID): this {
         this.aggregate.rootEntity = new Device((evt) => this.aggregate.observe(evt))
         this.root.applyChangeEvent(new DeviceCreatedEvent(id, id))
-
         return this
     }
 
