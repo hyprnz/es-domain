@@ -88,6 +88,7 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
         this.events.push(entityEvent)
     }
 
+
     private currentVersionFromChanges(): number {
         return this.changes.length
             ? this.changes[this.changes.length - 1].version
