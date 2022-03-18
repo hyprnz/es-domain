@@ -6,3 +6,7 @@ export interface InternalEventStoreRepository {
 
     getEvents(id: UUID): Promise<EntityEvent[]>
 }
+
+export interface SnapshotEventStoreRepository {
+    getEventsFromDate(id: UUID, fromDate: string): Promise<EntityEvent[]>;
+}

@@ -1,6 +1,6 @@
 import {EntityEvent, Uuid} from "..";
 import {ReadModelMemoryRepository} from "../readModelRepository/ReadModelMemoryRepository";
-import {AggregateRootRepository} from "../writeModelRepository/AggregateRootRepository";
+import {AggregateRepository} from "../writeModelRepository/AggregateRepository";
 import {InMemoryEventStoreRepository} from "../writeModelRepository/InMemoryEventStoreRepository";
 import {PersonService} from "./service/personService";
 
@@ -13,7 +13,7 @@ describe('personApplication', () => {
     }
 
     // Setup Write side
-    const personWriteRepository = new AggregateRootRepository(new InMemoryEventStoreRepository())
+    const personWriteRepository = new AggregateRepository(new InMemoryEventStoreRepository())
     personWriteRepository.subscribeToChangesSynchronously(handler)
     const personService = new PersonService(personWriteRepository)
 

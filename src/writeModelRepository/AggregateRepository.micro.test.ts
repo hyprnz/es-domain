@@ -1,5 +1,5 @@
 import * as Uuid from '../eventSourcing/UUID'
-import {AggregateRootRepository} from './AggregateRootRepository'
+import {AggregateRepository} from './AggregateRepository'
 import {assertThat, match} from 'mismatched'
 import {EntityEvent} from '../eventSourcing/MessageTypes'
 import {AggregateContainer} from '../eventSourcing/AggregateContainer'
@@ -14,7 +14,7 @@ describe("AggregateRootRepository", () => {
     let repository: WriteModelRepository
 
     beforeEach(() => {
-        repository = new AggregateRootRepository(new InMemoryEventStoreRepository())
+        repository = new AggregateRepository(new InMemoryEventStoreRepository())
     })
 
     it("stores events", async () => {

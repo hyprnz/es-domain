@@ -3,7 +3,7 @@ import {DeviceService} from "../../service/DeviceService";
 import {ExternalEvent} from "../../../eventSourcing/MessageTypes";
 import {EventStoreExternal} from "../../../eventStoreExternal/EventStoreExternal";
 import {ExternalEventStoreInMemoryRepository} from "../../../eventStoreExternal/ExternalEventStoreInMemoryRepository";
-import {AggregateRootRepository} from "../../../writeModelRepository/AggregateRootRepository";
+import {AggregateRepository} from "../../../writeModelRepository/AggregateRepository";
 import {InMemoryEventStoreRepository} from "../../../writeModelRepository/InMemoryEventStoreRepository";
 import {ExternalEventBuilder} from "../../../eventStoreExternal/ExternalEventBuilder";
 

@@ -18,7 +18,7 @@ export interface ChangeEvent extends Message {
     readonly eventType: string
     readonly entityId: Uuid.UUID
     readonly aggregateRootId: Uuid.UUID
-    readonly payload: Record<string, any>
+    readonly dateTimeOfEvent: string
 }
 
 export interface EntityEvent {

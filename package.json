@@ -1,6 +1,6 @@
 {
   "name": "@hyprnz/es-domain",
-  "version": "0.0.10",
+  "version": "0.0.11",
   "type": "commonjs",
   "author": {
     "name": "HYPR"
@@ -14,6 +14,7 @@
   "types": "dist/src/index.d.ts",
   "description": "A library for handling event sourced domain models",
   "scripts": {
+    "prepare": "husky install",
     "build": "tsc -p ./tsconfig.json",
     "clean": "rm -fr dist/** && rimraf build/** ",
     "clean:build": "npm run clean && npm run build",
@@ -31,14 +32,16 @@
     "@types/jest": "~27.0.1",
     "@types/node": "~16.4.14",
     "@types/uuid": "~8.3.1",
+    "husky": "^7.0.4",
     "jest": "~27.3.1",
     "jest-junit": "~13.0.0",
     "mismatched": "~2.9.0",
+    "prettier": "^2.6.0",
     "reflect-metadata": "^0.1.13",
     "thespian": "~2.9.0",
     "ts-jest": "~27.0.7",
     "ts-node": "~10.4.0",
-    "typescript": "~4.4.4",
+    "typescript": "~4.6.2",
     "uuid": "~8.3.2"
   }
 }

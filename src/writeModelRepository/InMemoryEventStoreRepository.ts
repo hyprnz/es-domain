@@ -1,12 +1,18 @@
-import {InternalEventStoreRepository} from "./InternalEventStoreRepository";
+import {InternalEventStoreRepository, SnapshotEventStoreRepository} from "./InternalEventStoreRepository";
 import {UUID} from "../eventSourcing/UUID";
 import {EntityEvent} from "../eventSourcing/MessageTypes";
 import {OptimisticConcurrencyError} from "./OptimisticConcurrencyError";
 
-export class InMemoryEventStoreRepository implements InternalEventStoreRepository {
+export class InMemoryEventStoreRepository implements InternalEventStoreRepository, SnapshotEventStoreRepository {
     private readonly store = new Map<UUID, Array<EntityEvent>>()
 
-    async appendEvents(id: UUID, version:number, changes: EntityEvent[]): Promise<void> {
+    getEventsFromDate(id: UUID, fromDate: string): Promise<EntityEvent[]> {
+        return this.getEvents(id).then(events => events
+            .filter(x => new Date(x.event.dateTimeOfEvent).getTime() >= new Date(fromDate).getTime())
+        )
+    }
+
+    async appendEvents(id: UUID, version: number, changes: EntityEvent[]): Promise<void> {
         const committedEvents = await this.getEvents(id)
         const found = committedEvents.length > 0
         if (found) {

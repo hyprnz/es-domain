@@ -1,4 +1,4 @@
-import { UUID } from "../eventSourcing/UUID";
+import {UUID} from "../eventSourcing/UUID";
 import {Aggregate} from "../eventSourcing/Aggregate";
 import {EntityEvent} from "../eventSourcing/MessageTypes";
 
@@ -31,12 +31,13 @@ export interface WriteModelRepository {
      */
     load<T extends Aggregate>(id: UUID, aggregate: T): Promise<T>
 
-    /** Synchronously subscribe to events that are being committed to persistence, this can be used to feed events
-     * to down stream services to create other side effects such as Projections
+    /** Synchronously subscribe to events that have been committed to persistence, this can be used to feed events
+     * to down stream services to create Projections
      * @argument handler A callback function that will receive an array of changes (Unit of work) related to a single aggregate.*/
     subscribeToChangesSynchronously(handler: (changes: Array<EntityEvent>) => Promise<void>): void
 
-    
+
     /** Utility function, not sure if its going to be needed or not but is useful */
     loadEvents(id: UUID): Promise<Array<EntityEvent>>
 }
+

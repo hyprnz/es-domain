@@ -1,6 +1,5 @@
 import "reflect-metadata"
-import { AbstractChangeEvent } from "..";
-import { ChangeEventConstructor } from "./AbstractChangeEvent";
+import { AbstractChangeEvent, ChangeEventConstructor } from "./AbstractChangeEvent";
 import { EventSourcedEntity } from "./Entity";
 
 /**

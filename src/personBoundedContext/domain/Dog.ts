@@ -2,7 +2,7 @@ import { Parent } from '../../eventSourcing/Aggregate';
 import { Emits } from '../../eventSourcing/decorators';
 import { EventSourcedEntity } from '../../eventSourcing/Entity';
 import { UUID } from '../../eventSourcing/UUID';
-import { DogMicrochippedEvent } from '../events/dogEvents';
+import { DogMicroChippedEvent } from '../events/dogEvents';
 
 export class Dog implements EventSourcedEntity {
   private isMicrochipped: boolean;
@@ -15,7 +15,7 @@ export class Dog implements EventSourcedEntity {
     this.isMicrochipped = false
   }
 
-  @Emits(DogMicrochippedEvent)
+  @Emits(DogMicroChippedEvent)
   microchip() {
     this.isMicrochipped = true;
   }

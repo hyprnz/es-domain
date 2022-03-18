@@ -20,7 +20,7 @@ export class Person implements EventSourcedEntity {
     if (this.name === 'Dora The Explorer') throw new Error("Don't change your name! It's awesome!")
 
     this.createPerson({
-      name: firstName + " " + lastName
+      name: firstName + " " + lastName,
     })
     return this
   }
