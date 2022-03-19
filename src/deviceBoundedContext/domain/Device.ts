@@ -3,12 +3,12 @@ import * as Uuid from '../../eventSourcing/UUID'
 import { AggregateError } from '../../eventSourcing/AggregateError'
 import { EntityBase } from '../../eventSourcing/EntityBase'
 import { ChangeEvent } from '../../eventSourcing/MessageTypes'
-import {SnapshotEntity, StaticEventHandler} from '../../eventSourcing/Entity'
+import { SnapshotEntity, StaticEventHandler } from '../../eventSourcing/Entity'
 import { EntityChangedObserver } from '../../eventSourcing/Aggregate'
-import {AlarmCreatedEvent} from "../events/internal/AlarmCreatedEvent";
-import {AlarmDestroyedEvent} from "../events/internal/AlarmDestroyedEvent";
-import {DeviceCreatedEvent} from "../events/internal/DeviceCreatedEvent";
-import {DeviceSnapshotEvent} from "../events/internal/DeviceSnapshotEvent";
+import { AlarmCreatedEvent } from '../events/internal/AlarmCreatedEvent'
+import { AlarmDestroyedEvent } from '../events/internal/AlarmDestroyedEvent'
+import { DeviceCreatedEvent } from '../events/internal/DeviceCreatedEvent'
+import { DeviceSnapshotEvent } from '../events/internal/DeviceSnapshotEvent'
 
 export class Device extends EntityBase implements SnapshotEntity {
   private alarms: Map<Uuid.UUID, Alarm> = new Map<Uuid.UUID, Alarm>()
@@ -17,14 +17,14 @@ export class Device extends EntityBase implements SnapshotEntity {
     super(observer)
   }
 
-  snapshot(): void {
+  snapshot(dateTimeOfEvent: string): void {
     this.applyChangeEvent(
       DeviceSnapshotEvent.make(Uuid.createV4, {
         deviceId: this.id,
-        dateTimeOfEvent: new Date().toISOString()
+        dateTimeOfEvent
       })
     )
-    this.alarms.forEach(x=>x.snapshot())
+    this.alarms.forEach(x => x.snapshot(dateTimeOfEvent))
   }
 
   addAlarm(id: Uuid.UUID): Alarm {
@@ -83,7 +83,8 @@ export class Device extends EntityBase implements SnapshotEntity {
     [AlarmDestroyedEvent.eventType]: [
       (device, evt) => {
         const alarmToDelete = device.alarms.get(evt.entityId)
-        if (!alarmToDelete) throw new AggregateError(device.toString(), `Alarm Not Found, Alarm of id:${evt.entityId} missing from Device`)
+        if (!alarmToDelete)
+          throw new AggregateError(device.toString(), `Alarm Not Found, Alarm of id:${evt.entityId} missing from Device`)
 
         device.alarms.delete(alarmToDelete.id)
         alarmToDelete.handleChangeEvent(evt)

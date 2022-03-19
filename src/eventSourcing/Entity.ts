@@ -9,7 +9,7 @@ export interface Entity {
 }
 
 export interface SnapshotEntity {
-  snapshot(): void
+  snapshot(dateTimeOfEvent: string): void
 }
 
 export interface EventSourcedEntity {

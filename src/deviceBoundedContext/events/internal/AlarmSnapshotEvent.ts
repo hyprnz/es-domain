@@ -1,7 +1,6 @@
-import {ChangeEvent} from '../../../eventSourcing/MessageTypes'
+import { ChangeEvent } from '../../../eventSourcing/MessageTypes'
 import * as Uuid from '../../../eventSourcing/UUID'
-import {AlarmDestroyedEvent} from "./AlarmDestroyedEvent";
-
+import { AlarmDestroyedEvent } from './AlarmDestroyedEvent'
 
 export interface AlarmSnapshotEvent extends ChangeEvent {
   eventType: 'AlarmSnapshotEvent'
@@ -15,6 +14,7 @@ export namespace AlarmSnapshotEvent {
     data: {
       alarmId: Uuid.UUID
       deviceId: Uuid.UUID
+      dateTimeOfEvent: string
       correlationId?: Uuid.UUID
       causationId?: Uuid.UUID
     }
@@ -25,7 +25,7 @@ export namespace AlarmSnapshotEvent {
     eventType,
     aggregateRootId: data.deviceId,
     entityId: data.alarmId,
-    dateTimeOfEvent: new Date().toISOString() // TODO: add opaque date type
+    dateTimeOfEvent: data.dateTimeOfEvent
   })
 
   export const isAlarmSnapshotEvent = (e: ChangeEvent): e is AlarmDestroyedEvent => e.eventType === eventType

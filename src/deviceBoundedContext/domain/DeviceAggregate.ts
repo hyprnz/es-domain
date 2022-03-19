@@ -22,7 +22,7 @@ export class DeviceAggregate implements Aggregate, SnapshotAggregate {
   }
 
   snapshot(): void {
-    this.aggregate.rootEntity.snapshot()
+    this.aggregate.rootEntity.snapshot(this.latestDateTimeFromEvents())
   }
 
   markChangesAsCommitted(version: number): void {
