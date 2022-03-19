@@ -1,18 +1,15 @@
-import { Person } from "..";
-import { Uuid, WriteModelRepository } from "../..";
-import { EventSourcedAggregate } from "../../eventSourcing/EventSourcedAggregate";
+import { Person } from '..'
+import { Uuid, WriteModelRepository } from '../..'
+import { EventSourcedAggregate } from '../../eventSourcing/EventSourcedAggregate'
 
 export class PersonService {
-  constructor(private writeRepo: WriteModelRepository) { }
+  constructor(private writeRepo: WriteModelRepository) {}
 
-  private static makePersonAggregate = (personId: Uuid.UUID)=> new EventSourcedAggregate(      
-    personId, 
-    (id, parent) => new Person(id, parent),
-  )
+  private static makePersonAggregate = (personId: Uuid.UUID) => new EventSourcedAggregate(personId, (id, parent) => new Person(id, parent))
 
   async onboardPerson(personId: Uuid.UUID): Promise<void> {
     const personAggregate = PersonService.makePersonAggregate(personId)
-    personAggregate.rootEntity.create("Laché", "Melvin")
+    personAggregate.rootEntity.create('Laché', 'Melvin')
     await this.writeRepo.save(personAggregate)
   }
 

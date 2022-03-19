@@ -37,6 +37,7 @@
     "jest-junit": "~13.0.0",
     "mismatched": "~2.9.0",
     "prettier": "^2.6.0",
+    "pretty-quick": "~3.1.3",
     "reflect-metadata": "^0.1.13",
     "thespian": "~2.9.0",
     "ts-jest": "~27.0.7",

@@ -1,44 +1,41 @@
-import {UUID} from "../../../eventSourcing/UUID";
-import {DeviceService} from "../../service/DeviceService";
-import {ExternalEvent} from "../../../eventSourcing/MessageTypes";
-import {EventStoreExternal} from "../../../eventStoreExternal/EventStoreExternal";
-import {ExternalEventStoreInMemoryRepository} from "../../../eventStoreExternal/ExternalEventStoreInMemoryRepository";
-import {AggregateRepository} from "../../../writeModelRepository/AggregateRepository";
-import {InMemoryEventStoreRepository} from "../../../writeModelRepository/InMemoryEventStoreRepository";
-import {ExternalEventBuilder} from "../../../eventStoreExternal/ExternalEventBuilder";
+import { UUID } from '../../../eventSourcing/UUID'
+import { DeviceService } from '../../service/DeviceService'
+import { ExternalEvent } from '../../../eventSourcing/MessageTypes'
+import { EventStoreExternal } from '../../../eventStoreExternal/EventStoreExternal'
+import { ExternalEventStoreInMemoryRepository } from '../../../eventStoreExternal/ExternalEventStoreInMemoryRepository'
+import { AggregateRepository } from '../../../writeModelRepository/AggregateRepository'
+import { InMemoryEventStoreRepository } from '../../../writeModelRepository/InMemoryEventStoreRepository'
+import { ExternalEventBuilder } from '../../../eventStoreExternal/ExternalEventBuilder'
 
 export interface AlarmTriggeredByExternalSystemEvent extends ExternalEvent {
-    deviceId: UUID;
-    alarmId: UUID;
+  deviceId: UUID
+  alarmId: UUID
 }
 
 const isAlarmTriggerredEvent = (e: ExternalEvent): e is AlarmTriggeredByExternalSystemEvent => {
-    return e.eventType === 'AlarmTriggeredByExternalSystemEvent'
+  return e.eventType === 'AlarmTriggeredByExternalSystemEvent'
 }
 
-
 export class AlarmTriggeredByExternalSystemEventConsumer {
-    constructor(private eventStoreExternal: EventStoreExternal) {
-    }
+  constructor(private eventStoreExternal: EventStoreExternal) {}
 
-    async consume(event: AlarmTriggeredByExternalSystemEvent) {
-        await this.eventStoreExternal.process(event)
-    }
+  async consume(event: AlarmTriggeredByExternalSystemEvent) {
+    await this.eventStoreExternal.process(event)
+  }
 }
 
 export class AlarmTriggeredByExternalSystemEventHandler {
-    constructor(private deviceService: DeviceService) {
-    }
+  constructor(private deviceService: DeviceService) {}
 
-    async handle(events: ExternalEvent[]): Promise<void> {
-        await this.handleAlarmTriggered(events.filter(isAlarmTriggerredEvent))
-    }
+  async handle(events: ExternalEvent[]): Promise<void> {
+    await this.handleAlarmTriggered(events.filter(isAlarmTriggerredEvent))
+  }
 
-    private async handleAlarmTriggered(events: AlarmTriggeredByExternalSystemEvent[]): Promise<void> {
-        for (const event of events) {
-            await this.deviceService.triggerAlarm(event.deviceId, event.alarmId)
-        }
+  private async handleAlarmTriggered(events: AlarmTriggeredByExternalSystemEvent[]): Promise<void> {
+    for (const event of events) {
+      await this.deviceService.triggerAlarm(event.deviceId, event.alarmId)
     }
+  }
 }
 
 // Example application start config

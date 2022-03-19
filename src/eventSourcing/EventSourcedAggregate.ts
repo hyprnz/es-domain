@@ -8,30 +8,28 @@ import { ChangeEvent } from '..'
 
 export class EventSourcedAggregate<T extends EventSourcedEntity> implements Aggregate {
   id: UUID
-  public readonly rootEntity: T 
+  public readonly rootEntity: T
   private readonly entities = new Set<EventSourcedEntity>()
 
   private version: number
   private changes: Array<EntityEvent> = []
 
-  private thisAsParent: Parent 
+  private thisAsParent: Parent
 
-  constructor(id: UUID, makeRootEntity: (id: UUID, aggregate: Parent)=>T){
+  constructor(id: UUID, makeRootEntity: (id: UUID, aggregate: Parent) => T) {
     this.id = id
     this.version = UNINITIALISED_AGGREGATE_VERSION
 
     this.thisAsParent = {
       id: () => this.id,
-      addChangeEvent: (evt) => {
-        const currentVersion = this.changes.length 
-          ? this.changes[this.changes.length - 1].version
-          : this.version
+      addChangeEvent: evt => {
+        const currentVersion = this.changes.length ? this.changes[this.changes.length - 1].version : this.version
         this.changes.push({
-          event:evt, 
+          event: evt,
           version: currentVersion + 1
         })
       },
-      registerEntity: (entity: EventSourcedEntity) => { 
+      registerEntity: (entity: EventSourcedEntity) => {
         this.entities.add(entity)
       }
     }
@@ -43,11 +41,11 @@ export class EventSourcedAggregate<T extends EventSourcedEntity> implements Aggr
     return this.version
   }
 
-  loadFromHistory(history: EntityEvent[]): void{
+  loadFromHistory(history: EntityEvent[]): void {
     history.forEach(evt => {
       const expectedVersion = this.version + 1
-      if(expectedVersion !== evt.version){
-        throw new AggregateError( typeof this,  'Failed to load unexpected event version') 
+      if (expectedVersion !== evt.version) {
+        throw new AggregateError(typeof this, 'Failed to load unexpected event version')
       }
 
       const handler = this.getEventHandler(evt.event.eventType)
@@ -67,16 +65,16 @@ export class EventSourcedAggregate<T extends EventSourcedEntity> implements Aggr
     this.changes = []
   }
 
-  toString(){
+  toString() {
     return `AggregateRoot:${this.id}, Version:${this.version}`
   }
 
-  private getEventHandler (eventType: string): (event: ChangeEvent) => void {
+  private getEventHandler(eventType: string): (event: ChangeEvent) => void {
     for (const entity of this.entities) {
       const handler = Reflect.getMetadata(`${eventType}Handler`, entity)
-      if (handler) return (payload) => handler.call(entity, payload)
+      if (handler) return payload => handler.call(entity, payload)
     }
 
-    throw new AggregateError(typeof this, `Failed to find handler for event type: ${eventType}`) 
+    throw new AggregateError(typeof this, `Failed to find handler for event type: ${eventType}`)
   }
 }

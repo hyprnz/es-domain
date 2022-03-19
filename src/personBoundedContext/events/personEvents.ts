@@ -1,8 +1,8 @@
-import { AbstractChangeEvent } from "../..";
-import { UUID } from "../../eventSourcing/UUID";
+import { AbstractChangeEvent } from '../..'
+import { UUID } from '../../eventSourcing/UUID'
 
 export class PersonDomainError extends Error {
-  constructor(public readonly aggregateRootId: UUID, message:string){
+  constructor(public readonly aggregateRootId: UUID, message: string) {
     super(message)
   }
 }
@@ -14,28 +14,20 @@ export interface CreatePersonPayload {
 export class PersonCreatedEvent extends AbstractChangeEvent {
   static readonly eventType = 'Person.Created'
 
-  constructor(
-    personId: UUID,
-    _: UUID,
-    readonly payload: CreatePersonPayload
-    ){
+  constructor(personId: UUID, _: UUID, readonly payload: CreatePersonPayload) {
     super(PersonCreatedEvent.eventType, personId, personId)
   }
 }
 
 export interface AdoptDogPayload {
-  dogId: UUID,
+  dogId: UUID
   dogName: string
 }
 
 export class DogAdoptedEvent extends AbstractChangeEvent {
   static readonly eventType = 'Person.DogAdopted'
 
-  constructor(
-    personId: UUID,
-    _: UUID,
-    readonly payload: AdoptDogPayload
-    ){
+  constructor(personId: UUID, _: UUID, readonly payload: AdoptDogPayload) {
     super(DogAdoptedEvent.eventType, personId, personId)
   }
 }

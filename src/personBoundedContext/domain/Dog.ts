@@ -1,15 +1,15 @@
-import { Parent } from '../../eventSourcing/Aggregate';
-import { Emits } from '../../eventSourcing/decorators';
-import { EventSourcedEntity } from '../../eventSourcing/Entity';
-import { UUID } from '../../eventSourcing/UUID';
-import { DogMicroChippedEvent } from '../events/dogEvents';
+import { Parent } from '../../eventSourcing/Aggregate'
+import { Emits } from '../../eventSourcing/decorators'
+import { EventSourcedEntity } from '../../eventSourcing/Entity'
+import { UUID } from '../../eventSourcing/UUID'
+import { DogMicroChippedEvent } from '../events/dogEvents'
 
 export class Dog implements EventSourcedEntity {
-  private isMicrochipped: boolean;
-  private dogName: string;
+  private isMicrochipped: boolean
+  private dogName: string
 
   constructor(readonly id: UUID, readonly aggregate: Parent, dogName: string) {
-    this.aggregate.registerEntity(this);
+    this.aggregate.registerEntity(this)
 
     this.dogName = dogName
     this.isMicrochipped = false
@@ -17,6 +17,6 @@ export class Dog implements EventSourcedEntity {
 
   @Emits(DogMicroChippedEvent)
   microchip() {
-    this.isMicrochipped = true;
+    this.isMicrochipped = true
   }
 }

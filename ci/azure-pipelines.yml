@@ -6,43 +6,43 @@
 
 trigger:
   - main
-  
+
 pool:
   vmImage: ubuntu-latest
 
 steps:
-- task: NodeTool@0
-  inputs:
-    versionSpec: '14.x'
-  displayName: 'Install Node.js'
+  - task: NodeTool@0
+    inputs:
+      versionSpec: '14.x'
+    displayName: 'Install Node.js'
 
-- script: |
-    npm version  0.0.$(build.buildid) --no-git-tag-version
-  displayName: 'Package Version'
+  - script: |
+      npm version  0.0.$(build.buildid) --no-git-tag-version
+    displayName: 'Package Version'
 
-- task: Npm@1
-  inputs:
-    command: 'install'
+  - task: Npm@1
+    inputs:
+      command: 'install'
 
-- script: |
-    npm run compile
-  displayName: "Build"
+  - script: |
+      npm run compile
+    displayName: 'Build'
 
-- script: |
-    npm run test:micro
-  displayName: "Micro Tests"
+  - script: |
+      npm run test:micro
+    displayName: 'Micro Tests'
 
-- task: PublishTestResults@2
-  condition: succeededOrFailed()
-  inputs:
-    testRunner: JUnit
-    testResultsFiles: 'junit.xml'
-  displayName: "Publish Test Results"  
+  - task: PublishTestResults@2
+    condition: succeededOrFailed()
+    inputs:
+      testRunner: JUnit
+      testResultsFiles: 'junit.xml'
+    displayName: 'Publish Test Results'
 
-- task: Npm@1
-  inputs:
-    command: 'publish'
-    verbose: true
-    publishRegistry: 'useFeed'
-    publishFeed: 'a43d4cac-71f8-42fc-b942-cfa713da390e/980645ab-671b-4b1a-85a3-ad02df26f981'
-  displayName: 'Publish to artifact feed.'
+  - task: Npm@1
+    inputs:
+      command: 'publish'
+      verbose: true
+      publishRegistry: 'useFeed'
+      publishFeed: 'a43d4cac-71f8-42fc-b942-cfa713da390e/980645ab-671b-4b1a-85a3-ad02df26f981'
+    displayName: 'Publish to artifact feed.'

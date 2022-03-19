@@ -1,1 +1,1 @@
-export {Person} from './domain/Person'
+export { Person } from './domain/Person'

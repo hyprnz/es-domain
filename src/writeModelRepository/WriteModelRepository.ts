@@ -1,6 +1,6 @@
-import {UUID} from "../eventSourcing/UUID";
-import {Aggregate} from "../eventSourcing/Aggregate";
-import {EntityEvent} from "../eventSourcing/MessageTypes";
+import { UUID } from '../eventSourcing/UUID'
+import { Aggregate } from '../eventSourcing/Aggregate'
+import { EntityEvent } from '../eventSourcing/MessageTypes'
 
 /** Write model uses only 2 keys.
  *  For several reasons:
@@ -20,24 +20,22 @@ import {EntityEvent} from "../eventSourcing/MessageTypes";
  * This also gives us optimistic concurrency detection for free
  */
 export interface WriteModelRepository {
-    /** Persists an AggregateRoots uncommited events
-     * @argument aggregateRoot The aggregateroot to persist
-     */
-    save<T extends Aggregate>(aggregate: T): Promise<number>
+  /** Persists an AggregateRoots uncommited events
+   * @argument aggregateRoot The aggregateroot to persist
+   */
+  save<T extends Aggregate>(aggregate: T): Promise<number>
 
-    /**Loads an aggregate root from persistence
-     * @argument id The id of the Aggregate Root to load
-     * @argument activator As we do not have reflection in typescript we must provide either an instance or an activation function
-     */
-    load<T extends Aggregate>(id: UUID, aggregate: T): Promise<T>
+  /**Loads an aggregate root from persistence
+   * @argument id The id of the Aggregate Root to load
+   * @argument activator As we do not have reflection in typescript we must provide either an instance or an activation function
+   */
+  load<T extends Aggregate>(id: UUID, aggregate: T): Promise<T>
 
-    /** Synchronously subscribe to events that have been committed to persistence, this can be used to feed events
-     * to down stream services to create Projections
-     * @argument handler A callback function that will receive an array of changes (Unit of work) related to a single aggregate.*/
-    subscribeToChangesSynchronously(handler: (changes: Array<EntityEvent>) => Promise<void>): void
+  /** Synchronously subscribe to events that have been committed to persistence, this can be used to feed events
+   * to down stream services to create Projections
+   * @argument handler A callback function that will receive an array of changes (Unit of work) related to a single aggregate.*/
+  subscribeToChangesSynchronously(handler: (changes: Array<EntityEvent>) => Promise<void>): void
 
-
-    /** Utility function, not sure if its going to be needed or not but is useful */
-    loadEvents(id: UUID): Promise<Array<EntityEvent>>
+  /** Utility function, not sure if its going to be needed or not but is useful */
+  loadEvents(id: UUID): Promise<Array<EntityEvent>>
 }
-

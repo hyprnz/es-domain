@@ -6,14 +6,16 @@ export * from './readModelRepository/Projection'
 export * from './eventSourcing/EntityBase'
 export * from './eventSourcing/AbstractChangeEvent'
 export * from './eventSourcing/AggregateContainer'
-export * from "./eventSourcing/Entity";
-export * from "./eventSourcing/Aggregate";
-export * from "./eventSourcing/Aggregate";
-export * from "./readModelRepository/ReadModelRepository";
-export * from "./writeModelRepository/InMemoryEventStoreRepository";
-export * from "./writeModelRepository/AggregateRepository";
-export * from "./eventStoreExternal/ExternalEventStoreInMemoryRepository";
-export * from "./eventStoreExternal/EventStoreExternal";
-export * from "./eventStoreExternal/ExternalEventBuilder";
-export * as example from './deviceBoundedContext';
-export {SnapshotRepository} from "./writeModelRepository/SnapshotRepository";
+export * from './eventSourcing/Entity'
+export * from './eventSourcing/Aggregate'
+export * from './eventSourcing/Aggregate'
+export * from './readModelRepository/ReadModelRepository'
+export * from './writeModelRepository/InMemoryEventStoreRepository'
+export * from './writeModelRepository/AggregateRepository'
+export * from './writeModelRepository/SnapshotAggregateRepository'
+export * from './writeModelRepository/SnapshotEventStoreRepository'
+export * from './eventStoreExternal/ExternalEventStoreInMemoryRepository'
+export * from './eventStoreExternal/EventStoreExternal'
+export * from './eventStoreExternal/ExternalEventBuilder'
+export * as example from './deviceBoundedContext'
+export { SnapshotAggregateRepository } from './writeModelRepository/SnapshotAggregateRepository'

@@ -1,28 +1,25 @@
-import * as Uuid from "../../eventSourcing/UUID";
-import { Thespian, TMocked } from "thespian";
-import { alarmProjectionHandler } from "./AlarmsProjection";
-import {
-  AlarmArmedEvent,
-  AlarmCreatedEvent,
-} from "../events/internal/DeviceEvents";
-import { EntityEvent } from "../../eventSourcing/MessageTypes";
-import { ReadModelRepository } from "../../readModelRepository/ReadModelRepository";
+import * as Uuid from '../../eventSourcing/UUID'
+import { Thespian, TMocked } from 'thespian'
+import { alarmProjectionHandler } from './AlarmsProjection'
+import { EntityEvent } from '../../eventSourcing/MessageTypes'
+import { ReadModelRepository } from '../../readModelRepository/ReadModelRepository'
+import { AlarmArmedEvent, AlarmCreatedEvent } from '../events/internal/AlarmEvents'
 
-describe("AlarmsProjection", () => {
-  let mocks: Thespian;
-  let repository: TMocked<ReadModelRepository>;
+describe('AlarmsProjection', () => {
+  let mocks: Thespian
+  let repository: TMocked<ReadModelRepository>
 
-  const projectionName = "alarmProjectionHandler";
+  const projectionName = 'alarmProjectionHandler'
   beforeEach(() => {
-    mocks = new Thespian();
-    repository = mocks.mock("repository");
-  });
+    mocks = new Thespian()
+    repository = mocks.mock('repository')
+  })
 
-  afterEach(() => mocks.verify());
+  afterEach(() => mocks.verify())
 
-  it("Create new Row", async () => {
-    const aggregateRootId = Uuid.createV4();
-    const alarmId = Uuid.createV4();
+  it('Create new Row', async () => {
+    const aggregateRootId = Uuid.createV4()
+    const alarmId = Uuid.createV4()
 
     const events: Array<EntityEvent> = [
       {
@@ -35,30 +32,28 @@ describe("AlarmsProjection", () => {
           aggregateRootId: aggregateRootId,
           eventType: AlarmCreatedEvent.eventType,
           dateTimeOfEvent: new Date().toISOString()
-        },
-      },
-    ];
-    repository
-      .setup((x) => x.find(projectionName, alarmId))
-      .returns(() => Promise.resolve(undefined));
+        }
+      }
+    ]
+    repository.setup(x => x.find(projectionName, alarmId)).returns(() => Promise.resolve(undefined))
 
     repository
-      .setup((x) =>
+      .setup(x =>
         x.create(projectionName, {
           id: alarmId,
           version: 0,
           isActive: false,
-          threshold: 0,
+          threshold: 0
         })
       )
-      .returns(() => Promise.resolve());
+      .returns(() => Promise.resolve())
 
-    await alarmProjectionHandler(events, repository.object);
-  });
+    await alarmProjectionHandler(events, repository.object)
+  })
 
-  it("Active Alarm", async () => {
-    const aggregateRootId = Uuid.createV4();
-    const alarmId = Uuid.createV4();
+  it('Active Alarm', async () => {
+    const aggregateRootId = Uuid.createV4()
+    const alarmId = Uuid.createV4()
 
     const events = [
       {
@@ -71,7 +66,7 @@ describe("AlarmsProjection", () => {
           aggregateRootId: aggregateRootId,
           eventType: AlarmCreatedEvent.eventType,
           dateTimeOfEvent: new Date().toISOString()
-        },
+        }
       },
 
       {
@@ -85,24 +80,22 @@ describe("AlarmsProjection", () => {
           eventType: AlarmArmedEvent.eventType,
           threshold: 10,
           dateTimeOfEvent: new Date().toISOString()
-        },
-      },
-    ];
-    repository
-      .setup((x) => x.find(projectionName, alarmId))
-      .returns(() => Promise.resolve(undefined));
+        }
+      }
+    ]
+    repository.setup(x => x.find(projectionName, alarmId)).returns(() => Promise.resolve(undefined))
 
     repository
-      .setup((x) =>
+      .setup(x =>
         x.create(projectionName, {
           id: alarmId,
           version: 1,
           isActive: true,
-          threshold: 10,
+          threshold: 10
         })
       )
-      .returns(() => Promise.resolve());
+      .returns(() => Promise.resolve())
 
-    await alarmProjectionHandler(events, repository.object);
-  });
-});
+    await alarmProjectionHandler(events, repository.object)
+  })
+})

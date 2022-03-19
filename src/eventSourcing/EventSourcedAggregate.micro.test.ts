@@ -1,85 +1,84 @@
-import { assertThat, match } from "mismatched";
-import { Person } from "../personBoundedContext";
-import { DogMicroChippedEvent } from "../personBoundedContext/events/dogEvents";
-import {
-  DogAdoptedEvent,
-  PersonCreatedEvent,
-} from "../personBoundedContext/events/personEvents";
-import { Parent } from "./Aggregate";
-import { EventSourcedAggregate } from "./EventSourcedAggregate";
-import { createV4, UUID } from "./UUID";
+import { assertThat, match } from 'mismatched'
+import { Person } from '../personBoundedContext'
+import { DogMicroChippedEvent } from '../personBoundedContext/events/dogEvents'
+import { DogAdoptedEvent, PersonCreatedEvent } from '../personBoundedContext/events/personEvents'
+import { Parent } from './Aggregate'
+import { EventSourcedAggregate } from './EventSourcedAggregate'
+import { createV4, UUID } from './UUID'
 
-describe("EventSourcedAggregate", () => {
-  const makePerson = (id: UUID, aggregate: Parent) => new Person(id, aggregate);
-  it("Can create a root entity", () => {
-    const id = createV4();
-    const personAggregate = new EventSourcedAggregate(id, makePerson);
+describe('EventSourcedAggregate', () => {
+  const makePerson = (id: UUID, aggregate: Parent) => new Person(id, aggregate)
+  it('Can create a root entity', () => {
+    const id = createV4()
+    const personAggregate = new EventSourcedAggregate(id, makePerson)
 
-    personAggregate.rootEntity.create("Susan", "Smith");
+    personAggregate.rootEntity.create('Susan', 'Smith')
 
-    const uncommited = personAggregate.uncommittedChanges();
+    const uncommited = personAggregate.uncommittedChanges()
     assertThat(uncommited).is([
       {
         event: {
-          ...new PersonCreatedEvent(id, id, { name: "Susan Smith" }),
+          ...new PersonCreatedEvent(id, id, { name: 'Susan Smith' }),
           id: match.any(),
           correlationId: match.any(),
-          causationId: match.any(),
+          causationId: match.any()
         },
-        version: 0,
-      },
-    ]);
-  });
+        version: 0
+      }
+    ])
+  })
 
-  xit("Can hydrate a root entity from events", () => {
-    const id = createV4();
+  xit('Can hydrate a root entity from events', () => {
+    const id = createV4()
     const personCreatedEvent = new PersonCreatedEvent(id, id, {
-      name: "Rita Skeeter",
-    });
-    const events = [{ event: personCreatedEvent, version: 0 }];
+      name: 'Rita Skeeter'
+    })
+    const events = [{ event: personCreatedEvent, version: 0 }]
 
-    const personAggregate = new EventSourcedAggregate(id, makePerson);
-    personAggregate.loadFromHistory(events);
+    const personAggregate = new EventSourcedAggregate(id, makePerson)
+    personAggregate.loadFromHistory(events)
 
     // accessing private name property...
     // @ts-ignore
-    assertThat(personAggregate.rootEntity.name).is("Rita Skeeter");
+    assertThat(personAggregate.rootEntity.name).is('Rita Skeeter')
 
-    const uncommited = personAggregate.uncommittedChanges();
-    assertThat(uncommited).is([]);
-  });
+    const uncommited = personAggregate.uncommittedChanges()
+    assertThat(uncommited).is([])
+  })
 
-  it("Can add and mutate a child entity", () => {
-    const id = createV4();
-    const dogId = createV4();
+  it('Can add and mutate a child entity', () => {
+    const id = createV4()
+    const dogId = createV4()
 
-    const personAggregate = new EventSourcedAggregate(id, makePerson);
-    personAggregate.rootEntity.create("Peter", "Parker");
-    personAggregate.rootEntity.adoptDog({ dogId: dogId, dogName: "Rudolf" });
+    const personAggregate = new EventSourcedAggregate(id, makePerson)
+    personAggregate.rootEntity.create('Peter', 'Parker')
+    personAggregate.rootEntity.adoptDog({ dogId: dogId, dogName: 'Rudolf' })
 
-    const rudolf = personAggregate.rootEntity.findDog(dogId);
-    assertThat(rudolf).isNot(undefined);
-    rudolf!.microchip();
+    const rudolf = personAggregate.rootEntity.findDog(dogId)
+    assertThat(rudolf).isNot(undefined)
+    rudolf!.microchip()
 
-    const uncommited = personAggregate.uncommittedChanges();
+    const uncommited = personAggregate.uncommittedChanges()
     assertThat(uncommited).is([
       {
         event: {
-          ...new PersonCreatedEvent(id, id, { name: "Peter Parker" }),
+          ...new PersonCreatedEvent(id, id, { name: 'Peter Parker' }),
           id: match.any(),
           correlationId: match.any(),
           causationId: match.any(),
+          dateTimeOfEvent: match.any()
         },
-        version: 0,
+        version: 0
       },
       {
         event: {
-          ...new DogAdoptedEvent(id, id, { dogId: dogId, dogName: "Rudolf" }),
+          ...new DogAdoptedEvent(id, id, { dogId: dogId, dogName: 'Rudolf' }),
           id: match.any(),
           correlationId: match.any(),
           causationId: match.any(),
+          dateTimeOfEvent: match.any()
         },
-        version: 1,
+        version: 1
       },
       {
         event: {
@@ -87,33 +86,34 @@ describe("EventSourcedAggregate", () => {
           id: match.any(),
           correlationId: match.any(),
           causationId: match.any(),
+          dateTimeOfEvent: match.any()
         },
-        version: 2,
-      },
-    ]);
-  });
+        version: 2
+      }
+    ])
+  })
 
-  xit("Can hydrate a child entity from events", () => {
-    const id = createV4();
-    const dogId = createV4();
+  xit('Can hydrate a child entity from events', () => {
+    const id = createV4()
+    const dogId = createV4()
     const personCreated = new PersonCreatedEvent(id, id, {
-      name: "Simone Biles",
-    });
-    const dogAdopted = new DogAdoptedEvent(id, id, { dogId, dogName: "Rufus" });
-    const dogMicroChipped = new DogMicroChippedEvent(id, dogId);
+      name: 'Simone Biles'
+    })
+    const dogAdopted = new DogAdoptedEvent(id, id, { dogId, dogName: 'Rufus' })
+    const dogMicroChipped = new DogMicroChippedEvent(id, dogId)
     const eventHistory = [
       { event: personCreated, version: 0 },
       { event: dogAdopted, version: 1 },
-      { event: dogMicroChipped, version: 2 },
-    ];
+      { event: dogMicroChipped, version: 2 }
+    ]
 
-    const personAggregate = new EventSourcedAggregate(id, makePerson);
-    personAggregate.loadFromHistory(eventHistory);
+    const personAggregate = new EventSourcedAggregate(id, makePerson)
+    personAggregate.loadFromHistory(eventHistory)
 
-    const rufus = personAggregate.rootEntity.findDog(dogId);
+    const rufus = personAggregate.rootEntity.findDog(dogId)
 
     // accessing private name property...
     // @ts-ignore
-    assertThat(rufus.isMicrochipped).is(true);
-  });
-});
+    assertThat(rufus.isMicrochipped).is(true)
+  })
+})
