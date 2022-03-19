@@ -97,4 +97,16 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
   private applyEvent(evt: ChangeEvent) {
     this.rootEntity.handleChangeEvent(evt)
   }
+
+  latestDateTimeFromEvents(): string {
+    return this.events.reduce(
+      (accum: string, curr) =>
+        new Date(curr.event.dateTimeOfEvent).getTime() > new Date(accum).getTime() ? curr.event.dateTimeOfEvent : accum,
+      new Date(0).toISOString()
+    )
+  }
+
+  countOfEvents():number {
+    return this.events.length
+  }
 }

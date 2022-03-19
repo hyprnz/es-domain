@@ -8,6 +8,10 @@ export interface Entity {
   handleChangeEvent(event: ChangeEvent): void
 }
 
+export interface SnapshotEntity {
+  snapshot(): void
+}
+
 export interface EventSourcedEntity {
   readonly id: Uuid.UUID
   readonly aggregate: Parent

@@ -3,10 +3,10 @@ import * as Uuid from '../../eventSourcing/UUID'
 import { UUID } from '../../eventSourcing/UUID'
 import { AggregateContainer } from '../../eventSourcing/AggregateContainer'
 import { EntityEvent } from '../../eventSourcing/MessageTypes'
-import { DeviceCreatedEvent } from '../events/internal/DeviceEvents'
-import { Aggregate, SnapShotAggregate } from '../../eventSourcing/Aggregate'
+import { Aggregate, SnapshotAggregate } from '../../eventSourcing/Aggregate'
+import { DeviceCreatedEvent } from '../events/internal/DeviceCreatedEvent'
 
-export class DeviceAggregate implements Aggregate, SnapShotAggregate {
+export class DeviceAggregate implements Aggregate, SnapshotAggregate {
   constructor(private aggregate: AggregateContainer<Device> = new AggregateContainer<Device>()) {}
 
   private get root(): Device {
@@ -19,6 +19,10 @@ export class DeviceAggregate implements Aggregate, SnapShotAggregate {
 
   get id(): UUID {
     return this.aggregate.id
+  }
+
+  snapshot(): void {
+    this.aggregate.rootEntity.snapshot()
   }
 
   markChangesAsCommitted(version: number): void {
@@ -67,5 +71,13 @@ export class DeviceAggregate implements Aggregate, SnapShotAggregate {
 
   markSnapshotAsCommitted(): void {
     this.aggregate.markSnapShotAsCommitted()
+  }
+
+  latestDateTimeFromEvents(): string {
+    return this.aggregate.latestDateTimeFromEvents()
+  }
+
+  countOfEvents(): number {
+    return this.aggregate.countOfEvents()
   }
 }

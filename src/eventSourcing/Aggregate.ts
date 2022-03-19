@@ -13,8 +13,12 @@ export interface Aggregate {
   markChangesAsCommitted(version: number): void
 }
 
-export interface SnapShotAggregate extends Aggregate {
+export interface SnapshotAggregate extends Aggregate {
+  snapshot(): void
+
   markSnapshotAsCommitted(): void
+
+  latestDateTimeFromEvents(): string
 }
 
 export type EntityChangedObserver = (event: ChangeEvent) => void

@@ -1,11 +1,14 @@
-import { assertThat, match } from 'mismatched'
-import * as deviceEvents from '../events/internal/DeviceEvents'
-import { ChangeEvent, EntityEvent, UNINITIALISED_AGGREGATE_VERSION } from '../../eventSourcing/MessageTypes'
+import {assertThat, match} from 'mismatched'
+import {ChangeEvent, EntityEvent, UNINITIALISED_AGGREGATE_VERSION} from '../../eventSourcing/MessageTypes'
 import * as Uuid from '../../eventSourcing/UUID'
-import { Entity } from '../../eventSourcing/Entity'
-import { Aggregate } from '../../eventSourcing/Aggregate'
-import { DeviceAggregate } from './DeviceAggregate'
-import { AlarmArmedEvent, AlarmCreatedEvent, AlarmDestroyedEvent, AlarmTriggeredEvent } from '../events/internal/AlarmEvents'
+import {Entity} from '../../eventSourcing/Entity'
+import {Aggregate} from '../../eventSourcing/Aggregate'
+import {DeviceAggregate} from './DeviceAggregate'
+import {AlarmCreatedEvent} from "../events/internal/AlarmCreatedEvent";
+import {AlarmArmedEvent} from "../events/internal/AlarmArmedEvent";
+import {AlarmTriggeredEvent} from "../events/internal/AlarmTriggeredEvent";
+import {AlarmDestroyedEvent} from "../events/internal/AlarmDestroyedEvent";
+import {DeviceCreatedEvent} from "../events/internal/DeviceCreatedEvent";
 
 describe('Device', () => {
   describe('GenericAggregateRoot', () => {
@@ -22,7 +25,7 @@ describe('Device', () => {
         const events = aggregate.uncommittedChanges()
         assertThat(events).is([
           makeEntityEventMatcher(
-            deviceEvents.DeviceCreatedEvent.make(() => id, { deviceId: id }),
+            DeviceCreatedEvent.make(() => id, { deviceId: id }),
             0
           )
         ])
@@ -32,7 +35,7 @@ describe('Device', () => {
       it('Load from History', () => {
         const aggregate = new DeviceAggregate()
         const id = Uuid.createV4()
-        const history = [{ event: deviceEvents.DeviceCreatedEvent.make(() => id, { deviceId: id }), version: 0 }]
+        const history = [{ event: DeviceCreatedEvent.make(() => id, { deviceId: id }), version: 0 }]
         aggregate.loadFromHistory(history)
         assertThat(aggregate.id).is(id)
         assertThat(aggregate.changeVersion).is(0)
@@ -52,7 +55,7 @@ describe('Device', () => {
 
         assertThat(events).is(match.array.length(3))
         assertThat(events).is([
-          makeEntityEventMatcher(deviceEvents.DeviceCreatedEvent.make(Uuid.createV4, { deviceId }), 0),
+          makeEntityEventMatcher(DeviceCreatedEvent.make(Uuid.createV4, { deviceId }), 0),
           makeEntityEventMatcher(AlarmCreatedEvent.make(Uuid.createV4, { deviceId, alarmId }), 1),
           makeEntityEventMatcher(AlarmArmedEvent.make(Uuid.createV4, { deviceId, alarmId, threshold: 20 }), 2)
         ])

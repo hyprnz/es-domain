@@ -3,12 +3,14 @@ import * as Uuid from '../../eventSourcing/UUID'
 import { AggregateError } from '../../eventSourcing/AggregateError'
 import { EntityBase } from '../../eventSourcing/EntityBase'
 import { ChangeEvent } from '../../eventSourcing/MessageTypes'
-import { DeviceCreatedEvent, DeviceSnapshotEvent } from '../events/internal/DeviceEvents'
-import { StaticEventHandler } from '../../eventSourcing/Entity'
+import {SnapshotEntity, StaticEventHandler} from '../../eventSourcing/Entity'
 import { EntityChangedObserver } from '../../eventSourcing/Aggregate'
-import { AlarmCreatedEvent, AlarmDestroyedEvent } from '../events/internal/AlarmEvents'
+import {AlarmCreatedEvent} from "../events/internal/AlarmCreatedEvent";
+import {AlarmDestroyedEvent} from "../events/internal/AlarmDestroyedEvent";
+import {DeviceCreatedEvent} from "../events/internal/DeviceCreatedEvent";
+import {DeviceSnapshotEvent} from "../events/internal/DeviceSnapshotEvent";
 
-export class Device extends EntityBase {
+export class Device extends EntityBase implements SnapshotEntity {
   private alarms: Map<Uuid.UUID, Alarm> = new Map<Uuid.UUID, Alarm>()
 
   constructor(observer: EntityChangedObserver) {
@@ -22,6 +24,7 @@ export class Device extends EntityBase {
         dateTimeOfEvent: new Date().toISOString()
       })
     )
+    this.alarms.forEach(x=>x.snapshot())
   }
 
   addAlarm(id: Uuid.UUID): Alarm {

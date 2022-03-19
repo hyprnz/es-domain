@@ -1,12 +1,17 @@
 import * as Uuid from '../../eventSourcing/UUID'
 import { EntityBase } from '../../eventSourcing/EntityBase'
 import { ChangeEvent } from '../../eventSourcing/MessageTypes'
-import { DeviceDomainError } from '../events/internal/DeviceEvents'
-import { StaticEventHandler } from '../../eventSourcing/Entity'
+import { DeviceDomainError } from '../events/internal/DeviceDomainError'
+import { SnapshotEntity, StaticEventHandler } from '../../eventSourcing/Entity'
 import { EntityChangedObserver } from '../../eventSourcing/Aggregate'
-import { AlarmArmedEvent, AlarmCreatedEvent, AlarmDestroyedEvent, AlarmDisarmedEvent, AlarmTriggeredEvent } from '../events/internal/AlarmEvents'
+import { AlarmCreatedEvent } from '../events/internal/AlarmCreatedEvent'
+import { AlarmArmedEvent } from '../events/internal/AlarmArmedEvent'
+import { AlarmDisarmedEvent } from '../events/internal/AlarmDisarmedEvent'
+import { AlarmTriggeredEvent } from '../events/internal/AlarmTriggeredEvent'
+import { AlarmDestroyedEvent } from '../events/internal/AlarmDestroyedEvent'
+import { AlarmSnapshotEvent } from '../events/internal/AlarmSnapshotEvent'
 
-export class Alarm extends EntityBase {
+export class Alarm extends EntityBase implements SnapshotEntity {
   private _deviceId: Uuid.UUID | undefined
   get deviceId(): Uuid.UUID {
     if (!this._deviceId) {
@@ -27,12 +32,27 @@ export class Alarm extends EntityBase {
     super(observer)
   }
 
+  snapshot(): void {
+    this.applyChangeEvent(
+      AlarmSnapshotEvent.make(Uuid.createV4, {
+        deviceId: this.deviceId,
+        alarmId: this.id
+      })
+    )
+  }
+
   armAlarm(alarmThreshold: number): void {
     if (alarmThreshold < 0 || alarmThreshold > 100) {
       throw new DeviceDomainError(this.deviceId, 'Alarm threshold Failed Validation')
     }
     if (!this.isArmed) {
-      this.applyChangeEvent(AlarmArmedEvent.make(Uuid.createV4, { deviceId: this.deviceId, alarmId: this.id, threshold: alarmThreshold }))
+      this.applyChangeEvent(
+        AlarmArmedEvent.make(Uuid.createV4, {
+          deviceId: this.deviceId,
+          alarmId: this.id,
+          threshold: alarmThreshold
+        })
+      )
     }
   }
 
