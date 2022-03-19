@@ -30,7 +30,12 @@ export abstract class EntityBase implements Entity {
   /** Applies a new change to the Domain Object */
   applyChangeEvent(evt: ChangeEvent): void {
     this.applyEvent(evt)
-    this.observer(evt)
+    this.observer(evt, false)
+  }
+
+  applySnapshot(evt: ChangeEvent): void {
+    this.applyEvent(evt)
+    this.observer(evt, true)
   }
 
   /** Applies an existing event to the Entity **/

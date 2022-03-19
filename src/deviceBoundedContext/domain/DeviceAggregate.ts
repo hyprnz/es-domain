@@ -2,12 +2,16 @@ import { Alarm, Device } from '..'
 import * as Uuid from '../../eventSourcing/UUID'
 import { UUID } from '../../eventSourcing/UUID'
 import { AggregateContainer } from '../../eventSourcing/AggregateContainer'
-import { EntityEvent } from '../../eventSourcing/MessageTypes'
+import { ChangeEvent, EntityEvent } from '../../eventSourcing/MessageTypes'
 import { Aggregate, SnapshotAggregate } from '../../eventSourcing/Aggregate'
 import { DeviceCreatedEvent } from '../events/internal/DeviceCreatedEvent'
 
 export class DeviceAggregate implements Aggregate, SnapshotAggregate {
   constructor(private aggregate: AggregateContainer<Device> = new AggregateContainer<Device>()) {}
+
+  uncommittedSnapshots(): ChangeEvent[] {
+    return this.aggregate.uncommittedSnapshots()
+  }
 
   private get root(): Device {
     return this.aggregate.rootEntity
@@ -34,13 +38,13 @@ export class DeviceAggregate implements Aggregate, SnapshotAggregate {
   }
 
   withDevice(id: Uuid.UUID): this {
-    this.aggregate.rootEntity = new Device(evt => this.aggregate.observe(evt))
+    this.aggregate.rootEntity = new Device((evt, isSnapshot) => this.aggregate.observe(evt, isSnapshot))
     this.root.applyChangeEvent(DeviceCreatedEvent.make(Uuid.createV4, { deviceId: id }))
     return this
   }
 
   loadFromHistory(history: EntityEvent[]): void {
-    this.aggregate.rootEntity = new Device(evt => this.aggregate.observe(evt))
+    this.aggregate.rootEntity = new Device((evt, isSnapshot) => this.aggregate.observe(evt, isSnapshot))
     this.aggregate.loadFromHistory(history)
   }
 
@@ -70,7 +74,7 @@ export class DeviceAggregate implements Aggregate, SnapshotAggregate {
   }
 
   markSnapshotAsCommitted(): void {
-    this.aggregate.markSnapShotAsCommitted()
+    this.aggregate.markSnapshotsAsCommitted()
   }
 
   latestDateTimeFromEvents(): string {

@@ -4,7 +4,7 @@ import { DeviceAggregate } from '../domain/DeviceAggregate'
 import { SnapshotWriteModelRepository } from '../../writeModelRepository/SnapshotWriteModelRepository'
 
 export class DeviceRepository {
-  constructor(private repository: WriteModelRepository & SnapshotWriteModelRepository) {}
+  constructor(private repository: WriteModelRepository, private snapshotRepository: SnapshotWriteModelRepository) {}
 
   async create(deviceId: Uuid.UUID): Promise<void> {
     await this.repository.save(new DeviceAggregate().withDevice(deviceId))
@@ -18,7 +18,7 @@ export class DeviceRepository {
       // During the repository save above uncommitted changes are marked as committed. We can now apply the
       // snapshot events which will be committed during save snapshot call.
       aggregate.snapshot()
-      await this.repository.saveSnapshot(aggregate)
+      await this.snapshotRepository.saveSnapshot(aggregate)
     }
   }
 
@@ -26,7 +26,7 @@ export class DeviceRepository {
     // This example uses snapshots for load optimisation. For many systems this won't be required
     // in which case we can simply load using:
     // return await this.repository.load(id, new DeviceAggregate().withDevice(id))
-    const snapshot = await this.repository.loadSnapshot(id, new DeviceAggregate().withDevice(id))
+    const snapshot = await this.snapshotRepository.loadSnapshot(id, new DeviceAggregate().withDevice(id))
     return await this.repository.loadFromDate(id, snapshot, snapshot.latestDateTimeFromEvents())
   }
 }

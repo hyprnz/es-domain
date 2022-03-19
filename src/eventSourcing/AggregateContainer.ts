@@ -8,6 +8,7 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
   public _rootEntity: T | undefined
   private events: Array<EntityEvent> = []
   private changes: Array<EntityEvent> = []
+  private snapshots: Array<ChangeEvent> = []
   private causationId?: Uuid.UUID
   private correlationId?: Uuid.UUID
 
@@ -56,8 +57,8 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
     }))
   }
 
-  markSnapShotAsCommitted(): void {
-    this.changes = []
+  markSnapshotsAsCommitted(): void {
+    this.snapshots = []
   }
 
   markChangesAsCommitted(version: number): void {
@@ -80,7 +81,19 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
   }
 
   /** Observes a new change to a Domain Object */
-  observe(evt: ChangeEvent) {
+  observe(evt: ChangeEvent, isSnapshot: boolean) {
+    if (isSnapshot) {
+      this.observeSnapshot(evt)
+      return
+    }
+    this.observeEvent(evt)
+  }
+
+  private observeSnapshot(evt: ChangeEvent) {
+    this.snapshots.push(evt)
+  }
+
+  private observeEvent(evt: ChangeEvent) {
     const entityEvent = {
       event: evt,
       version: this.currentVersionFromChanges() + 1
@@ -106,7 +119,11 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
     )
   }
 
-  countOfEvents():number {
+  countOfEvents(): number {
     return this.events.length
+  }
+
+  uncommittedSnapshots():ChangeEvent[] {
+    return this.snapshots
   }
 }

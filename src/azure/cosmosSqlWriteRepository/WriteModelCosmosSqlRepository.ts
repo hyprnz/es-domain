@@ -54,10 +54,18 @@ export class WriteModelCosmosSqlRepository implements WriteModelRepository {
       this.eventEmitter.emit('events', changes)
     }
   }
+
+  loadFromDate<T extends Aggregate>(id: UUID, aggregate: T, fromDate: string): Promise<T> {
+    throw new Error(`loadFromDate method not implemented`)
+  }
 }
 
 export class CosmosAdapter implements InternalEventStoreRepository {
   constructor(private store: Container) {}
+
+  getEventsFromDate(id: Uuid.UUID, fromDate: string): Promise<EntityEvent[]> {
+    throw new Error('getEventsFromDate method not implemented.')
+  }
 
   async appendEvents(aggregateId: UUID, changeVersion: number, changes: EntityEvent[]): Promise<void> {
     // const options = {

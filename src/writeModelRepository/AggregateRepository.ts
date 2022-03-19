@@ -2,44 +2,20 @@ import { UUID } from '../eventSourcing/UUID'
 import { EntityEvent } from '../eventSourcing/MessageTypes'
 import { WriteModelRepositoryError as WriteModelRepositoryError } from './WriteModelRepositoryError'
 import { WriteModelRepository } from './WriteModelRepository'
-import { Aggregate, SnapshotAggregate } from '../eventSourcing/Aggregate'
+import { Aggregate } from '../eventSourcing/Aggregate'
 import { InternalEventStoreRepository } from './InternalEventStoreRepository'
 import { EventBusInternal } from '../eventSourcing/EventBusInternal'
-import { SnapshotWriteModelRepository } from './SnapshotWriteModelRepository'
-import { SnapshotEventStoreRepository } from './SnapshotEventStoreRepository'
 
-export class AggregateRepository implements WriteModelRepository, SnapshotWriteModelRepository {
+export class AggregateRepository implements WriteModelRepository {
   constructor(
-    private readonly eventStore: InternalEventStoreRepository & SnapshotEventStoreRepository,
+    private readonly eventStore: InternalEventStoreRepository,
     private readonly eventBusSync = new EventBusInternal()
   ) {}
 
-  async loadSnapshot<T extends Aggregate>(id: UUID, aggregate: T): Promise<T> {
-    const events = await this.eventStore.getSnapshotEvents(id)
-    if (events.length === 0) {
-      return aggregate
-    }
-    aggregate.loadFromHistory(events)
-    return Promise.resolve(aggregate)
-  }
-
-  async saveSnapshot<T extends SnapshotAggregate>(aggregate: T): Promise<number> {
-    const changes = aggregate.uncommittedChanges()
-    if (changes.length === 0) {
-      return Promise.resolve(0)
-    }
-    await this.eventStore.appendSnapshotEvents(aggregate.id, changes)
-    aggregate.markSnapshotAsCommitted()
-    return changes.length
-  }
-
   async loadFromDate<T extends Aggregate>(id: UUID, aggregate: T, fromDate: string): Promise<T> {
     const events = await this.eventStore.getEventsFromDate(id, fromDate)
-    if (events.length === 0) {
-      return aggregate
-    }
     aggregate.loadFromHistory(events)
-    return Promise.resolve(aggregate)
+    return aggregate
   }
 
   async save<T extends Aggregate>(aggregate: T): Promise<number> {

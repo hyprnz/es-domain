@@ -18,7 +18,7 @@ export class Device extends EntityBase implements SnapshotEntity {
   }
 
   snapshot(dateTimeOfEvent: string): void {
-    this.applyChangeEvent(
+    this.applySnapshot(
       DeviceSnapshotEvent.make(Uuid.createV4, {
         deviceId: this.id,
         dateTimeOfEvent

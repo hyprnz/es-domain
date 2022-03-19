@@ -16,12 +16,14 @@ export interface Aggregate {
 export interface SnapshotAggregate extends Aggregate {
   snapshot(): void
 
+  uncommittedSnapshots(): Array<ChangeEvent>
+
   markSnapshotAsCommitted(): void
 
   latestDateTimeFromEvents(): string
 }
 
-export type EntityChangedObserver = (event: ChangeEvent) => void
+export type EntityChangedObserver = (event: ChangeEvent, isSnapshot: boolean) => void
 
 export interface Parent {
   id(): Uuid.UUID
