@@ -13,6 +13,8 @@ export interface Aggregate {
   uncommittedChanges(): Array<EntityEvent>
 
   markChangesAsCommitted(version: number): void
+
+  countOfEvents(): number
 }
 
 export interface SnapshotAggregate extends Aggregate {

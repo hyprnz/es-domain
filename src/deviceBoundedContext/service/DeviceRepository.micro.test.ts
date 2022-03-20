@@ -5,15 +5,15 @@ import { InMemoryEventStore } from '../../writeModelRepository/InMemoryEventStor
 import { AggregateSnapshotRepository } from '../../writeModelRepository/AggregateSnapshotRepository'
 import { InMemorySnapshotEventStore } from '../../writeModelRepository/InMemorySnapshotEventStore'
 import { Uuid } from '../..'
+import { DomainRepository } from '../../writeModelRepository/DomainRepository'
 
 describe('DeviceRepository', () => {
   let repository: DeviceRepository
 
   beforeEach(() => {
-    repository = new DeviceRepository(
-      new AggregateRepository(new InMemoryEventStore()),
-      new AggregateSnapshotRepository(new InMemorySnapshotEventStore())
-    )
+    const aggregateRepository = new AggregateRepository(new InMemoryEventStore())
+    const aggregateSnapshotRepository = new AggregateSnapshotRepository(new InMemorySnapshotEventStore())
+    repository = new DeviceRepository(new DomainRepository(aggregateRepository, aggregateSnapshotRepository))
   })
 
   describe('create', () => {

@@ -37,6 +37,10 @@ export class EventSourcedAggregate<T extends EventSourcedEntity> implements Aggr
     this.rootEntity = makeRootEntity(id, this.thisAsParent)
   }
 
+  countOfEvents(): number {
+        throw new Error('Method not implemented.')
+    }
+
   get changeVersion(): number {
     return this.version
   }
