@@ -14,14 +14,15 @@ describe('EventSourcedAggregate', () => {
 
     personAggregate.rootEntity.create('Susan', 'Smith')
 
-    const uncommited = personAggregate.uncommittedChanges()
-    assertThat(uncommited).is([
+    const uncommitted = personAggregate.uncommittedChanges()
+    assertThat(uncommitted).is([
       {
         event: {
           ...new PersonCreatedEvent(id, id, { name: 'Susan Smith' }),
           id: match.any(),
           correlationId: match.any(),
-          causationId: match.any()
+          causationId: match.any(),
+          dateTimeOfEvent: match.any()
         },
         version: 0
       }
