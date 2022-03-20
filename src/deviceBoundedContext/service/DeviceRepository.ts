@@ -1,10 +1,10 @@
 import { WriteModelRepository } from '../../writeModelRepository/WriteModelRepository'
 import * as Uuid from '../../eventSourcing/UUID'
 import { DeviceAggregate } from '../domain/DeviceAggregate'
-import { SnapshotWriteModelRepository } from '../../writeModelRepository/SnapshotWriteModelRepository'
+import { WriteModelSnapshotRepository } from '../../writeModelRepository/WriteModelSnapshotRepository'
 
 export class DeviceRepository {
-  constructor(private repository: WriteModelRepository, private snapshotRepository: SnapshotWriteModelRepository) {}
+  constructor(private repository: WriteModelRepository, private snapshotRepository: WriteModelSnapshotRepository) {}
 
   async create(deviceId: Uuid.UUID): Promise<void> {
     await this.repository.save(new DeviceAggregate().withDevice(deviceId))
