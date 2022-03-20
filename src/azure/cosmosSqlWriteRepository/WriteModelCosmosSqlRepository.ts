@@ -55,7 +55,7 @@ export class WriteModelCosmosSqlRepository implements WriteModelRepository {
     }
   }
 
-  loadFromDate<T extends Aggregate>(id: UUID, aggregate: T, fromDate: string): Promise<T> {
+  loadFromDate<T extends Aggregate>(id: UUID, aggregate: T, version: number, fromDate: string): Promise<T> {
     throw new Error(`loadFromDate method not implemented`)
   }
 }

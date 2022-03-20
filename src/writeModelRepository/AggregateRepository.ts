@@ -12,9 +12,10 @@ export class AggregateRepository implements WriteModelRepository {
     private readonly eventBusSync = new EventBusInternal()
   ) {}
 
-  async loadFromDate<T extends Aggregate>(id: UUID, aggregate: T, fromDate: string): Promise<T> {
+  async loadFromDate<T extends Aggregate>(id: UUID, aggregate: T, version: number, fromDate: string): Promise<T> {
     const events = await this.eventStore.getEventsFromDate(id, fromDate)
     aggregate.loadFromHistory(events)
+    aggregate.changeVersion = version
     return aggregate
   }
 

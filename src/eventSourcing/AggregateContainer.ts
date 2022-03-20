@@ -46,6 +46,13 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
     })
   }
 
+  loadFromChangeEventsWithVersion(changeEvents: ChangeEvent[], version: number): void {
+    changeEvents.forEach(evt => {
+      this.applyEvent(evt)
+    })
+    this.version = version
+  }
+
   uncommittedChanges(): EntityEvent[] {
     return this.changes.map(x => ({
       version: x.version,
@@ -123,7 +130,7 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
     return this.events.length
   }
 
-  uncommittedSnapshots():ChangeEvent[] {
+  uncommittedSnapshots(): ChangeEvent[] {
     return this.snapshots
   }
 }

@@ -17,7 +17,6 @@ export class DeviceRepository {
     if (aggregate.countOfEvents() > 1000) {
       // During the repository save above uncommitted changes are marked as committed. We can now apply the
       // snapshot events which will be committed during save snapshot call.
-      aggregate.snapshot()
       await this.snapshotRepository.saveSnapshot(aggregate)
     }
   }
@@ -27,6 +26,6 @@ export class DeviceRepository {
     // in which case we can simply load using:
     // return await this.repository.load(id, new DeviceAggregate().withDevice(id))
     const snapshot = await this.snapshotRepository.loadSnapshot(id, new DeviceAggregate().withDevice(id))
-    return await this.repository.loadFromDate(id, snapshot, snapshot.latestDateTimeFromEvents())
+    return await this.repository.loadFromDate(id, snapshot, snapshot.changeVersion, snapshot.latestDateTimeFromEvents())
   }
 }

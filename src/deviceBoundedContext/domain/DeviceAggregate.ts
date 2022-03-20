@@ -9,6 +9,10 @@ import { DeviceCreatedEvent } from '../events/internal/DeviceCreatedEvent'
 export class DeviceAggregate implements Aggregate, SnapshotAggregate {
   constructor(private aggregate: AggregateContainer<Device> = new AggregateContainer<Device>()) {}
 
+  loadFromChangeEventsWithVersion(events: ChangeEvent[], version: number): void {
+    this.aggregate.loadFromChangeEventsWithVersion(events, version)
+  }
+
   uncommittedSnapshots(): ChangeEvent[] {
     return this.aggregate.uncommittedSnapshots()
   }

@@ -36,7 +36,7 @@ export interface WriteModelRepository {
    * @argument aggregate instance to load events into
    * @argument fromDate the date from which events should be looded - used with snapshots
    * */
-  loadFromDate<T extends Aggregate>(id: UUID, aggregate: T, fromDate: string): Promise<T>
+  loadFromDate<T extends Aggregate>(id: UUID, aggregate: T, lastVersion: number, fromDate: string): Promise<T>
 
   /** Synchronously subscribe to events that have been committed to persistence, this can be used to feed events
    * to down stream services to create Projections

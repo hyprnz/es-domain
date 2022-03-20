@@ -4,9 +4,11 @@ import { EventSourcedEntity } from './Entity'
 
 export interface Aggregate {
   readonly id: Uuid.UUID
-  readonly changeVersion: number
+  changeVersion: number
 
   loadFromHistory(events: Array<EntityEvent>): void
+
+  loadFromChangeEventsWithVersion(events: Array<ChangeEvent>, version: number): void
 
   uncommittedChanges(): Array<EntityEvent>
 
