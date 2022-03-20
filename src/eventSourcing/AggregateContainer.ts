@@ -91,9 +91,9 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
   observe(evt: ChangeEvent, isSnapshot: boolean) {
     if (isSnapshot) {
       this.observeSnapshot(evt)
-      return
+    } else {
+      this.observeEvent(evt)
     }
-    this.observeEvent(evt)
   }
 
   private observeSnapshot(evt: ChangeEvent) {
