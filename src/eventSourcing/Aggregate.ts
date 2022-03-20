@@ -21,6 +21,9 @@ export type EntityChangedObserver = (event: ChangeEvent) => void
 
 export interface Parent {
   id(): Uuid.UUID
+  correlationId(): Uuid.UUID | undefined
+  causationId(): Uuid.UUID | undefined
+
   addChangeEvent(event: ChangeEvent): void
   registerEntity(entity: EventSourcedEntity): void
 }

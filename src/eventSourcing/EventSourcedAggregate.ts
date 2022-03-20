@@ -10,6 +10,8 @@ export class EventSourcedAggregate<T extends EventSourcedEntity> implements Aggr
   id: UUID
   public readonly rootEntity: T
   private readonly entities = new Set<EventSourcedEntity>()
+  private causationId?: UUID
+  private correlationId?: UUID
 
   private version: number
   private changes: Array<EntityEvent> = []
@@ -22,6 +24,8 @@ export class EventSourcedAggregate<T extends EventSourcedEntity> implements Aggr
 
     this.thisAsParent = {
       id: () => this.id,
+      correlationId: () => this.correlationId,
+      causationId: () => this.causationId,
       addChangeEvent: evt => {
         const currentVersion = this.changes.length ? this.changes[this.changes.length - 1].version : this.version
         this.changes.push({
@@ -71,6 +75,22 @@ export class EventSourcedAggregate<T extends EventSourcedEntity> implements Aggr
 
   toString() {
     return `AggregateRoot:${this.id}, Version:${this.version}`
+  }
+
+  withCausation(causationId: UUID): this {
+    this.causationId = causationId
+    return this
+  }
+
+  withCorrelation(correlationId: UUID): this {
+    this.correlationId = correlationId
+    return this
+  }
+
+  withCausationMessage(message: { causationId: UUID, correlationId: UUID}): this {
+    this.causationId = message.causationId
+    this.correlationId = message.correlationId
+    return this
   }
 
   private getEventHandler(eventType: string): (event: ChangeEvent) => void {
