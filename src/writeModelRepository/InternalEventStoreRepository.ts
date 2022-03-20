@@ -9,6 +9,9 @@ export interface InternalEventStoreRepository {
    */
   appendEvents(id: UUID, changeVersion: number, events: EntityEvent[]): Promise<void>
 
+  /** Gets all events for an aggregate
+   * @argument id The aggregate root id
+   */
   getEvents(id: UUID): Promise<EntityEvent[]>
 
   /** Gets events greater than or equal to the specified date
