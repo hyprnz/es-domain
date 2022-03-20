@@ -1,6 +1,6 @@
 import * as Uuid from '../eventSourcing/UUID'
 import { assertThat } from 'mismatched'
-import { AggregateSnapshotRepository } from './AggregateSnapshotRepository'
+import { SnapshotRepository } from './SnapshotRepository'
 import { InMemorySnapshotEventStore } from './InMemorySnapshotEventStore'
 import { TestAggregate } from '../eventSourcing/TestAggregate'
 
@@ -9,10 +9,10 @@ describe('AggregateSnapshotRepository', () => {
   const causationId = Uuid.createV4()
   const correlationId = Uuid.createV4()
 
-  let repository: AggregateSnapshotRepository
+  let repository: SnapshotRepository
 
   beforeEach(() => {
-    repository = new AggregateSnapshotRepository(new InMemorySnapshotEventStore())
+    repository = new SnapshotRepository(new InMemorySnapshotEventStore())
   })
 
   it('saveSnapshot', async () => {

@@ -1,9 +1,9 @@
 import * as Uuid from '../../eventSourcing/UUID'
 import { DeviceAggregate } from '../domain/DeviceAggregate'
-import { DomainRepository } from '../../writeModelRepository/DomainRepository'
+import { AggregateSnapshotRepository } from '../../writeModelRepository/AggregateSnapshotRepository'
 
 export class DeviceRepository {
-  constructor(private repository: DomainRepository) {}
+  constructor(private repository: AggregateSnapshotRepository) {}
 
   async create(deviceId: Uuid.UUID): Promise<void> {
     await this.repository.save(new DeviceAggregate().withDevice(deviceId))

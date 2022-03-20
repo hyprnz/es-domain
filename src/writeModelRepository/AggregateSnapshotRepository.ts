@@ -1,22 +1,29 @@
-import { UUID } from '../eventSourcing/UUID'
-import { SnapshotAggregate } from '../eventSourcing/Aggregate'
-import { WriteModelSnapshotRepository } from './WriteModelSnapshotRepository'
-import { SnapshotEventStore } from './SnapshotEventStore'
+import {WriteModelRepository} from "./WriteModelRepository";
+import {WriteModelSnapshotRepository} from "./WriteModelSnapshotRepository";
+import {Aggregate, SnapshotAggregate} from "../eventSourcing/Aggregate";
+import { Uuid } from "..";
 
-export class AggregateSnapshotRepository implements WriteModelSnapshotRepository {
-  constructor(private readonly eventStore: SnapshotEventStore) {}
+/** This repository should be used for aggregates that need snapshot management or generally for any aggregate
+ * which might have more than 1000 events for a single aggregate id. */
+export class AggregateSnapshotRepository {
+  constructor(private repository: WriteModelRepository, private snapshotRepository: WriteModelSnapshotRepository) {}
 
-  async loadSnapshot<T extends SnapshotAggregate>(id: UUID, aggregate: T): Promise<T> {
-    const aggregateSnapshot = await this.eventStore.getAggregateSnapshot(id)
-    aggregate.loadFromChangeEventsWithVersion(aggregateSnapshot.snapshots, aggregateSnapshot.changeVersion)
-    return aggregate
+  async create<T extends Aggregate>(aggregate: T): Promise<void> {
+    await this.repository.save(aggregate)
   }
 
-  async saveSnapshot<T extends SnapshotAggregate>(aggregate: T): Promise<number> {
-    aggregate.snapshot()
-    const changes = aggregate.uncommittedSnapshots()
-    await this.eventStore.appendSnapshotEvents(aggregate.id, aggregate.changeVersion, changes)
-    aggregate.markSnapshotsAsCommitted()
-    return changes.length
+  async save<T extends SnapshotAggregate>(aggregate: T, countOfEvents = 1000): Promise<void> {
+    await this.repository.save(aggregate)
+    if (aggregate.countOfEvents() > countOfEvents) {
+      await this.snapshotRepository.saveSnapshot(aggregate)
+    }
+  }
+
+  async load<T extends SnapshotAggregate>(id: Uuid.UUID, activator:()=>T): Promise<T> {
+    const snapshot = await this.snapshotRepository.loadSnapshot(id, activator())
+    if (snapshot.countOfEvents() === 0) {
+      return this.repository.load(id, activator())
+    }
+    return await this.repository.loadFromDate(id, snapshot, snapshot.changeVersion, snapshot.latestDateTimeFromEvents())
   }
 }

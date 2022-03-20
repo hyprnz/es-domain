@@ -2,18 +2,18 @@ import { assertThat } from 'mismatched'
 import { DeviceRepository } from './DeviceRepository'
 import { AggregateRepository } from '../../writeModelRepository/AggregateRepository'
 import { InMemoryEventStore } from '../../writeModelRepository/InMemoryEventStore'
-import { AggregateSnapshotRepository } from '../../writeModelRepository/AggregateSnapshotRepository'
+import { SnapshotRepository } from '../../writeModelRepository/SnapshotRepository'
 import { InMemorySnapshotEventStore } from '../../writeModelRepository/InMemorySnapshotEventStore'
 import { Uuid } from '../..'
-import { DomainRepository } from '../../writeModelRepository/DomainRepository'
+import { AggregateSnapshotRepository } from '../../writeModelRepository/AggregateSnapshotRepository'
 
 describe('DeviceRepository', () => {
   let repository: DeviceRepository
 
   beforeEach(() => {
     const aggregateRepository = new AggregateRepository(new InMemoryEventStore())
-    const aggregateSnapshotRepository = new AggregateSnapshotRepository(new InMemorySnapshotEventStore())
-    repository = new DeviceRepository(new DomainRepository(aggregateRepository, aggregateSnapshotRepository))
+    const aggregateSnapshotRepository = new SnapshotRepository(new InMemorySnapshotEventStore())
+    repository = new DeviceRepository(new AggregateSnapshotRepository(aggregateRepository, aggregateSnapshotRepository))
   })
 
   describe('create', () => {

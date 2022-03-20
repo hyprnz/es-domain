@@ -8,7 +8,7 @@ export interface Aggregate {
 
   loadFromHistory(events: Array<EntityEvent>): void
 
-  loadFromChangeEventsWithVersion(events: Array<ChangeEvent>, version: number): void
+  loadFromChangeEvents(events: Array<ChangeEvent>, version: number): void
 
   uncommittedChanges(): Array<EntityEvent>
 

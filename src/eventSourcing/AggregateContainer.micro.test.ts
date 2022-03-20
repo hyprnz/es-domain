@@ -27,7 +27,7 @@ describe('AggregateContainer', () => {
     const event: ChangeEvent = ChangeEventBuilder.make().to()
     it('multiple events', async () => {
       aggregate.rootEntity = new TestEntity(aggregate.observe)
-      aggregate.loadFromChangeEventsWithVersion([event, event, event], 100)
+      aggregate.loadFromChangeEvents([event, event, event], 100)
       assertThat(aggregate.id).is(event.aggregateRootId)
       assertThat(aggregate.changeVersion).is(100)
       assertThat(aggregate.uncommittedChanges()).is([])

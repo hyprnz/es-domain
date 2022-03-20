@@ -46,7 +46,7 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
     })
   }
 
-  loadFromChangeEventsWithVersion(changeEvents: ChangeEvent[], version: number): void {
+  loadFromChangeEvents(changeEvents: ChangeEvent[], version: number): void {
     changeEvents.forEach(evt => {
       this.applyEvent(evt)
     })

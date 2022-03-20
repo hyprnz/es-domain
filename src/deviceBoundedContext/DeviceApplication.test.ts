@@ -7,9 +7,9 @@ import { DeviceService } from './service/DeviceService'
 import { alarmProjectionHandler } from '.'
 import { InMemoryEventStore } from '../writeModelRepository/InMemoryEventStore'
 import { DeviceRepository } from './service/DeviceRepository'
-import { AggregateSnapshotRepository } from '../writeModelRepository/AggregateSnapshotRepository'
+import { SnapshotRepository } from '../writeModelRepository/SnapshotRepository'
 import { InMemorySnapshotEventStore } from '../writeModelRepository/InMemorySnapshotEventStore'
-import { DomainRepository } from '../writeModelRepository/DomainRepository'
+import { AggregateSnapshotRepository } from '../writeModelRepository/AggregateSnapshotRepository'
 
 describe('deviceApplication', () => {
   // Setup Read Side
@@ -21,10 +21,10 @@ describe('deviceApplication', () => {
 
   // Setup Write side
   const aggregateRepository = new AggregateRepository(new InMemoryEventStore())
-  const aggregateSnapshotRepository = new AggregateSnapshotRepository(new InMemorySnapshotEventStore())
+  const aggregateSnapshotRepository = new SnapshotRepository(new InMemorySnapshotEventStore())
   aggregateRepository.subscribeToChangesSynchronously(eventBus)
   const deviceService = new DeviceService(
-    new DeviceRepository(new DomainRepository(aggregateRepository, aggregateSnapshotRepository))
+    new DeviceRepository(new AggregateSnapshotRepository(aggregateRepository, aggregateSnapshotRepository))
   )
 
   it('Updates entities and read models', async () => {

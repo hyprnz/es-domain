@@ -48,9 +48,9 @@ export class DeviceAggregate implements Aggregate, SnapshotAggregate {
     this.aggregate.loadFromHistory(history)
   }
 
-  loadFromChangeEventsWithVersion(changeEvents: ChangeEvent[], version: number): void {
+  loadFromChangeEvents(changeEvents: ChangeEvent[], version: number): void {
     this.aggregate.rootEntity = new Device((evt, isSnapshot) => this.aggregate.observe(evt, isSnapshot))
-    this.aggregate.loadFromChangeEventsWithVersion(changeEvents, version)
+    this.aggregate.loadFromChangeEvents(changeEvents, version)
   }
 
   addAlarm(alarmId: Uuid.UUID): Alarm {

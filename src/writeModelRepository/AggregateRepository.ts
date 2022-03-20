@@ -7,11 +7,11 @@ import { InternalEventStore } from './InternalEventStore'
 import { EventBusInternal } from '../eventSourcing/EventBusInternal'
 
 export class AggregateRepository implements WriteModelRepository {
-  constructor(private readonly internalEventStore: InternalEventStore, private readonly eventBusSync = new EventBusInternal()) {}
+  constructor(private readonly internalEventStore: InternalEventStore, private readonly bus = new EventBusInternal()) {}
 
   async loadFromDate<T extends Aggregate>(id: UUID, aggregate: T, version: number, fromDate: string): Promise<T> {
     const events = await this.internalEventStore.getEventsFromDate(id, fromDate)
-    aggregate.loadFromChangeEventsWithVersion(
+    aggregate.loadFromChangeEvents(
       events.map(x => x.event),
       version
     )
@@ -43,11 +43,11 @@ export class AggregateRepository implements WriteModelRepository {
   }
 
   subscribeToChangesSynchronously(handler: (changes: Array<EntityEvent>) => Promise<void>) {
-    this.eventBusSync.registerHandlerForEvents(handler)
+    this.bus.registerHandlerForEvents(handler)
   }
 
   private async onAfterEventsStored(changes: Array<EntityEvent>): Promise<void> {
     if (changes.length === 0) return
-    await this.eventBusSync.callHandlers(changes)
+    await this.bus.callHandlers(changes)
   }
 }
