@@ -1,9 +1,9 @@
-import { InternalEventStoreRepository } from './InternalEventStoreRepository'
+import { InternalEventStore } from './InternalEventStore'
 import { UUID } from '../eventSourcing/UUID'
 import { EntityEvent } from '../eventSourcing/MessageTypes'
 import { OptimisticConcurrencyError } from './OptimisticConcurrencyError'
 
-export class InMemoryEventStoreRepository implements InternalEventStoreRepository {
+export class InMemoryEventStore implements InternalEventStore {
   constructor(private readonly store = new Map<UUID, Array<EntityEvent>>()) {}
 
   async appendEvents(id: UUID, version: number, changes: EntityEvent[]): Promise<void> {

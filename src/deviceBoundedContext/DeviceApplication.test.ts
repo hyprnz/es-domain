@@ -5,10 +5,10 @@ import { AggregateRepository } from '../writeModelRepository/AggregateRepository
 import { allAlarmCountProjection, deviceAlarmCountProjection } from './readModel/AlarmCountProjection'
 import { DeviceService } from './service/DeviceService'
 import { alarmProjectionHandler } from '.'
-import { InMemoryEventStoreRepository } from '../writeModelRepository/InMemoryEventStoreRepository'
+import { InMemoryEventStore } from '../writeModelRepository/InMemoryEventStore'
 import { DeviceRepository } from './service/DeviceRepository'
 import {AggregateSnapshotRepository} from "../writeModelRepository/AggregateSnapshotRepository";
-import {InMemorySnapshotEventStoreRepository} from "../writeModelRepository/InMemorySnapshotEventStoreRepository";
+import {InMemorySnapshotEventStore} from "../writeModelRepository/InMemorySnapshotEventStore";
 
 describe('deviceApplication', () => {
   // Setup Read Side
@@ -19,8 +19,8 @@ describe('deviceApplication', () => {
   }
 
   // Setup Write side
-  const aggregateRepository = new AggregateRepository(new InMemoryEventStoreRepository())
-  const aggregateSnapshotRepository = new AggregateSnapshotRepository(new InMemorySnapshotEventStoreRepository())
+  const aggregateRepository = new AggregateRepository(new InMemoryEventStore())
+  const aggregateSnapshotRepository = new AggregateSnapshotRepository(new InMemorySnapshotEventStore())
   aggregateRepository.subscribeToChangesSynchronously(eventBus)
   const deviceService = new DeviceService(new DeviceRepository(aggregateRepository, aggregateSnapshotRepository))
 

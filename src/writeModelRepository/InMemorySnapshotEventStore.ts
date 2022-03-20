@@ -1,6 +1,6 @@
 import { UUID } from '../eventSourcing/UUID'
 import { ChangeEvent, UNINITIALISED_AGGREGATE_VERSION } from '../eventSourcing/MessageTypes'
-import { SnapshotEventStoreRepository } from './SnapshotEventStoreRepository'
+import { SnapshotEventStore } from './SnapshotEventStore'
 
 export interface AggregateSnapshot {
   id: UUID
@@ -8,7 +8,7 @@ export interface AggregateSnapshot {
   changeVersion: number
 }
 
-export class InMemorySnapshotEventStoreRepository implements SnapshotEventStoreRepository {
+export class InMemorySnapshotEventStore implements SnapshotEventStore {
   constructor(private readonly snapShotStore = new Map<UUID, AggregateSnapshot>()) {}
 
   async getAggregateSnapshot(id: UUID): Promise<AggregateSnapshot> {

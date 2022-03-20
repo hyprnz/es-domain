@@ -1,10 +1,10 @@
 import { UUID } from '../eventSourcing/UUID'
 import { SnapshotAggregate } from '../eventSourcing/Aggregate'
 import { WriteModelSnapshotRepository } from './WriteModelSnapshotRepository'
-import { InMemorySnapshotEventStoreRepository } from './InMemorySnapshotEventStoreRepository'
+import { SnapshotEventStore } from './SnapshotEventStore'
 
 export class AggregateSnapshotRepository implements WriteModelSnapshotRepository {
-  constructor(private readonly eventStore: InMemorySnapshotEventStoreRepository) {}
+  constructor(private readonly eventStore: SnapshotEventStore) {}
 
   async loadSnapshot<T extends SnapshotAggregate>(id: UUID, aggregate: T): Promise<T> {
     const aggregateSnapshot = await this.eventStore.getAggregateSnapshot(id)

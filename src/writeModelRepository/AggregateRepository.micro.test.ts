@@ -6,14 +6,14 @@ import { AggregateContainer } from '../eventSourcing/AggregateContainer'
 import { Device } from '../deviceBoundedContext'
 import { WriteModelRepository } from './WriteModelRepository'
 import { OptimisticConcurrencyError } from './OptimisticConcurrencyError'
-import { InMemoryEventStoreRepository } from './InMemoryEventStoreRepository'
+import { InMemoryEventStore } from './InMemoryEventStore'
 import { DeviceAggregate } from '../deviceBoundedContext/domain/DeviceAggregate'
 
 describe('AggregateRootRepository', () => {
   let repository: WriteModelRepository
 
   beforeEach(() => {
-    repository = new AggregateRepository(new InMemoryEventStoreRepository())
+    repository = new AggregateRepository(new InMemoryEventStore())
   })
 
   it('stores events', async () => {

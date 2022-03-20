@@ -1,7 +1,7 @@
 import * as Uuid from '../eventSourcing/UUID'
 import { assertThat } from 'mismatched'
 import { AggregateSnapshotRepository } from './AggregateSnapshotRepository'
-import { InMemorySnapshotEventStoreRepository } from './InMemorySnapshotEventStoreRepository'
+import { InMemorySnapshotEventStore } from './InMemorySnapshotEventStore'
 import { TestAggregate } from '../eventSourcing/TestAggregate'
 
 describe('AggregateSnapshotRepository', () => {
@@ -12,7 +12,7 @@ describe('AggregateSnapshotRepository', () => {
   let repository: AggregateSnapshotRepository
 
   beforeEach(() => {
-    repository = new AggregateSnapshotRepository(new InMemorySnapshotEventStoreRepository())
+    repository = new AggregateSnapshotRepository(new InMemorySnapshotEventStore())
   })
 
   it('saveSnapshot', async () => {

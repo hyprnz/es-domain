@@ -8,7 +8,7 @@ import { UUID } from '../../eventSourcing/UUID'
 import { WriteModelRepository } from '../../writeModelRepository/WriteModelRepository'
 import { OptimisticConcurrencyError } from '../../writeModelRepository/OptimisticConcurrencyError'
 import { WriteModelRepositoryError } from '../../writeModelRepository/WriteModelRepositoryError'
-import { InternalEventStoreRepository } from '../../writeModelRepository/InternalEventStoreRepository'
+import { InternalEventStore } from '../../writeModelRepository/InternalEventStore'
 
 // Flattened version of event ?
 // Do we need to do this
@@ -16,7 +16,7 @@ export type EventStoreModel = ChangeEvent & { version: number }
 
 export class WriteModelCosmosSqlRepository implements WriteModelRepository {
   private readonly eventEmitter = new EventEmitter()
-  private readonly adapter: InternalEventStoreRepository
+  private readonly adapter: InternalEventStore
 
   constructor(store: Container) {
     this.adapter = new CosmosAdapter(store)
@@ -60,7 +60,7 @@ export class WriteModelCosmosSqlRepository implements WriteModelRepository {
   }
 }
 
-export class CosmosAdapter implements InternalEventStoreRepository {
+export class CosmosAdapter implements InternalEventStore {
   constructor(private store: Container) {}
 
   getEventsFromDate(id: Uuid.UUID, fromDate: string): Promise<EntityEvent[]> {

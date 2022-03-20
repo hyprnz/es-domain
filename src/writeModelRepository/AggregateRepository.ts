@@ -3,17 +3,14 @@ import { EntityEvent } from '../eventSourcing/MessageTypes'
 import { WriteModelRepositoryError as WriteModelRepositoryError } from './WriteModelRepositoryError'
 import { WriteModelRepository } from './WriteModelRepository'
 import { Aggregate } from '../eventSourcing/Aggregate'
-import { InternalEventStoreRepository } from './InternalEventStoreRepository'
+import { InternalEventStore } from './InternalEventStore'
 import { EventBusInternal } from '../eventSourcing/EventBusInternal'
 
 export class AggregateRepository implements WriteModelRepository {
-  constructor(
-    private readonly eventStore: InternalEventStoreRepository,
-    private readonly eventBusSync = new EventBusInternal()
-  ) {}
+  constructor(private readonly internalEventStore: InternalEventStore, private readonly eventBusSync = new EventBusInternal()) {}
 
   async loadFromDate<T extends Aggregate>(id: UUID, aggregate: T, version: number, fromDate: string): Promise<T> {
-    const events = await this.eventStore.getEventsFromDate(id, fromDate)
+    const events = await this.internalEventStore.getEventsFromDate(id, fromDate)
     aggregate.loadFromChangeEventsWithVersion(
       events.map(x => x.event),
       version
@@ -26,14 +23,14 @@ export class AggregateRepository implements WriteModelRepository {
     if (changes.length === 0) {
       return Promise.resolve(0)
     }
-    await this.eventStore.appendEvents(aggregate.id, changes[0].version, changes)
+    await this.internalEventStore.appendEvents(aggregate.id, changes[0].version, changes)
     aggregate.markChangesAsCommitted(changes[changes.length - 1].version)
     await this.onAfterEventsStored(changes)
     return changes.length
   }
 
   async load<T extends Aggregate>(id: UUID, aggregate: T): Promise<T> {
-    const events = await this.eventStore.getEvents(id)
+    const events = await this.internalEventStore.getEvents(id)
     if (events.length === 0) {
       throw new WriteModelRepositoryError('AggregateContainer', `Failed to load aggregate id:${id}: NOT FOUND`)
     }
@@ -42,7 +39,7 @@ export class AggregateRepository implements WriteModelRepository {
   }
 
   async loadEvents(id: UUID): Promise<Array<EntityEvent>> {
-    return await this.eventStore.getEvents(id)
+    return await this.internalEventStore.getEvents(id)
   }
 
   subscribeToChangesSynchronously(handler: (changes: Array<EntityEvent>) => Promise<void>) {

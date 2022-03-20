@@ -4,7 +4,7 @@ import { ExternalEvent } from '../../../eventSourcing/MessageTypes'
 import { EventStoreExternal } from '../../../eventStoreExternal/EventStoreExternal'
 import { ExternalEventStoreInMemoryRepository } from '../../../eventStoreExternal/ExternalEventStoreInMemoryRepository'
 import { AggregateRepository } from '../../../writeModelRepository/AggregateRepository'
-import { InMemoryEventStoreRepository } from '../../../writeModelRepository/InMemoryEventStoreRepository'
+import { InMemoryEventStore } from '../../../writeModelRepository/InMemoryEventStore'
 import { ExternalEventBuilder } from '../../../eventStoreExternal/ExternalEventBuilder'
 
 export interface AlarmTriggeredByExternalSystemEvent extends ExternalEvent {

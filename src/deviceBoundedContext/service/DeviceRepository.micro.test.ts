@@ -1,9 +1,9 @@
 import { assertThat } from 'mismatched'
 import { DeviceRepository } from './DeviceRepository'
 import { AggregateRepository } from '../../writeModelRepository/AggregateRepository'
-import { InMemoryEventStoreRepository } from '../../writeModelRepository/InMemoryEventStoreRepository'
+import { InMemoryEventStore } from '../../writeModelRepository/InMemoryEventStore'
 import { AggregateSnapshotRepository } from '../../writeModelRepository/AggregateSnapshotRepository'
-import { InMemorySnapshotEventStoreRepository } from '../../writeModelRepository/InMemorySnapshotEventStoreRepository'
+import { InMemorySnapshotEventStore } from '../../writeModelRepository/InMemorySnapshotEventStore'
 import { Uuid } from '../..'
 
 describe('DeviceRepository', () => {
@@ -11,8 +11,8 @@ describe('DeviceRepository', () => {
 
   beforeEach(() => {
     repository = new DeviceRepository(
-      new AggregateRepository(new InMemoryEventStoreRepository()),
-      new AggregateSnapshotRepository(new InMemorySnapshotEventStoreRepository())
+      new AggregateRepository(new InMemoryEventStore()),
+      new AggregateSnapshotRepository(new InMemorySnapshotEventStore())
     )
   })
 

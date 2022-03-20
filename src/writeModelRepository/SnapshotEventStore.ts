@@ -1,8 +1,8 @@
 import { UUID } from '../eventSourcing/UUID'
 import { ChangeEvent } from '../eventSourcing/MessageTypes'
-import { AggregateSnapshot } from './InMemorySnapshotEventStoreRepository'
+import { AggregateSnapshot } from './InMemorySnapshotEventStore'
 
-export interface SnapshotEventStoreRepository {
+export interface SnapshotEventStore {
   /** Load snapshot events for aggregate
    * @argument id The aggregate root id
    */
