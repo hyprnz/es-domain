@@ -82,5 +82,5 @@ export class EventSourcedAggregate<T extends EventSourcedEntity> implements Aggr
     throw new AggregateError(typeof this, `Failed to find handler for event type: ${eventType}`)
   }
 
-  loadFromChangeEvents(events: Array<ChangeEvent>, version: number): void {}
+  loadFromVersion(events: Array<ChangeEvent>, version: number): void {}
 }

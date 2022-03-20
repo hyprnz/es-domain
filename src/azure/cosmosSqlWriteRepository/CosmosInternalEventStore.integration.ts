@@ -1,14 +1,15 @@
 import { assertThat, match } from 'mismatched'
 import { CosmosClient, CosmosClientOptions } from '@azure/cosmos'
-import { WriteModelCosmosSqlRepository } from './WriteModelCosmosSqlRepository'
-
 import * as Uuid from '../../eventSourcing/UUID'
 import { makeMigrator } from './migrate'
 import { EntityEvent } from '../../eventSourcing/MessageTypes'
 import { DeviceAggregate } from '../../deviceBoundedContext/domain/DeviceAggregate'
+import { AggregateRepository } from '../../writeModelRepository/AggregateRepository'
+import { CosmosInternalEventStore } from './CosmosInternalEventStore'
 
-describe('WriteModelCosmosSqlRepository', () => {
-  let writeModelRepo: WriteModelCosmosSqlRepository
+describe('CosmosInternalEventStore', () => {
+  let repository: AggregateRepository
+
   beforeAll(async () => {
     const databaseId = 'testdb'
     const containerName = 'eventstore'
@@ -22,7 +23,7 @@ describe('WriteModelCosmosSqlRepository', () => {
     const database = client.database(databaseId)
     const container = database.container(containerName)
 
-    writeModelRepo = new WriteModelCosmosSqlRepository(container)
+    repository = new AggregateRepository(new CosmosInternalEventStore(container))
   })
 
   it('stores events', async () => {
@@ -35,9 +36,9 @@ describe('WriteModelCosmosSqlRepository', () => {
     const uncommittedEvents = deviceAggregate.uncommittedChanges()
 
     const emittedEvents: Array<EntityEvent> = []
-    writeModelRepo.subscribeToChangesSynchronously(changes => changes.forEach(x => emittedEvents.push(x)))
+    repository.subscribeToChangesSynchronously(async changes => changes.forEach(x => emittedEvents.push(x)))
 
-    const countEvents = await writeModelRepo.save(deviceAggregate)
+    const countEvents = await repository.save(deviceAggregate)
 
     assertThat(countEvents).withMessage('Stored Event count').is(2)
     assertThat(emittedEvents).withMessage('Emitted Events').is(match.array.length(2))
@@ -52,10 +53,10 @@ describe('WriteModelCosmosSqlRepository', () => {
     deviceAggregate.addAlarm(alarmId)
 
     const uncomittedEvents = deviceAggregate.uncommittedChanges()
-    await writeModelRepo.save(deviceAggregate)
+    await repository.save(deviceAggregate)
 
     // Compare Saved event to loaded make sure they are the same
-    const loadedEvents = await writeModelRepo.loadEvents(deviceId)
+    const loadedEvents = await repository.loadEvents(deviceId)
 
     assertThat(loadedEvents).is(match.array.length(2))
     assertThat(uncomittedEvents).is(loadedEvents)
@@ -67,9 +68,9 @@ describe('WriteModelCosmosSqlRepository', () => {
 
     const deviceAggregate = new DeviceAggregate().withDevice(deviceId)
     deviceAggregate.addAlarm(alarmId)
-    await writeModelRepo.save(deviceAggregate)
+    await repository.save(deviceAggregate)
 
-    const anotherDeviceAggregate = await writeModelRepo.load(deviceId, new DeviceAggregate())
+    const anotherDeviceAggregate = await repository.load(deviceId, new DeviceAggregate())
 
     // Make changes to both
     deviceAggregate.addAlarm(Uuid.createV4())
@@ -85,10 +86,12 @@ describe('WriteModelCosmosSqlRepository', () => {
     assertThat(anotherDeviceAggregate.uncommittedChanges()[0].version).withMessage('UnCommited anotherDevice').is(2)
 
     assertThat(deviceAggregate.uncommittedChanges()[0].event.aggregateRootId).withMessage('UnCommited device').is(deviceId)
-    assertThat(anotherDeviceAggregate.uncommittedChanges()[0].event.aggregateRootId).withMessage('UnCommited anotherDevice').is(deviceId)
+    assertThat(anotherDeviceAggregate.uncommittedChanges()[0].event.aggregateRootId)
+      .withMessage('UnCommited anotherDevice')
+      .is(deviceId)
 
-    await writeModelRepo.save(deviceAggregate)
-    await writeModelRepo.save(anotherDeviceAggregate).then(
+    await repository.save(deviceAggregate)
+    await repository.save(anotherDeviceAggregate).then(
       () => {
         throw new Error('Expected and Optimistic concurrency error here!!')
       },

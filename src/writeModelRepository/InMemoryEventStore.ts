@@ -23,9 +23,7 @@ export class InMemoryEventStore implements InternalEventStore {
     return Array.isArray(events) ? events : []
   }
 
-  async getEventsFromDate(id: UUID, fromDate: string): Promise<EntityEvent[]> {
-    return this.getEvents(id).then(events =>
-      events.filter(x => new Date(x.event.dateTimeOfEvent).getTime() >= new Date(fromDate).getTime())
-    )
+  async getEventsAfterVersion(id: UUID, version: number): Promise<EntityEvent[]> {
+    return this.getEvents(id).then(events => events.filter(x => x.version > version))
   }
 }

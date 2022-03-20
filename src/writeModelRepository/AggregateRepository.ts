@@ -9,12 +9,10 @@ import { EventBusInternal } from '../eventSourcing/EventBusInternal'
 export class AggregateRepository implements WriteModelRepository {
   constructor(private readonly internalEventStore: InternalEventStore, private readonly bus = new EventBusInternal()) {}
 
-  async loadFromDate<T extends Aggregate>(id: UUID, aggregate: T, version: number, fromDate: string): Promise<T> {
-    const events = await this.internalEventStore.getEventsFromDate(id, fromDate)
-    aggregate.loadFromChangeEvents(
-      events.map(x => x.event),
-      version
-    )
+  async loadAfterVersion<T extends Aggregate>(id: UUID, aggregate: T, version: number): Promise<T> {
+    const events = await this.internalEventStore.getEventsAfterVersion(id, version)
+    aggregate.changeVersion = version
+    aggregate.loadFromHistory(events)
     return aggregate
   }
 
@@ -32,7 +30,7 @@ export class AggregateRepository implements WriteModelRepository {
   async load<T extends Aggregate>(id: UUID, aggregate: T): Promise<T> {
     const events = await this.internalEventStore.getEvents(id)
     if (events.length === 0) {
-      throw new WriteModelRepositoryError('AggregateContainer', `Failed to load aggregate id:${id}: NOT FOUND`)
+      throw new WriteModelRepositoryError(AggregateRepository.name, `Failed to load aggregate id:${id}`)
     }
     aggregate.loadFromHistory(events)
     return Promise.resolve(aggregate)

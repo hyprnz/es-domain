@@ -5,6 +5,7 @@ import { EntityBase } from './EntityBase'
 import { ChangeEventBuilder } from './ChangeEventBuilder'
 import { EntityChangedObserver } from './Aggregate'
 import { Uuid } from '..'
+import { TestAggregate } from './TestAggregate'
 
 describe('AggregateContainer', () => {
   class TestEntity extends EntityBase {
@@ -17,17 +18,16 @@ describe('AggregateContainer', () => {
     }
   }
 
-  let aggregate: AggregateContainer<TestEntity>
+  let aggregate: TestAggregate
 
   beforeEach(() => {
-    aggregate = new AggregateContainer<TestEntity>()
+    aggregate = new TestAggregate()
   })
 
   describe('loadFromChangeEventsWithVersion', () => {
     const event: ChangeEvent = ChangeEventBuilder.make().to()
     it('multiple events', async () => {
-      aggregate.rootEntity = new TestEntity(aggregate.observe)
-      aggregate.loadFromChangeEvents([event, event, event], 100)
+      aggregate.loadFromVersion([event, event, event], 100)
       assertThat(aggregate.id).is(event.aggregateRootId)
       assertThat(aggregate.changeVersion).is(100)
       assertThat(aggregate.uncommittedChanges()).is([])
@@ -39,7 +39,6 @@ describe('AggregateContainer', () => {
   describe('loadFromHistory', () => {
     const event: ChangeEvent = ChangeEventBuilder.make().to()
     it('multiple events', async () => {
-      aggregate.rootEntity = new TestEntity(aggregate.observe)
       aggregate.loadFromHistory([
         { version: 0, event },
         { version: 1, event },
@@ -58,7 +57,6 @@ describe('AggregateContainer', () => {
     const causationId = Uuid.createV4()
     const event: ChangeEvent = ChangeEventBuilder.make().withCorrelation(correlationId).withCausation(causationId).to()
     it('change', async () => {
-      aggregate.rootEntity = new TestEntity((evt, isSnapshot) => aggregate.observe(evt, isSnapshot))
       aggregate.withCorrelation(correlationId).withCausation(causationId)
       aggregate.loadFromHistory([{ version: 0, event }])
       aggregate.rootEntity.applyChangeEvent(event)
@@ -69,7 +67,6 @@ describe('AggregateContainer', () => {
       assertThat(aggregate.countOfEvents()).is(2)
     })
     it('change which is committed', async () => {
-      aggregate.rootEntity = new TestEntity((evt, isSnapshot) => aggregate.observe(evt, isSnapshot))
       aggregate.withCorrelation(correlationId).withCausation(causationId)
       aggregate.loadFromHistory([{ version: 0, event }])
       aggregate.rootEntity.applyChangeEvent(event)
@@ -80,7 +77,6 @@ describe('AggregateContainer', () => {
       assertThat(aggregate.countOfEvents()).is(2)
     })
     it('snapshot', async () => {
-      aggregate.rootEntity = new TestEntity((evt, isSnapshot) => aggregate.observe(evt, isSnapshot))
       aggregate.withCorrelation(correlationId).withCausation(causationId)
       aggregate.loadFromHistory([
         { version: 0, event },
@@ -94,7 +90,6 @@ describe('AggregateContainer', () => {
       assertThat(aggregate.countOfEvents()).is(2)
     })
     it('snapshot which is committed', async () => {
-      aggregate.rootEntity = new TestEntity((evt, isSnapshot) => aggregate.observe(evt, isSnapshot))
       aggregate.withCorrelation(correlationId).withCausation(causationId)
       aggregate.loadFromHistory([
         { version: 0, event },

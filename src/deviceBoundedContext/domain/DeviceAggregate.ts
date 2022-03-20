@@ -7,7 +7,11 @@ import { Aggregate, SnapshotAggregate } from '../../eventSourcing/Aggregate'
 import { DeviceCreatedEvent } from '../events/internal/DeviceCreatedEvent'
 
 export class DeviceAggregate implements Aggregate, SnapshotAggregate {
-  constructor(private aggregate: AggregateContainer<Device> = new AggregateContainer<Device>()) {}
+  constructor(
+    private aggregate: AggregateContainer<Device> = new AggregateContainer<Device>(
+      () => new Device((evt, isSnapshot) => this.aggregate.observe(evt, isSnapshot))
+    )
+  ) {}
 
   uncommittedSnapshots(): ChangeEvent[] {
     return this.aggregate.uncommittedSnapshots()
@@ -26,7 +30,7 @@ export class DeviceAggregate implements Aggregate, SnapshotAggregate {
   }
 
   snapshot(): void {
-    this.aggregate.rootEntity.snapshot(this.latestDateTimeFromEvents())
+    this.aggregate.rootEntity.snapshot(this.aggregate.latestDateTimeFromEvents())
   }
 
   markChangesAsCommitted(version: number): void {
@@ -38,19 +42,16 @@ export class DeviceAggregate implements Aggregate, SnapshotAggregate {
   }
 
   withDevice(id: Uuid.UUID): this {
-    this.aggregate.rootEntity = new Device((evt, isSnapshot) => this.aggregate.observe(evt, isSnapshot))
     this.root.applyChangeEvent(DeviceCreatedEvent.make(Uuid.createV4, { deviceId: id }))
     return this
   }
 
   loadFromHistory(history: EntityEvent[]): void {
-    this.aggregate.rootEntity = new Device((evt, isSnapshot) => this.aggregate.observe(evt, isSnapshot))
     this.aggregate.loadFromHistory(history)
   }
 
-  loadFromChangeEvents(changeEvents: ChangeEvent[], version: number): void {
-    this.aggregate.rootEntity = new Device((evt, isSnapshot) => this.aggregate.observe(evt, isSnapshot))
-    this.aggregate.loadFromChangeEvents(changeEvents, version)
+  loadFromVersion(changeEvents: ChangeEvent[], version: number): void {
+    this.aggregate.loadFromVersion(changeEvents, version)
   }
 
   addAlarm(alarmId: Uuid.UUID): Alarm {
@@ -80,10 +81,6 @@ export class DeviceAggregate implements Aggregate, SnapshotAggregate {
 
   markSnapshotsAsCommitted(): void {
     this.aggregate.markSnapshotsAsCommitted()
-  }
-
-  latestDateTimeFromEvents(): string {
-    return this.aggregate.latestDateTimeFromEvents()
   }
 
   countOfEvents(): number {

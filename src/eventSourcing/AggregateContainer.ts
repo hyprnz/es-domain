@@ -18,7 +18,7 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
 
   get rootEntity(): T {
     if (!this._rootEntity) {
-      throw new Error(`Root has not been initialised`)
+      this._rootEntity = this.rootProvider()
     }
     return this._rootEntity
   }
@@ -31,7 +31,7 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
     return this.rootEntity.id
   }
 
-  constructor(private version = UNINITIALISED_AGGREGATE_VERSION) {}
+  constructor(private rootProvider: () => T, private version = UNINITIALISED_AGGREGATE_VERSION) {}
 
   loadFromHistory(history: EntityEvent[]): void {
     this.events = this.events.concat(history)
@@ -46,7 +46,7 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
     })
   }
 
-  loadFromChangeEvents(changeEvents: ChangeEvent[], version: number): void {
+  loadFromVersion(changeEvents: ChangeEvent[], version: number): void {
     changeEvents.forEach(evt => {
       this.applyEvent(evt)
     })

@@ -15,8 +15,8 @@ export interface InternalEventStore {
   getEvents(id: UUID): Promise<EntityEvent[]>
 
   /** Gets events greater than or equal to the specified date
-   * @argument id The aggregate root id
-   * @argument fromDate The date from which dateTimeOfEvent for events should be greater or equal to
+   * @argument id - The aggregate root id
+   * @argument version - The starting event version number events must be greater than
    */
-  getEventsFromDate(id: UUID, fromDate: string): Promise<EntityEvent[]>
+  getEventsAfterVersion(id: UUID, version: number): Promise<EntityEvent[]>
 }

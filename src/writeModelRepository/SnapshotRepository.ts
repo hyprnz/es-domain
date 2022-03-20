@@ -8,7 +8,7 @@ export class SnapshotRepository implements WriteModelSnapshotRepository {
 
   async loadSnapshot<T extends SnapshotAggregate>(id: UUID, aggregate: T): Promise<T> {
     const aggregateSnapshot = await this.eventStore.getAggregateSnapshot(id)
-    aggregate.loadFromChangeEvents(aggregateSnapshot.snapshots, aggregateSnapshot.changeVersion)
+    aggregate.loadFromVersion(aggregateSnapshot.snapshots, aggregateSnapshot.changeVersion)
     return aggregate
   }
 

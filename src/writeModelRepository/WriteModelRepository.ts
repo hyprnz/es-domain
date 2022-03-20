@@ -31,12 +31,12 @@ export interface WriteModelRepository {
    */
   load<T extends Aggregate>(id: UUID, aggregate: T): Promise<T>
 
-  /**Loads an aggregate root from persistence
-   * @argument id The id of the Aggregate Root to load
-   * @argument aggregate instance to load events into
-   * @argument fromDate the date from which events should be looded - used with snapshots
+  /** Loads an aggregate root from a version
+   * @argument id - of the Aggregate Root to load
+   * @argument aggregate - instance to load events into
+   * @argument version - only events with version greater than this will be loaded
    * */
-  loadFromDate<T extends Aggregate>(id: UUID, aggregate: T, lastVersion: number, fromDate: string): Promise<T>
+  loadAfterVersion<T extends Aggregate>(id: UUID, aggregate: T, version: number): Promise<T>
 
   /** Synchronously subscribe to events that have been committed to persistence, this can be used to feed events
    * to down stream services to create Projections

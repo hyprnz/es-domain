@@ -14,56 +14,10 @@ import { InternalEventStore } from '../../writeModelRepository/InternalEventStor
 // Do we need to do this
 export type EventStoreModel = ChangeEvent & { version: number }
 
-export class WriteModelCosmosSqlRepository implements WriteModelRepository {
-  private readonly eventEmitter = new EventEmitter()
-  private readonly adapter: InternalEventStore
+export class CosmosInternalEventStore implements InternalEventStore {
+  constructor(private container: Container) {}
 
-  constructor(store: Container) {
-    this.adapter = new CosmosAdapter(store)
-  }
-
-  async save<T extends Aggregate>(aggregateRoot: T): Promise<number> {
-    const changes = aggregateRoot.uncommittedChanges()
-    if (changes.length === 0) return Promise.resolve(0)
-    const lastChange = changes[changes.length - 1]
-    await this.adapter.appendEvents(aggregateRoot.id, lastChange.version, changes)
-    aggregateRoot.markChangesAsCommitted(lastChange.version)
-    this.onAfterEventsStored(changes)
-    return changes.length
-  }
-
-  async load<T extends Aggregate>(id: Uuid.UUID, aggregate: T): Promise<T> {
-    const events = await this.loadEvents(id)
-    if (events.length === 0) {
-      throw new WriteModelRepositoryError('AggregateContainer', `Failed to load aggregate id:${id}: NOT FOUND`)
-    }
-    aggregate.loadFromHistory(events)
-    return aggregate
-  }
-
-  loadEvents(id: Uuid.UUID): Promise<EntityEvent[]> {
-    return this.adapter.getEvents(id)
-  }
-
-  subscribeToChangesSynchronously(handler: (changes: Array<EntityEvent>) => void) {
-    this.eventEmitter.addListener('events', handler)
-  }
-
-  private onAfterEventsStored(changes: Array<EntityEvent>) {
-    if (changes.length) {
-      this.eventEmitter.emit('events', changes)
-    }
-  }
-
-  loadFromDate<T extends Aggregate>(id: UUID, aggregate: T, version: number, fromDate: string): Promise<T> {
-    throw new Error(`loadFromDate method not implemented`)
-  }
-}
-
-export class CosmosAdapter implements InternalEventStore {
-  constructor(private store: Container) {}
-
-  getEventsFromDate(id: Uuid.UUID, fromDate: string): Promise<EntityEvent[]> {
+  getEventsAfterVersion(id: Uuid.UUID, version: number): Promise<EntityEvent[]> {
     throw new Error('getEventsFromDate method not implemented.')
   }
 
@@ -81,7 +35,7 @@ export class CosmosAdapter implements InternalEventStore {
     }))
 
     // NOTE: Batch sizes are limited to 100!!
-    const statusResult = await this.store.items.batch(operations, aggregateId)
+    const statusResult = await this.container.items.batch(operations, aggregateId)
 
     const code = statusResult.code ?? 200
     if (code >= 400) {
@@ -97,7 +51,7 @@ export class CosmosAdapter implements InternalEventStore {
   }
 
   getEvents(id: UUID): Promise<EntityEvent[]> {
-    return this.store.items
+    return this.container.items
       .query<EventStoreModel>({
         query: 'SELECT * FROM EventStore e WHERE e.aggregateRootId = @aggregateRootId order by e.version asc',
         parameters: [

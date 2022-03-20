@@ -8,7 +8,7 @@ export interface Aggregate {
 
   loadFromHistory(events: Array<EntityEvent>): void
 
-  loadFromChangeEvents(events: Array<ChangeEvent>, version: number): void
+  loadFromVersion(events: Array<ChangeEvent>, version: number): void
 
   uncommittedChanges(): Array<EntityEvent>
 
@@ -23,8 +23,6 @@ export interface SnapshotAggregate extends Aggregate {
   uncommittedSnapshots(): Array<ChangeEvent>
 
   markSnapshotsAsCommitted(): void
-
-  latestDateTimeFromEvents(): string
 }
 
 export type EntityChangedObserver = (event: ChangeEvent, isSnapshot: boolean) => void
