@@ -98,6 +98,12 @@ export class Alarm extends EntityBase implements SnapshotEntity {
         alarm.deviceId = evt.aggregateRootId
       }
     ],
+    [AlarmSnapshotEvent.eventType]: [
+      (alarm, evt) => {
+        alarm.id = evt.entityId
+        alarm.deviceId = evt.aggregateRootId
+      }
+    ],
     [AlarmDisarmedEvent.eventType]: [alarm => (alarm.isArmed = false)],
     [AlarmArmedEvent.eventType]: [
       (alarm, evt) => {

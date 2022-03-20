@@ -20,7 +20,7 @@ export interface SnapshotAggregate extends Aggregate {
 
   uncommittedSnapshots(): Array<ChangeEvent>
 
-  markSnapshotAsCommitted(): void
+  markSnapshotsAsCommitted(): void
 
   latestDateTimeFromEvents(): string
 }

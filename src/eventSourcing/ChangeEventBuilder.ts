@@ -16,6 +16,11 @@ export class ChangeEventBuilder {
     })
   }
 
+  withAggregateRootId(aggregateRootId: Uuid.UUID): this {
+    this.event = { ...this.event, aggregateRootId }
+    return this
+  }
+
   withCausation(causationId: Uuid.UUID): this {
     this.event = { ...this.event, causationId }
     return this

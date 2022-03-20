@@ -9,6 +9,7 @@ import { AlarmCreatedEvent } from '../events/internal/AlarmCreatedEvent'
 import { AlarmDestroyedEvent } from '../events/internal/AlarmDestroyedEvent'
 import { DeviceCreatedEvent } from '../events/internal/DeviceCreatedEvent'
 import { DeviceSnapshotEvent } from '../events/internal/DeviceSnapshotEvent'
+import {AlarmSnapshotEvent} from "../events/internal/AlarmSnapshotEvent";
 
 export class Device extends EntityBase implements SnapshotEntity {
   private alarms: Map<Uuid.UUID, Alarm> = new Map<Uuid.UUID, Alarm>()
@@ -71,7 +72,14 @@ export class Device extends EntityBase implements SnapshotEntity {
 
   private static readonly eventHandlers: Record<string, Array<StaticEventHandler<Device>>> = {
     [DeviceCreatedEvent.eventType]: [(device, evt) => (device.id = evt.aggregateRootId)],
-
+    [DeviceSnapshotEvent.eventType]: [(device, evt) => (device.id = evt.aggregateRootId)],
+    [AlarmSnapshotEvent.eventType]: [
+      (device, evt) => {
+        const alarm = new Alarm(device.observer)
+        alarm.handleChangeEvent(evt)
+        device.alarms.set(alarm.id, alarm)
+      }
+    ],
     [AlarmCreatedEvent.eventType]: [
       (device, evt) => {
         const alarm = new Alarm(device.observer)

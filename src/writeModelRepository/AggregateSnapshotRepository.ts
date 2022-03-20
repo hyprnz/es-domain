@@ -16,7 +16,7 @@ export class AggregateSnapshotRepository implements SnapshotWriteModelRepository
     aggregate.snapshot()
     const changes = aggregate.uncommittedSnapshots()
     await this.eventStore.appendSnapshotEvents(aggregate.id, aggregate.changeVersion, changes)
-    aggregate.markSnapshotAsCommitted()
+    aggregate.markSnapshotsAsCommitted()
     return changes.length
   }
 }
