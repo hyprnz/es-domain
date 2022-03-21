@@ -18,11 +18,7 @@ export interface Aggregate {
 }
 
 export interface SnapshotAggregate extends Aggregate {
-  snapshot(): void
-
-  uncommittedSnapshots(): Array<ChangeEvent>
-
-  markSnapshotsAsCommitted(): void
+  snapshot(): ChangeEvent[]
 }
 
 export type EntityChangedObserver = (event: ChangeEvent, isSnapshot: boolean) => void

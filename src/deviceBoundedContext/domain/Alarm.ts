@@ -32,14 +32,14 @@ export class Alarm extends EntityBase implements SnapshotEntity {
     super(observer)
   }
 
-  snapshot(dateTimeOfEvent: string): void {
-    this.applySnapshot(
+  snapshot(dateTimeOfEvent: string): ChangeEvent[] {
+    return [
       AlarmSnapshotEvent.make(Uuid.createV4, {
         deviceId: this.deviceId,
         alarmId: this.id,
         dateTimeOfEvent
       })
-    )
+    ]
   }
 
   armAlarm(alarmThreshold: number): void {

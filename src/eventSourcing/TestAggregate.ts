@@ -2,7 +2,7 @@ import { AggregateContainer } from './AggregateContainer'
 import { SnapshotAggregate } from './Aggregate'
 import { UUID } from './UUID'
 import { TestEntity } from './TestEntity'
-import { Uuid } from '..'
+import {ChangeEvent, Uuid} from '..'
 
 export class TestAggregate extends AggregateContainer<TestEntity> implements SnapshotAggregate {
   eventType = 'some-event-type'
@@ -10,7 +10,7 @@ export class TestAggregate extends AggregateContainer<TestEntity> implements Sna
   correlationId1 = Uuid.createV4()
 
   constructor() {
-    super(() => new TestEntity((e, is) => this.observe(e, is)))
+    super(() => new TestEntity((e, is) => this.observe(e)))
   }
 
   withRoot(id: UUID): TestAggregate {
@@ -26,8 +26,8 @@ export class TestAggregate extends AggregateContainer<TestEntity> implements Sna
     return this
   }
 
-  snapshot(): void {
-    this.rootEntity.snapshot(new Date().toISOString())
+  snapshot(): ChangeEvent[] {
+    return this.rootEntity.snapshot(new Date().toISOString())
   }
 
   doSomething() {

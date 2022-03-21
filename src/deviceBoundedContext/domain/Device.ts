@@ -9,7 +9,7 @@ import { AlarmCreatedEvent } from '../events/internal/AlarmCreatedEvent'
 import { AlarmDestroyedEvent } from '../events/internal/AlarmDestroyedEvent'
 import { DeviceCreatedEvent } from '../events/internal/DeviceCreatedEvent'
 import { DeviceSnapshotEvent } from '../events/internal/DeviceSnapshotEvent'
-import {AlarmSnapshotEvent} from "../events/internal/AlarmSnapshotEvent";
+import { AlarmSnapshotEvent } from '../events/internal/AlarmSnapshotEvent'
 
 export class Device extends EntityBase implements SnapshotEntity {
   private alarms: Map<Uuid.UUID, Alarm> = new Map<Uuid.UUID, Alarm>()
@@ -18,14 +18,18 @@ export class Device extends EntityBase implements SnapshotEntity {
     super(observer)
   }
 
-  snapshot(dateTimeOfEvent: string): void {
-    this.applySnapshot(
+  snapshot(dateTimeOfEvent: string): ChangeEvent[] {
+    const alarmSnapshots = Array.from(this.alarms.values()).reduce(
+      (accum: ChangeEvent[], a: Alarm) => [...accum, ...a.snapshot(dateTimeOfEvent)],
+      []
+    )
+    return [
       DeviceSnapshotEvent.make(Uuid.createV4, {
         deviceId: this.id,
         dateTimeOfEvent
-      })
-    )
-    this.alarms.forEach(x => x.snapshot(dateTimeOfEvent))
+      }),
+      ...alarmSnapshots
+    ]
   }
 
   addAlarm(id: Uuid.UUID): Alarm {

@@ -104,7 +104,7 @@ describe('AggregateRootRepository', () => {
 
     await repository.save(deviceAggregate)
     await repository.save(anotherDeviceAggregate).then(
-      () => fail('Expected and Optimistic concurrency error here!!'),
+      () => fail('Expected Optimistic concurrency error here!!'),
       (e: any) => {
         assertThat(e instanceof OptimisticConcurrencyError).is(true)
         assertThat(e.message).is(`Optimistic concurrency error for aggregate root id: ${deviceAggregate.id}, version: ${2}`)

@@ -24,14 +24,13 @@ describe('AggregateContainer', () => {
     aggregate = new TestAggregate()
   })
 
-  describe('loadFromChangeEventsWithVersion', () => {
+  describe('loadFromVersion', () => {
     const event: ChangeEvent = ChangeEventBuilder.make().to()
     it('multiple events', async () => {
       aggregate.loadFromVersion([event, event, event], 100)
       assertThat(aggregate.id).is(event.aggregateRootId)
       assertThat(aggregate.changeVersion).is(100)
       assertThat(aggregate.uncommittedChanges()).is([])
-      assertThat(aggregate.uncommittedSnapshots()).is([])
       assertThat(aggregate.countOfEvents()).is(0)
     })
   })
@@ -47,7 +46,6 @@ describe('AggregateContainer', () => {
       assertThat(aggregate.id).is(event.aggregateRootId)
       assertThat(aggregate.changeVersion).is(2)
       assertThat(aggregate.uncommittedChanges()).is([])
-      assertThat(aggregate.uncommittedSnapshots()).is([])
       assertThat(aggregate.countOfEvents()).is(3)
     })
   })
@@ -63,7 +61,6 @@ describe('AggregateContainer', () => {
       assertThat(aggregate.id).is(event.aggregateRootId)
       assertThat(aggregate.changeVersion).is(0)
       assertThat(aggregate.uncommittedChanges()).is([{ version: 1, event }])
-      assertThat(aggregate.uncommittedSnapshots()).is([])
       assertThat(aggregate.countOfEvents()).is(2)
     })
     it('change which is committed', async () => {
@@ -73,33 +70,6 @@ describe('AggregateContainer', () => {
       aggregate.markChangesAsCommitted(100)
       assertThat(aggregate.changeVersion).is(100)
       assertThat(aggregate.uncommittedChanges()).is([])
-      assertThat(aggregate.uncommittedSnapshots()).is([])
-      assertThat(aggregate.countOfEvents()).is(2)
-    })
-    it('snapshot', async () => {
-      aggregate.withCorrelation(correlationId).withCausation(causationId)
-      aggregate.loadFromHistory([
-        { version: 0, event },
-        { version: 1, event }
-      ])
-      aggregate.rootEntity.applySnapshot(event)
-      assertThat(aggregate.id).is(event.aggregateRootId)
-      assertThat(aggregate.changeVersion).is(1)
-      assertThat(aggregate.uncommittedChanges()).is([])
-      assertThat(aggregate.uncommittedSnapshots()).is([event])
-      assertThat(aggregate.countOfEvents()).is(2)
-    })
-    it('snapshot which is committed', async () => {
-      aggregate.withCorrelation(correlationId).withCausation(causationId)
-      aggregate.loadFromHistory([
-        { version: 0, event },
-        { version: 1, event }
-      ])
-      aggregate.rootEntity.applySnapshot(event)
-      aggregate.markSnapshotsAsCommitted()
-      assertThat(aggregate.changeVersion).is(1)
-      assertThat(aggregate.uncommittedChanges()).is([])
-      assertThat(aggregate.uncommittedSnapshots()).is([])
       assertThat(aggregate.countOfEvents()).is(2)
     })
   })

@@ -13,10 +13,8 @@ export class SnapshotRepository implements WriteModelSnapshotRepository {
   }
 
   async saveSnapshot<T extends SnapshotAggregate>(aggregate: T): Promise<number> {
-    aggregate.snapshot()
-    const changes = aggregate.uncommittedSnapshots()
+    const changes = aggregate.snapshot()
     await this.eventStore.appendSnapshotEvents(aggregate.id, aggregate.changeVersion, changes)
-    aggregate.markSnapshotsAsCommitted()
     return changes.length
   }
 }

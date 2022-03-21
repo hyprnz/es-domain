@@ -17,8 +17,8 @@ export class TestEntity extends EntityBase implements SnapshotEntity {
     return () => (this.id = evt.aggregateRootId)
   }
 
-  snapshot(dateTimeOfEvent: string): void {
-    this.applySnapshot({
+  snapshot(dateTimeOfEvent: string): ChangeEvent[] {
+    return [{
       id: this.id,
       aggregateRootId: this.id,
       entityId: this.id,
@@ -26,6 +26,15 @@ export class TestEntity extends EntityBase implements SnapshotEntity {
       eventType: this.eventType,
       causationId: this.causationId,
       correlationId: this.correlationId
-    })
+    }]
+    // this.applySnapshot({
+    //   id: this.id,
+    //   aggregateRootId: this.id,
+    //   entityId: this.id,
+    //   dateTimeOfEvent,
+    //   eventType: this.eventType,
+    //   causationId: this.causationId,
+    //   correlationId: this.correlationId
+    // })
   }
 }

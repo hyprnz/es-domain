@@ -30,7 +30,7 @@ export class AggregateRepository implements WriteModelRepository {
   async load<T extends Aggregate>(id: UUID, aggregate: T): Promise<T> {
     const events = await this.internalEventStore.getEvents(id)
     if (events.length === 0) {
-      throw new WriteModelRepositoryError(AggregateRepository.name, `Failed to load aggregate id:${id}`)
+      throw new WriteModelRepositoryError(AggregateRepository.name, `Failed to load aggregate id: ${id}`)
     }
     aggregate.loadFromHistory(events)
     return Promise.resolve(aggregate)

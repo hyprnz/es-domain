@@ -9,13 +9,9 @@ import { DeviceCreatedEvent } from '../events/internal/DeviceCreatedEvent'
 export class DeviceAggregate implements Aggregate, SnapshotAggregate {
   constructor(
     private aggregate: AggregateContainer<Device> = new AggregateContainer<Device>(
-      () => new Device((evt, isSnapshot) => this.aggregate.observe(evt, isSnapshot))
+      () => new Device((evt, isSnapshot) => this.aggregate.observe(evt))
     )
   ) {}
-
-  uncommittedSnapshots(): ChangeEvent[] {
-    return this.aggregate.uncommittedSnapshots()
-  }
 
   private get root(): Device {
     return this.aggregate.rootEntity
@@ -29,8 +25,8 @@ export class DeviceAggregate implements Aggregate, SnapshotAggregate {
     return this.aggregate.id
   }
 
-  snapshot(): void {
-    this.aggregate.rootEntity.snapshot(this.aggregate.latestDateTimeFromEvents())
+  snapshot(): ChangeEvent[] {
+    return this.aggregate.rootEntity.snapshot(this.aggregate.latestDateTimeFromEvents())
   }
 
   markChangesAsCommitted(version: number): void {
@@ -77,10 +73,6 @@ export class DeviceAggregate implements Aggregate, SnapshotAggregate {
 
   telemetryReceived(value: number): void {
     return this.root.telemetryReceived(value)
-  }
-
-  markSnapshotsAsCommitted(): void {
-    this.aggregate.markSnapshotsAsCommitted()
   }
 
   countOfEvents(): number {
