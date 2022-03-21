@@ -1,6 +1,6 @@
 import * as Uuid from './UUID'
 import { AggregateError } from './AggregateError'
-import { ChangeEvent, EntityEvent, UNINITIALISED_AGGREGATE_VERSION } from './MessageTypes'
+import { ChangeEvent, EntityEvent, Message, UNINITIALISED_AGGREGATE_VERSION } from './MessageTypes'
 import { EntityBase } from './EntityBase'
 import { Aggregate } from './Aggregate'
 
@@ -79,6 +79,12 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
 
   withCorrelation(correlationId: Uuid.UUID): this {
     this.correlationId = correlationId
+    return this
+  }
+
+  withCausationMessage(causationMessage: Message): this {
+    this.causationId = causationMessage.id
+    this.correlationId = causationMessage.correlationId
     return this
   }
 
