@@ -52,26 +52,36 @@ TODO: Explain how other users and developers can contribute to make your code be
 
 # Event Sourcing
 
-Event sourcing is a general term used to describe many different types of systems that derive some state from events.
-Often people refer to systems as Event sourced. This is often just one of many patterns they are actually referring to.
-I'll quickly explain the various patterns that you may often see in event sourced systems.
+_Event Sourcing is a pattern for storing data as events in an append-only log. This simple definition misses the fact that by storing the events, you also keep the context of the events; you know an invoice was sent and for what reason from the same piece of information. In other storage patterns, the business operation context is usually lost, or sometimes stored elsewhere.
+_ - Greg Young
+
 
 Event sourcing has gained in popularity because it enables many other patterns to be brought into play that are also
-very popular in their own right
-
-Patterns such as:
+releant in distrbuted systems including:
 
 - Message - Data encapsulated into a discrete unit
 - Event - A message that describes something that has happened
 - Command - A message that encapsulates a request to perform an action
 - Aggregate - Groups related entities and defines the boundary of these relationships
 - CQRS - Command Query Responsibility Segregation
-- DDD - Domain Driven Design / Domain Modeling
+- DDD - Domain Driven Design - a technique to model a system using business language
 - Process Manager / Saga - Long running processes that may operate over many aggregates
 
-It would be possible to build an event sourced system that made use of all or none of these patterns
+The benfits of event sourced systems include:
 
-- Though Arguably events might be a required pattern to be event sourced?
+- Audit
+- Time travel
+- Root cause analysis
+- Fault tolerance
+- Event-driven architecture
+- Asynchronous first
+- Service autonomy
+- Replay and reshape
+- Observability
+- Occasionally connected
+- One way data flow
+- Legacy migration
+
 
 At the core of all of these patterns are messages. It's important when designing such systems that we don't become hamstrung by not
 including some basic information on our messages that will enable rich messaging patterns further down the track.
@@ -106,7 +116,7 @@ Back in the day when tools such as Hibernate were used to load a domain we had l
 to define boundaries on our Aggregates. We could happily traverse our domain model and tools like Hibernate would
 happily load related data for us as we needed it.
 
-EventSourcing has made the aggregate a much more tangible thing that really cannot be ignored. This is because when we
+EventSourcing has made the aggregate a much more important concept. This is because when we
 load data from an event store we must be able to know in advance what the finite set of events to be loaded is in order
 to fully hydrate an aggregate root. In event sourced systems this is often referred to as an EventStream. To be able to
 load an aggregate root we must be able to identify its Event Stream. The name or id of this stream is synonymous with
