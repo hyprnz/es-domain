@@ -10,6 +10,7 @@ An implementation of event sourcing making use of the following patterns:
   - Domain Model supports complex entities with children
   - Event Store, with optimistic concurrency detection
   - Event Store abstracted behind repositories
+  - Ability to use snapshots for free with AggregateSnapshotRepository or the simpler AggregateRepository without snapshots.
 
 - Read Side
 
