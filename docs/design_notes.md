@@ -1,7 +1,15 @@
- **NZSF Dev Feedback
+ ### NZSF Dev Feedback
  
   * some confusion over what events are handled in what event handler, i.e what does in the root aggregate handler vs the entity handler
   * Unsure on relationship between DeviceAggregate, AggregateContainer, Device - how can we make the class heirarchy clearer?
     * the DeviceAggregate is a nice wrapper so we don't have to do `aggregate.rootEntity.foo()` but it does mean a lot of repeated code
     * the AgregateContainer is a nice lifecycle manager for the aggregate but the constructor pattern is confusing
   * 
+
+### MTF Dev Feedback
+* Would be great if we can solve the reimplementing `makeEventHandler` problem :)
+* Projections
+  * Event handlers don't feel intuitive (mutating state but then returning a string of a CRUD action??
+  * Does there need to be a default value? Or can the entries be created on a create event - if not, we should provide an explanation for this.
+  * Just calling `makeProjection` doesn't seem to provide much confidence in what a projection actually is... they do a lot (find current state, call event handlers and persist new state) and it's all hidden away in that one method (really felt a need to dive into the package code). Is there a way we can make the building of projections more similar to how we work with the domain entities? (Consistent feel throughout the package?)
+  * Also projection and projectionHandler seems to be used interchangably - e.g. `alarmProjectionHandler = makeProjection(...)` - which is it?
