@@ -1,9 +1,11 @@
-src/
 ci/
 deviceBoundedContext/
 junit.xml
 tsconfig.tsbuildinfo
 
+.prettierrc
+.prettierignore
+.husky/
 *.test.js
 *.test.d.ts
 *.integration.js
