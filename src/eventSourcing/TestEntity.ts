@@ -27,14 +27,5 @@ export class TestEntity extends EntityBase implements SnapshotEntity {
       causationId: this.causationId,
       correlationId: this.correlationId
     }]
-    // this.applySnapshot({
-    //   id: this.id,
-    //   aggregateRootId: this.id,
-    //   entityId: this.id,
-    //   dateTimeOfEvent,
-    //   eventType: this.eventType,
-    //   causationId: this.causationId,
-    //   correlationId: this.correlationId
-    // })
   }
 }

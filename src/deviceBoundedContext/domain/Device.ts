@@ -75,7 +75,9 @@ export class Device extends EntityBase implements SnapshotEntity {
   }
 
   private static readonly eventHandlers: Record<string, Array<StaticEventHandler<Device>>> = {
-    [DeviceCreatedEvent.eventType]: [(device, evt) => (device.id = evt.aggregateRootId)],
+    [DeviceCreatedEvent.eventType]: [(device, evt) => {
+      device.id = evt.aggregateRootId
+    }],
     [DeviceSnapshotEvent.eventType]: [(device, evt) => (device.id = evt.aggregateRootId)],
     [AlarmSnapshotEvent.eventType]: [
       (device, evt) => {

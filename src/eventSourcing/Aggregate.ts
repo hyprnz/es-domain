@@ -21,7 +21,7 @@ export interface SnapshotAggregate extends Aggregate {
   snapshot(): ChangeEvent[]
 }
 
-export type EntityChangedObserver = (event: ChangeEvent, isSnapshot: boolean) => void
+export type EntityChangedObserver = (event: ChangeEvent) => void
 
 export interface Parent {
   id(): Uuid.UUID

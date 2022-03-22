@@ -9,7 +9,7 @@ import { DeviceCreatedEvent } from '../events/internal/DeviceCreatedEvent'
 export class DeviceAggregate implements Aggregate, SnapshotAggregate {
   constructor(
     private aggregate: AggregateContainer<Device> = new AggregateContainer<Device>(
-      () => new Device((evt, isSnapshot) => this.aggregate.observe(evt))
+      () => new Device((evt) => this.aggregate.observe(evt))
     )
   ) {}
 
