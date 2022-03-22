@@ -22,10 +22,6 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
     return this._rootEntity
   }
 
-  set rootEntity(value) {
-    this._rootEntity = value
-  }
-
   get id(): Uuid.UUID {
     return this.rootEntity.id
   }
