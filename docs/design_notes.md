@@ -20,3 +20,7 @@
  * eventHandlers mix use patterns on handling new or existing events - Benji
  * I don't quite understand the projection code - Benji
  * Where did we get to with evaluating existing frameworks and what's our threshold for using them over rolling our own? - Benji
+ * Entities are created by the Aggregatecontainer, we did this to remove some inheritance. However composition requires that the container create the entity and observe the events it emits. We should do this via a stand observer pattern where the Entity holds a reference to theobserver and calls it back as needed. Without this patter we become stuck when we need to be able to extend this behaviour. If we cannot agree then maybe we should go back to inheritence!!!
+
+
+
