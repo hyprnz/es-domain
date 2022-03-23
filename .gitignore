@@ -100,6 +100,8 @@ local.settings.json
 # Webstorm
 .idea
 
+*.~undo-tree~
+
 # No archives
 *.zip
 
