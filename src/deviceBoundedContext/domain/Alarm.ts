@@ -37,6 +37,9 @@ export class Alarm extends EntityBase implements SnapshotEntity {
       AlarmSnapshotEvent.make(Uuid.createV4, {
         deviceId: this.deviceId,
         alarmId: this.id,
+        isArmed: this.isArmed,
+        threshold: this.threshold,
+        isTriggered: this.isTriggered,
         dateTimeOfEvent
       })
     ]
@@ -99,9 +102,13 @@ export class Alarm extends EntityBase implements SnapshotEntity {
       }
     ],
     [AlarmSnapshotEvent.eventType]: [
-      (alarm, evt) => {
+      (alarm, e) => {
+        const evt = e as AlarmSnapshotEvent
         alarm.id = evt.entityId
         alarm.deviceId = evt.aggregateRootId
+        alarm.isArmed = evt.isArmed
+        alarm.threshold = evt.threshold
+        alarm.isTriggered = evt.isTriggered
       }
     ],
     [AlarmDisarmedEvent.eventType]: [alarm => (alarm.isArmed = false)],

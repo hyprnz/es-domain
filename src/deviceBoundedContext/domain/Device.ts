@@ -75,9 +75,11 @@ export class Device extends EntityBase implements SnapshotEntity {
   }
 
   private static readonly eventHandlers: Record<string, Array<StaticEventHandler<Device>>> = {
-    [DeviceCreatedEvent.eventType]: [(device, evt) => {
-      device.id = evt.aggregateRootId
-    }],
+    [DeviceCreatedEvent.eventType]: [
+      (device, evt) => {
+        device.id = evt.aggregateRootId
+      }
+    ],
     [DeviceSnapshotEvent.eventType]: [(device, evt) => (device.id = evt.aggregateRootId)],
     [AlarmSnapshotEvent.eventType]: [
       (device, evt) => {
@@ -97,9 +99,9 @@ export class Device extends EntityBase implements SnapshotEntity {
     [AlarmDestroyedEvent.eventType]: [
       (device, evt) => {
         const alarmToDelete = device.alarms.get(evt.entityId)
-        if (!alarmToDelete)
-          throw new AggregateError(device.toString(), `Alarm Not Found, Alarm of id:${evt.entityId} missing from Device`)
-
+        if (!alarmToDelete) {
+          throw new AggregateError(device.toString(), `Alarm Not Found, Alarm of id: ${evt.entityId} missing from Device`)
+        }
         device.alarms.delete(alarmToDelete.id)
         alarmToDelete.handleChangeEvent(evt)
       }

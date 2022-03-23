@@ -4,6 +4,9 @@ import { AlarmDestroyedEvent } from './AlarmDestroyedEvent'
 
 export interface AlarmSnapshotEvent extends ChangeEvent {
   eventType: 'AlarmSnapshotEvent'
+  isArmed: boolean
+  threshold: number
+  isTriggered: boolean
 }
 
 export namespace AlarmSnapshotEvent {
@@ -14,6 +17,9 @@ export namespace AlarmSnapshotEvent {
     data: {
       alarmId: Uuid.UUID
       deviceId: Uuid.UUID
+      isArmed: boolean
+      threshold: number
+      isTriggered: boolean
       dateTimeOfEvent: string
       correlationId?: Uuid.UUID
       causationId?: Uuid.UUID
@@ -25,7 +31,10 @@ export namespace AlarmSnapshotEvent {
     eventType,
     aggregateRootId: data.deviceId,
     entityId: data.alarmId,
-    dateTimeOfEvent: data.dateTimeOfEvent
+    dateTimeOfEvent: data.dateTimeOfEvent,
+    isArmed: data.isArmed,
+    threshold: data.threshold,
+    isTriggered: data.isTriggered
   })
 
   export const isAlarmSnapshotEvent = (e: ChangeEvent): e is AlarmDestroyedEvent => e.eventType === eventType

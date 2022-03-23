@@ -1,8 +1,8 @@
 import * as Uuid from '../../eventSourcing/UUID'
-import { Projection, StaticProjectionEventHandler, makeProjection } from '../../readModelRepository/Projection'
-import {AlarmCreatedEvent} from "../events/internal/AlarmCreatedEvent";
-import {AlarmArmedEvent} from "../events/internal/AlarmArmedEvent";
-import {AlarmDestroyedEvent} from "../events/internal/AlarmDestroyedEvent";
+import { makeProjection, Projection, StaticProjectionEventHandler } from '../../readModelRepository/Projection'
+import { AlarmCreatedEvent } from '../events/internal/AlarmCreatedEvent'
+import { AlarmArmedEvent } from '../events/internal/AlarmArmedEvent'
+import { AlarmDestroyedEvent } from '../events/internal/AlarmDestroyedEvent'
 
 export interface CurrentAlarmsProjection extends Projection {
   /** Is alarm active */
@@ -20,7 +20,8 @@ const eventHandlers: Record<string, StaticProjectionEventHandler<CurrentAlarmsPr
   },
   [AlarmArmedEvent.eventType]: (state, evt) => {
     AlarmArmedEvent.assertAlarmArmedEvent(evt)
-    ;(state.isActive = true), (state.threshold = evt.threshold)
+    state.isActive = true
+    state.threshold = evt.threshold
     return 'update'
   },
   [AlarmDestroyedEvent.eventType]: (state, evt) => {
@@ -28,4 +29,8 @@ const eventHandlers: Record<string, StaticProjectionEventHandler<CurrentAlarmsPr
   }
 }
 
-export const alarmProjectionHandler = makeProjection<CurrentAlarmsProjection>('alarmProjectionHandler', eventHandlers, defaultValue)
+export const alarmProjectionHandler = makeProjection<CurrentAlarmsProjection>(
+  'alarmProjectionHandler',
+  eventHandlers,
+  defaultValue
+)

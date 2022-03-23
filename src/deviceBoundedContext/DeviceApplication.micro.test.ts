@@ -46,6 +46,6 @@ describe('deviceApplication', () => {
     }
 
     await deviceService.removeDeviceAlarm(device1, device1Alarms[0])
-    readModelRepo.printAll()
+    // readModelRepo.printAll()
   })
 })

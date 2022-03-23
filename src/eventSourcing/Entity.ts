@@ -17,4 +17,4 @@ export interface EventSourcedEntity {
   readonly aggregate: Parent
 }
 
-export type StaticEventHandler<E> = (entity: E, evt: ChangeEvent) => void
+export type StaticEventHandler<A> = (entity: A, evt: ChangeEvent) => void
