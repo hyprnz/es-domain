@@ -2,7 +2,8 @@ import * as Uuid from './UUID'
 import { AggregateError } from './AggregateError'
 import { ChangeEvent, EntityEvent, Message, UNINITIALISED_AGGREGATE_VERSION } from './MessageTypes'
 import { EntityBase } from './EntityBase'
-import { Aggregate } from './Aggregate'
+import { Aggregate, EntityChangedObserver } from './Aggregate'
+import { SnapshotAggregate } from '..'
 
 export class AggregateContainer<T extends EntityBase> implements Aggregate {
   public _rootEntity: T | undefined
@@ -15,18 +16,23 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
     return this.version
   }
 
-  get rootEntity(): T {
-    if (!this._rootEntity) {
-      this._rootEntity = this.rootProvider()
-    }
-    return this._rootEntity
-  }
-
   get id(): Uuid.UUID {
     return this.rootEntity.id
   }
 
-  constructor(private rootProvider: () => T, private version = UNINITIALISED_AGGREGATE_VERSION) {}
+  get rootEntity(): T {
+    if (!this._rootEntity) {
+      this._rootEntity = this.aggregateRootProvider(this.observe.bind(this))
+    }
+    return this._rootEntity
+  }
+
+ 
+
+  constructor(
+    private aggregateRootProvider: (observer : EntityChangedObserver) => T, 
+    private version = UNINITIALISED_AGGREGATE_VERSION) {    //We shou
+  }
 
   loadFromHistory(history: EntityEvent[]): void {
     this.events = this.events.concat(history)
@@ -41,10 +47,9 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
     })
   }
 
+  // TODO : BLAIR Maybe use EntityEvent here and store snapshots with their version
   loadFromVersion(changeEvents: ChangeEvent[], version: number): void {
-    changeEvents.forEach(evt => {
-      this.applyEvent(evt)
-    })
+    changeEvents.forEach(evt => this.applyEvent(evt))
     this.version = version
   }
 
@@ -68,11 +73,13 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
     return `AggregateRoot:${this.id}, Version:${this.changeVersion}`
   }
 
+  /** @deprecated use withCausationMessage instead */
   withCausation(causationId: Uuid.UUID): this {
     this.causationId = causationId
     return this
   }
 
+  /** @deprecated use withCausationMessage instead */
   withCorrelation(correlationId: Uuid.UUID): this {
     this.correlationId = correlationId
     return this
@@ -85,7 +92,7 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
   }
 
   /** Observes a new change to a Domain Object */
-  observe(evt: ChangeEvent) {
+  private observe(evt: ChangeEvent) {
     const entityEvent = {
       event: evt,
       version: this.currentVersionFromChanges() + 1
@@ -102,6 +109,8 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
   private applyEvent(evt: ChangeEvent) {
     this.rootEntity.handleChangeEvent(evt)
   }
+
+
 
   latestDateTimeFromEvents(): string {
     return this.events.reduce(

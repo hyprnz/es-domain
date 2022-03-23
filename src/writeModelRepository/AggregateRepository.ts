@@ -7,37 +7,40 @@ import { InternalEventStore } from './InternalEventStore'
 import { EventBusInternal } from '../eventSourcing/EventBusInternal'
 
 export class AggregateRepository implements WriteModelRepository {
-  constructor(private readonly internalEventStore: InternalEventStore, private readonly bus = new EventBusInternal()) {}
-
-  async loadAfterVersion<T extends Aggregate>(id: UUID, aggregate: T, version: number): Promise<T> {
-    const events = await this.internalEventStore.getEventsAfterVersion(id, version)
-    aggregate.changeVersion = version
-    aggregate.loadFromHistory(events)
-    return aggregate
-  }
+  constructor(private readonly eventRepository: InternalEventStore, private readonly bus = new EventBusInternal()) {}
 
   async save<T extends Aggregate>(aggregate: T): Promise<number> {
     const changes = aggregate.uncommittedChanges()
     if (changes.length === 0) {
       return Promise.resolve(0)
     }
-    await this.internalEventStore.appendEvents(aggregate.id, changes[0].version, changes)
+    await this.eventRepository.appendEvents(aggregate.id, changes[0].version, changes)
     aggregate.markChangesAsCommitted(changes[changes.length - 1].version)
     await this.onAfterEventsStored(changes)
     return changes.length
   }
 
   async load<T extends Aggregate>(id: UUID, aggregate: T): Promise<T> {
-    const events = await this.internalEventStore.getEvents(id)
+    const events = await this.eventRepository.getEvents(id)
     if (events.length === 0) {
       throw new WriteModelRepositoryError(AggregateRepository.name, `Failed to load aggregate id: ${id}`)
     }
     aggregate.loadFromHistory(events)
-    return Promise.resolve(aggregate)
+    return aggregate
   }
 
+  /** This method is mainly provider for test purposes, so that we can inspect persisted events */
   async loadEvents(id: UUID): Promise<Array<EntityEvent>> {
-    return await this.internalEventStore.getEvents(id)
+    return await this.eventRepository.getEvents(id)
+  }
+
+  async loadAfterVersion<T extends Aggregate>(id: UUID, aggregate: T, version: number): Promise<T> {
+    const events = await this.eventRepository.getEventsAfterVersion(id, version)
+    
+    //BLAIR : Why would be ever need to do this ? If it is related to snapshots the snapshot should set the version and then we load
+    // aggregate.changeVersion = version  
+    aggregate.loadFromHistory(events)
+    return aggregate
   }
 
   subscribeToChangesSynchronously(handler: (changes: Array<EntityEvent>) => Promise<void>) {

@@ -6,7 +6,7 @@ import { DeviceCreatedEvent } from '../events/internal/DeviceCreatedEvent'
 
 export class DeviceAggregateInherited extends AggregateContainer<Device> {
   constructor() {
-    super(() => new Device(evt => this.observe(evt)))
+    super((observer) => new Device(evt => observer(evt)))
   }
 
   snapshot(): ChangeEvent[] {

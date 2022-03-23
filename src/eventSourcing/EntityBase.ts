@@ -24,7 +24,7 @@ export abstract class EntityBase implements Entity {
   }
 
   toString() {
-    return `Entity ${this.id}}`
+    return `Entity ${this.id}`
   }
 
   /** Applies a new change to the Domain Object */
