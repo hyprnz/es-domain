@@ -25,14 +25,14 @@ describe('AggregateSnapshotRepository', () => {
 
   it('create', async () => {
     const id = Uuid.createV4()
-    const aggregate = new TestAggregate().withRoot(id)
+    const aggregate = new TestAggregate(id).withRoot(id)
     aggregateRepository.setup(x => x.save(aggregate)).returns(() => Promise.resolve(1))
     return repository.create(aggregate)
   })
 
   it('save without triggering snapshot', async () => {
     const id = Uuid.createV4()
-    const aggregate = new TestAggregate().withRoot(id)
+    const aggregate = new TestAggregate(id).withRoot(id)
     aggregate.doSomething()
     aggregateRepository.setup(x => x.save(aggregate)).returns(() => Promise.resolve(1))
     return repository.save(aggregate, 2)
@@ -40,7 +40,7 @@ describe('AggregateSnapshotRepository', () => {
 
   it('save with snapshot', async () => {
     const id = Uuid.createV4()
-    const aggregate = new TestAggregate().withRoot(id)
+    const aggregate = new TestAggregate(id).withRoot(id)
     aggregate.doSomething()
     aggregateRepository.setup(x => x.save(aggregate)).returns(() => Promise.resolve(1))
     snapshotRepository.setup(x => x.saveSnapshot(aggregate)).returns(() => Promise.resolve(1))
@@ -49,7 +49,7 @@ describe('AggregateSnapshotRepository', () => {
 
   it('load when no snapshot events', async () => {
     const id = Uuid.createV4()
-    const testAggregate = new TestAggregate()
+    const testAggregate = new TestAggregate(id)
     snapshotRepository.setup(x => x.loadSnapshot(id, testAggregate)).returns(() => Promise.resolve(testAggregate))
     aggregateRepository.setup(x => x.load(id, testAggregate)).returns(() => Promise.resolve(testAggregate))
     return repository.load(id, () => testAggregate)
@@ -57,8 +57,8 @@ describe('AggregateSnapshotRepository', () => {
 
   it('load with snapshot events', async () => {
     const id = Uuid.createV4()
-    const aggregate = new TestAggregate().withRoot(id)
-    const testAggregate = new TestAggregate().withRoot(id)
+    const aggregate = new TestAggregate(id).withRoot(id)
+    const testAggregate = new TestAggregate(id).withRoot(id)
     snapshotRepository.setup(x => x.loadSnapshot(id, testAggregate)).returns(() => Promise.resolve(testAggregate))
     aggregateRepository
       .setup(x => x.loadAfterVersion(id, testAggregate, testAggregate.changeVersion))

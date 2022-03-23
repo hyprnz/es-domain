@@ -9,8 +9,8 @@ export class TestAggregate extends AggregateContainer<TestEntity> implements Sna
   causationId1 = Uuid.createV4()
   correlationId1 = Uuid.createV4()
 
-  constructor() {
-    super((observer) => new TestEntity((e) => observer(e)))
+  constructor(id: Uuid.UUID) {
+    super(id, (observer) => new TestEntity((e) => observer(e)))
   }
 
   withRoot(id: UUID): TestAggregate {

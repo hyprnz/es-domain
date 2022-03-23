@@ -14,7 +14,7 @@ describe('AggregateSnapshotRepository', () => {
   it('saveSnapshot', async () => {
     const id = Uuid.createV4()
 
-    const aggregate = new TestAggregate().withRoot(id)
+    const aggregate = new TestAggregate(id).withRoot(id)
 
     const countEvents = await repository.saveSnapshot(aggregate)
 
@@ -24,7 +24,7 @@ describe('AggregateSnapshotRepository', () => {
   it('loadSnapshot', async () => {
     const id = Uuid.createV4()
 
-    const aggregate = new TestAggregate().withRoot(id)
+    const aggregate = new TestAggregate(id).withRoot(id)
 
     await repository.saveSnapshot(aggregate)
     const result = await repository.loadSnapshot(id, aggregate)

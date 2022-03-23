@@ -5,8 +5,8 @@ import { ChangeEvent } from '../../eventSourcing/MessageTypes'
 import { DeviceCreatedEvent } from '../events/internal/DeviceCreatedEvent'
 
 export class DeviceAggregateInherited extends AggregateContainer<Device> {
-  constructor() {
-    super((observer) => new Device(evt => observer(evt)))
+  constructor(id: Uuid.UUID,) {
+    super(id, (observer) => new Device(evt => observer(evt)))
   }
 
   snapshot(): ChangeEvent[] {

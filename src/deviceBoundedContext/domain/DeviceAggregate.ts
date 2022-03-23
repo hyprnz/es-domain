@@ -8,8 +8,8 @@ import { DeviceCreatedEvent } from '../events/internal/DeviceCreatedEvent'
 
 export class DeviceAggregate implements Aggregate, SnapshotAggregate {
   constructor(
-    // Circular dependency makes it hard to extend this code
-    private aggregate: AggregateContainer<Device> = new AggregateContainer<Device>(
+    id: Uuid.UUID,    
+    private aggregate: AggregateContainer<Device> = new AggregateContainer<Device>(id,
         observer => new Device((evt) => observer(evt))
     )
   ) {}

@@ -3,7 +3,6 @@ import { AggregateError } from './AggregateError'
 import { ChangeEvent, EntityEvent, Message, UNINITIALISED_AGGREGATE_VERSION } from './MessageTypes'
 import { EntityBase } from './EntityBase'
 import { Aggregate, EntityChangedObserver } from './Aggregate'
-import { SnapshotAggregate } from '..'
 
 export class AggregateContainer<T extends EntityBase> implements Aggregate {
   public _rootEntity: T | undefined
@@ -16,9 +15,9 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
     return this.version
   }
 
-  get id(): Uuid.UUID {
-    return this.rootEntity.id
-  }
+  // get id(): Uuid.UUID {
+  //   return this.rootEntity.id
+  // }
 
   get rootEntity(): T {
     if (!this._rootEntity) {
@@ -30,6 +29,7 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
  
 
   constructor(
+    public readonly id: Uuid.UUID,
     private aggregateRootProvider: (observer : EntityChangedObserver) => T, 
     private version = UNINITIALISED_AGGREGATE_VERSION) {    //We shou
   }

@@ -1,6 +1,5 @@
 import { ChangeEvent } from './MessageTypes'
 import { assertThat } from 'mismatched'
-import { AggregateContainer } from './AggregateContainer'
 import { EntityBase } from './EntityBase'
 import { ChangeEventBuilder } from './ChangeEventBuilder'
 import { EntityChangedObserver } from './Aggregate'
@@ -21,12 +20,16 @@ describe('AggregateContainer', () => {
   let aggregate: TestAggregate
 
   beforeEach(() => {
-    aggregate = new TestAggregate()
+    aggregate = new TestAggregate(Uuid.createV4())
   })
 
   describe('loadFromVersion', () => {
-    const event: ChangeEvent = ChangeEventBuilder.make().to()
+    
     it('multiple events', async () => {
+      const event: ChangeEvent = ChangeEventBuilder.make()
+        .withAggregateRootId(aggregate.id)
+        .to()
+
       aggregate.loadFromVersion([event, event, event], 100)
       assertThat(aggregate.id).is(event.aggregateRootId)
       assertThat(aggregate.changeVersion).is(100)
@@ -36,8 +39,12 @@ describe('AggregateContainer', () => {
   })
 
   describe('loadFromHistory', () => {
-    const event: ChangeEvent = ChangeEventBuilder.make().to()
+   
     it('multiple events', async () => {
+      const event: ChangeEvent = ChangeEventBuilder.make()
+      .withAggregateRootId(aggregate.id)
+      .to()
+
       aggregate.loadFromHistory([
         { version: 0, event },
         { version: 1, event },
@@ -53,9 +60,21 @@ describe('AggregateContainer', () => {
   describe('observe', () => {
     const correlationId = Uuid.createV4()
     const causationId = Uuid.createV4()
-    const event: ChangeEvent = ChangeEventBuilder.make().withCorrelation(correlationId).withCausation(causationId).to()
+
+    let event: ChangeEvent
+    beforeEach(() => {
+      event = ChangeEventBuilder.make()
+      .withAggregateRootId(aggregate.id)
+      .withCorrelation(correlationId)
+      .withCausation(causationId)
+      .to()
+
+    })
     it('change', async () => {
-      aggregate.withCorrelation(correlationId).withCausation(causationId)
+      aggregate        
+        .withCorrelation(correlationId)
+        .withCausation(causationId)
+        
       aggregate.loadFromHistory([{ version: 0, event }])
       aggregate.rootEntity.applyChangeEvent(event)
       assertThat(aggregate.id).is(event.aggregateRootId)

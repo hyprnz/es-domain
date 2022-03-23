@@ -20,7 +20,7 @@ describe('AggregateRootRepository', () => {
     const deviceId = Uuid.createV4()
     const alarmId = Uuid.createV4()
 
-    const deviceAggregate = new DeviceAggregate().withDevice(deviceId)
+    const deviceAggregate = new DeviceAggregate(deviceId).withDevice(deviceId)
     deviceAggregate.addAlarm(alarmId)
 
     const uncommittedEvents = deviceAggregate.uncommittedChanges()
@@ -43,7 +43,7 @@ describe('AggregateRootRepository', () => {
     const deviceId = Uuid.createV4()
     const alarmId = Uuid.createV4()
 
-    const deviceAggregate = new DeviceAggregate().withDevice(deviceId)
+    const deviceAggregate = new DeviceAggregate(deviceId).withDevice(deviceId)
     deviceAggregate.addAlarm(alarmId)
 
     const uncommittedEvents = deviceAggregate.uncommittedChanges()
@@ -60,14 +60,14 @@ describe('AggregateRootRepository', () => {
     const deviceId = Uuid.createV4()
     const alarmId = Uuid.createV4()
 
-    const deviceAggregate = new DeviceAggregate().withDevice(deviceId)
+    const deviceAggregate = new DeviceAggregate(deviceId).withDevice(deviceId)
 
     deviceAggregate.addAlarm(alarmId)
 
     const alarm = deviceAggregate.findAlarm(alarmId)
     await repository.save(deviceAggregate)
 
-    const rehydratedAggregate = await repository.load(deviceId, new DeviceAggregate())
+    const rehydratedAggregate = await repository.load(deviceId, new DeviceAggregate(deviceId))
     const foundAlarm = rehydratedAggregate.findAlarm(alarmId)
     assertThat(foundAlarm).isNot(undefined)
     assertThat(foundAlarm).is(alarm)
@@ -77,13 +77,13 @@ describe('AggregateRootRepository', () => {
     const deviceId = Uuid.createV4()
     const alarmId = Uuid.createV4()
 
-    const deviceAggregate = new DeviceAggregate().withDevice(deviceId)
+    const deviceAggregate = new DeviceAggregate(deviceId).withDevice(deviceId)
     deviceAggregate.addAlarm(alarmId)
 
     // changes stored, uncommitted changes cleared
     await repository.save(deviceAggregate)
 
-    const rehydratedAggregate = await repository.load(deviceId, new DeviceAggregate())
+    const rehydratedAggregate = await repository.load(deviceId, new DeviceAggregate(deviceId))
     const uncommittedEvents = rehydratedAggregate.uncommittedChanges()
     // rehydration should not result in new events
     assertThat(uncommittedEvents).is(match.array.length(0))
@@ -93,11 +93,11 @@ describe('AggregateRootRepository', () => {
     const deviceId = Uuid.createV4()
     const alarmId = Uuid.createV4()
 
-    const deviceAggregate = new DeviceAggregate().withDevice(deviceId)
+    const deviceAggregate = new DeviceAggregate(deviceId).withDevice(deviceId)
     deviceAggregate.addAlarm(alarmId)
     await repository.save(deviceAggregate)
 
-    const anotherDeviceAggregate = await repository.load(deviceId, new DeviceAggregate())
+    const anotherDeviceAggregate = await repository.load(deviceId, new DeviceAggregate(deviceId))
 
     deviceAggregate.addAlarm(Uuid.createV4())
     anotherDeviceAggregate.addAlarm(Uuid.createV4())
