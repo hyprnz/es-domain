@@ -2,8 +2,8 @@ import * as Uuid from './UUID'
 import { AggregateError } from './AggregateError'
 import { ChangeEvent, EntityEvent, Message, UNINITIALISED_AGGREGATE_VERSION } from './MessageTypes'
 import { EntityBase } from './EntityBase'
-import { Aggregate, EntityChangedObserver } from './Aggregate'
-
+import { Aggregate } from './Aggregate'
+import { EntityContructor } from '..'
 export class AggregateContainer<T extends EntityBase> implements Aggregate {
   public _rootEntity: T | undefined
   private events: Array<EntityEvent> = []
@@ -15,13 +15,11 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
     return this.version
   }
 
-  // get id(): Uuid.UUID {
-  //   return this.rootEntity.id
-  // }
 
   get rootEntity(): T {
     if (!this._rootEntity) {
-      this._rootEntity = this.aggregateRootProvider(this.observe.bind(this))
+      // this._rootEntity =   this.aggregateRootProvider(this.observe.bind(this))
+      this._rootEntity = new this.activator(this.observe.bind(this))
     }
     return this._rootEntity
   }
@@ -30,8 +28,9 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
 
   constructor(
     public readonly id: Uuid.UUID,
-    private aggregateRootProvider: (observer : EntityChangedObserver) => T, 
-    private version = UNINITIALISED_AGGREGATE_VERSION) {    //We shou
+    // private aggregateRootProvider: (observer : EntityChangedObserver) => T, 
+    private activator: EntityContructor<T>,
+    private version = UNINITIALISED_AGGREGATE_VERSION) {    
   }
 
   loadFromHistory(history: EntityEvent[]): void {
@@ -111,7 +110,7 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
   }
 
 
-
+  // These methods are not part of the aggregate contract
   latestDateTimeFromEvents(): string {
     return this.events.reduce(
       (accum: string, curr) =>

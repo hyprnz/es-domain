@@ -8,11 +8,9 @@ import { DeviceCreatedEvent } from '../events/internal/DeviceCreatedEvent'
 
 export class DeviceAggregate implements Aggregate, SnapshotAggregate {
   constructor(
-    id: Uuid.UUID,    
-    private aggregate: AggregateContainer<Device> = new AggregateContainer<Device>(id,
-        observer => new Device((evt) => observer(evt))
-    )
-  ) {}
+    id: Uuid.UUID,
+    private aggregate: AggregateContainer<Device> = new AggregateContainer(id, Device)
+  ) { }
 
   private get root(): Device {
     return this.aggregate.rootEntity

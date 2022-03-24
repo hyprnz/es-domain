@@ -1,6 +1,6 @@
 import * as Uuid from './UUID'
 import { ChangeEvent } from './MessageTypes'
-import { Parent } from './Aggregate'
+import { EntityChangedObserver, Parent } from './Aggregate'
 
 export interface Entity {
   readonly id: Uuid.UUID
@@ -15,6 +15,17 @@ export interface SnapshotEntity {
 export interface EventSourcedEntity {
   readonly id: Uuid.UUID
   readonly aggregate: Parent
+}
+
+// export interface EntityContructorPayload {
+//   id: Uuid.UUID
+// }
+
+// export interface EntityContructor<T extends Entity, U extends EntityContructorPayload>{
+  export interface EntityContructor<T extends Entity>{  
+    new (observer: EntityChangedObserver): T
+  // new (observer: EntityChangedObserver, payload: U): T
+  // toCreationParameters(event: EntityContructorPayload) : U 
 }
 
 export type StaticEventHandler<A> = (entity: A, evt: ChangeEvent) => void
