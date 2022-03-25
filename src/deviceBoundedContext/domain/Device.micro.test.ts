@@ -14,14 +14,14 @@ describe('Device', () => {
   describe('GenericAggregateRoot', () => {
     describe('Event Sourceing Basics', () => {
       it('Uninitialised', () => {
-        const aggregate = new DeviceAggregate(Uuid.createV4())
+        const aggregate = new DeviceAggregate()
         assertThat(aggregate.uncommittedChanges()).is([])
         assertThat(aggregate.changeVersion).is(UNINITIALISED_AGGREGATE_VERSION)
       })
 
       it('Create New Device', () => {
         const id = Uuid.createV4()
-        const aggregate = new DeviceAggregate(id).withDevice(id)
+        const aggregate = new DeviceAggregate().withDevice(id)
         const events = aggregate.uncommittedChanges()
         assertThat(events).is([
           makeEntityEventMatcher(
@@ -34,7 +34,7 @@ describe('Device', () => {
 
       it('Load from History', () => {
         const id = Uuid.createV4()
-        const aggregate = new DeviceAggregate(id)        
+        const aggregate = new DeviceAggregate()        
         const history = [{ event: DeviceCreatedEvent.make(() => id, { deviceId: id }), version: 0 }]
         aggregate.loadFromHistory(history)
         assertThat(aggregate.id).is(id)
@@ -46,7 +46,7 @@ describe('Device', () => {
       it('Create Child Entity', () => {
         const deviceId = Uuid.createV4()
         const alarmId = Uuid.createV4()
-        const aggregate = new DeviceAggregate(deviceId).withDevice(deviceId) //+1
+        const aggregate = new DeviceAggregate().withDevice(deviceId) //+1
         const alarm = aggregate.addAlarm(alarmId) //+1 Event
         alarm.armAlarm(20) //+1 Event
 
@@ -60,7 +60,7 @@ describe('Device', () => {
           makeEntityEventMatcher(AlarmArmedEvent.make(Uuid.createV4, { deviceId, alarmId, threshold: 20 }), 2)
         ])
 
-        const hydratedAggregate = new DeviceAggregate(deviceId)
+        const hydratedAggregate = new DeviceAggregate()
         hydratedAggregate.loadFromHistory(events)
         assertThat(hydratedAggregate).is(makeEntityMatcher(aggregate))
 
@@ -74,7 +74,7 @@ describe('Device', () => {
       it('Destroy child Entity', () => {
         const deviceId = Uuid.createV4()
         const alarmId = Uuid.createV4()
-        const aggregate = new DeviceAggregate(deviceId).withDevice(deviceId) //+1
+        const aggregate = new DeviceAggregate().withDevice(deviceId) //+1
         const alarm = aggregate.addAlarm(alarmId) //+1 Event
         assertThat(aggregate.findAlarm(alarm.id)).isNot(undefined)
 

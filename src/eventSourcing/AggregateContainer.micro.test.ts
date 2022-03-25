@@ -20,14 +20,15 @@ describe('AggregateContainer', () => {
   let aggregate: TestAggregate
 
   beforeEach(() => {
-    aggregate = new TestAggregate(Uuid.createV4())
+    aggregate = new TestAggregate()
   })
 
   describe('loadFromVersion', () => {
     
     it('multiple events', async () => {
+      const id = Uuid.createV4()
       const event: ChangeEvent = ChangeEventBuilder.make()
-        .withAggregateRootId(aggregate.id)
+        .withAggregateRootId(id)
         .to()
 
       aggregate.loadFromVersion([event, event, event], 100)
@@ -41,8 +42,9 @@ describe('AggregateContainer', () => {
   describe('loadFromHistory', () => {
    
     it('multiple events', async () => {
+      const id = Uuid.createV4()
       const event: ChangeEvent = ChangeEventBuilder.make()
-      .withAggregateRootId(aggregate.id)
+      .withAggregateRootId(id)
       .to()
 
       aggregate.loadFromHistory([
@@ -63,8 +65,9 @@ describe('AggregateContainer', () => {
 
     let event: ChangeEvent
     beforeEach(() => {
+      const id = Uuid.createV4()
       event = ChangeEventBuilder.make()
-      .withAggregateRootId(aggregate.id)
+      .withAggregateRootId(id)
       .withCorrelation(correlationId)
       .withCausation(causationId)
       .to()

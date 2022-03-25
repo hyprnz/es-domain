@@ -3,51 +3,94 @@ import { AggregateError } from './AggregateError'
 import { ChangeEvent, EntityEvent, Message, UNINITIALISED_AGGREGATE_VERSION } from './MessageTypes'
 import { EntityBase } from './EntityBase'
 import { Aggregate } from './Aggregate'
-import { EntityContructor } from '..'
-export class AggregateContainer<T extends EntityBase> implements Aggregate {
+import { EntityContructor, EntityContructorPayload } from '..'
+export class AggregateContainer<T extends EntityBase, U extends EntityContructorPayload = EntityContructorPayload> implements Aggregate {
   public _rootEntity: T | undefined
   private events: Array<EntityEvent> = []
   private changes: Array<EntityEvent> = []
   private causationId?: Uuid.UUID
   private correlationId?: Uuid.UUID
-
+  
   get changeVersion(): number {
     return this.version
   }
 
-
   get rootEntity(): T {
+    if(!this._rootEntity) throw new Error("Root entity Not Created")
+    return this._rootEntity!
+  }
+
+  get id(): Uuid.UUID {
     if (!this._rootEntity) {
-      // this._rootEntity =   this.aggregateRootProvider(this.observe.bind(this))
-      this._rootEntity = new this.activator(this.observe.bind(this))
+      throw new Error("Not Found")
     }
+    return this._rootEntity.id
+  }
+
+
+  /** Asserts aggregateRoot is populated for the aggregate */
+  assertAggregateRootExists(): T {
+    if (!this.rootEntity) throw new AggregateError(AggregateContainer.name, "Aggregate root not found!")
+    return this.rootEntity
+  }
+
+
+
+  constructor(
+    // public readonly id: Uuid.UUID,
+    // private aggregateRootProvider: (observer : EntityChangedObserver) => T, 
+    private activator: EntityContructor<T, U>,
+    private version = UNINITIALISED_AGGREGATE_VERSION) {
+  }
+
+  createNewAggregateRoot(payload: U): T {
+    if (this._rootEntity) {
+      throw new AggregateError(
+        `${AggregateContainer.name}:makeNewAggregateRoot`,
+        'AggregateRoot already exists'
+      )
+    }
+    this._rootEntity = new this.activator(this.observe.bind(this), {
+      ...payload,
+      // id: this.id
+    } as U)
+
     return this._rootEntity
   }
 
- 
-
-  constructor(
-    public readonly id: Uuid.UUID,
-    // private aggregateRootProvider: (observer : EntityChangedObserver) => T, 
-    private activator: EntityContructor<T>,
-    private version = UNINITIALISED_AGGREGATE_VERSION) {    
-  }
 
   loadFromHistory(history: EntityEvent[]): void {
-    this.events = this.events.concat(history)
-    history.forEach(evt => {
-      const expectedVersion = this.version + 1
-      if (expectedVersion !== evt.version) {
-        throw new AggregateError(typeof this, 'Failed to load unexpected event version')
-      }
+    if (this._rootEntity) {
+      throw new AggregateError(
+        `${AggregateContainer.name}:loadFromHistory`,
+        'AggregateRoot already exists'
+      )
+    }
+    if (history.length) {
+      this.events = this.events.concat(history)
+      history.forEach(evt => {
+        const expectedVersion = this.version + 1
+        if (expectedVersion !== evt.version) {
+          throw new AggregateError(typeof this, 'Failed to load unexpected event version')
+        }
 
-      this.applyEvent(evt.event)
-      this.version = evt.version
-    })
+        if (!this._rootEntity) {
+          const params = this.activator.toCreationParameters(evt.event)
+          this._rootEntity = new this.activator(this.observe.bind(this), params, true) // This will emit an un wanted event
+        }
+
+        this.applyEvent(evt.event)
+        this.version = evt.version        
+      })
+    }
   }
 
   // TODO : BLAIR Maybe use EntityEvent here and store snapshots with their version
   loadFromVersion(changeEvents: ChangeEvent[], version: number): void {
+    if(!this._rootEntity && changeEvents.length > 0){
+      const params = this.activator.toCreationParameters(changeEvents[0])
+      this._rootEntity = new this.activator(this.observe.bind(this), params, true)
+    }
     changeEvents.forEach(evt => this.applyEvent(evt))
     this.version = version
   }
@@ -91,7 +134,7 @@ export class AggregateContainer<T extends EntityBase> implements Aggregate {
   }
 
   /** Observes a new change to a Domain Object */
-  private observe(evt: ChangeEvent) {
+  private observe(evt: ChangeEvent) {    
     const entityEvent = {
       event: evt,
       version: this.currentVersionFromChanges() + 1

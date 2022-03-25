@@ -5,15 +5,15 @@ import { AggregateContainer } from '../../eventSourcing/AggregateContainer'
 import { ChangeEvent, EntityEvent } from '../../eventSourcing/MessageTypes'
 import { Aggregate, SnapshotAggregate } from '../../eventSourcing/Aggregate'
 import { DeviceCreatedEvent } from '../events/internal/DeviceCreatedEvent'
+import { EntityContructorPayload } from '../..'
 
 export class DeviceAggregate implements Aggregate, SnapshotAggregate {
-  constructor(
-    id: Uuid.UUID,
-    private aggregate: AggregateContainer<Device> = new AggregateContainer(id, Device)
+  constructor(    
+    private aggregate: AggregateContainer<Device, EntityContructorPayload> = new AggregateContainer(Device)
   ) { }
 
   private get root(): Device {
-    return this.aggregate.rootEntity
+    return this.aggregate.assertAggregateRootExists()
   }
 
   get changeVersion(): number {
@@ -25,7 +25,7 @@ export class DeviceAggregate implements Aggregate, SnapshotAggregate {
   }
 
   snapshot(): ChangeEvent[] {
-    return this.aggregate.rootEntity.snapshot(this.aggregate.latestDateTimeFromEvents())
+    return this.aggregate.assertAggregateRootExists().snapshot(this.aggregate.latestDateTimeFromEvents())
   }
 
   markChangesAsCommitted(version: number): void {
@@ -37,7 +37,7 @@ export class DeviceAggregate implements Aggregate, SnapshotAggregate {
   }
 
   withDevice(id: Uuid.UUID): this {
-    this.root.applyChangeEvent(DeviceCreatedEvent.make(Uuid.createV4, { deviceId: id }))
+    this.aggregate.createNewAggregateRoot({id})
     return this
   }
 

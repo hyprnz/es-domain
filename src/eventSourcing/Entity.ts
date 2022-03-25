@@ -17,15 +17,13 @@ export interface EventSourcedEntity {
   readonly aggregate: Parent
 }
 
-// export interface EntityContructorPayload {
-//   id: Uuid.UUID
-// }
+export interface EntityContructorPayload {
+  id: Uuid.UUID  
+}
 
-// export interface EntityContructor<T extends Entity, U extends EntityContructorPayload>{
-  export interface EntityContructor<T extends Entity>{  
-    new (observer: EntityChangedObserver): T
-  // new (observer: EntityChangedObserver, payload: U): T
-  // toCreationParameters(event: EntityContructorPayload) : U 
+export interface EntityContructor<T extends Entity, U extends EntityContructorPayload>{  
+  new (observer: EntityChangedObserver, payload: U, isLoading?: boolean): T
+  toCreationParameters(event: EntityContructorPayload) : U 
 }
 
 export type StaticEventHandler<A> = (entity: A, evt: ChangeEvent) => void

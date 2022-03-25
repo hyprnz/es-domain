@@ -6,7 +6,8 @@ export class DeviceRepository {
   constructor(private repository: AggregateSnapshotRepository) {}
 
   async create(deviceId: Uuid.UUID): Promise<void> {
-    await this.repository.save(new DeviceAggregate(deviceId).withDevice(deviceId))
+    const aggregate = new DeviceAggregate()    
+    await this.repository.save(new DeviceAggregate().withDevice(deviceId))
   }
 
   async save(aggregate: DeviceAggregate, countOfEvents = 1000): Promise<void> {
@@ -14,6 +15,6 @@ export class DeviceRepository {
   }
 
   async load(id: Uuid.UUID): Promise<DeviceAggregate> {
-    return await this.repository.load(id, () => new DeviceAggregate(id))
+    return await this.repository.load(id, () => new DeviceAggregate())
   }
 }

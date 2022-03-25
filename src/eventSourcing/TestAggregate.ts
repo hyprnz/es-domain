@@ -2,15 +2,15 @@ import { AggregateContainer } from './AggregateContainer'
 import { SnapshotAggregate } from './Aggregate'
 import { UUID } from './UUID'
 import { TestEntity } from './TestEntity'
-import {ChangeEvent, Uuid} from '..'
+import { ChangeEvent, Uuid } from '..'
 
 export class TestAggregate extends AggregateContainer<TestEntity> implements SnapshotAggregate {
   eventType = 'some-event-type'
   causationId1 = Uuid.createV4()
   correlationId1 = Uuid.createV4()
 
-  constructor(id: Uuid.UUID) {
-    super(id, TestEntity)
+  constructor() {
+    super(TestEntity)
   }
 
   withRoot(id: UUID): TestAggregate {

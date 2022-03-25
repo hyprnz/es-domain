@@ -1,16 +1,32 @@
 import { EntityBase } from './EntityBase'
 import { EntityChangedObserver } from './Aggregate'
 import { ChangeEvent } from './MessageTypes'
-import { SnapshotEntity } from './Entity'
+import { EntityContructorPayload, SnapshotEntity } from './Entity'
 import { Uuid } from '..'
 
 export class TestEntity extends EntityBase implements SnapshotEntity {
   eventType = 'some-event-type'
-  causationId = Uuid.createV4()
-  correlationId = Uuid.createV4()
+  causationId1 = Uuid.createV4()
+  correlationId1 = Uuid.createV4()
 
-  constructor(observer: EntityChangedObserver) {
+  constructor(observer: EntityChangedObserver, payload: EntityContructorPayload, isLoading: boolean = false) {
     super(observer)
+
+    if (!isLoading) {
+      this.applyChangeEvent({
+        id: payload.id,
+        aggregateRootId: payload.id,
+        entityId: payload.id,
+        dateTimeOfEvent: new Date().toISOString(),
+        eventType: this.eventType,
+        causationId: this.causationId1,
+        correlationId: this.correlationId1
+      })
+    }
+  }
+
+  static toCreationParameters(event: any): EntityContructorPayload {
+    return { id: event.id }
   }
 
   protected makeEventHandler(evt: ChangeEvent): (() => void) | undefined {
@@ -24,8 +40,8 @@ export class TestEntity extends EntityBase implements SnapshotEntity {
       entityId: this.id,
       dateTimeOfEvent,
       eventType: this.eventType,
-      causationId: this.causationId,
-      correlationId: this.correlationId
+      causationId: this.causationId1,
+      correlationId: this.correlationId1
     }]
   }
 }
