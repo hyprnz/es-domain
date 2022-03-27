@@ -3,8 +3,9 @@ import * as Uuid from '../../eventSourcing/UUID'
 import { AggregateContainer } from '../../eventSourcing/AggregateContainer'
 import { ChangeEvent } from '../../eventSourcing/MessageTypes'
 import { DeviceCreatedEvent } from '../events/internal/DeviceCreatedEvent'
+import { DeviceCreationParmaters } from './Device'
 
-export class DeviceAggregateInherited extends AggregateContainer<Device> {
+export class DeviceAggregateInherited extends AggregateContainer<Device, DeviceCreationParmaters> {
   constructor(id: Uuid.UUID,) {
     super(Device)
   }
@@ -13,8 +14,8 @@ export class DeviceAggregateInherited extends AggregateContainer<Device> {
     return this.rootEntity.snapshot(this.latestDateTimeFromEvents())
   }
 
-  withDevice(id: Uuid.UUID): this {
-    this.rootEntity.applyChangeEvent(DeviceCreatedEvent.make(Uuid.createV4, { deviceId: id }))
+  withDevice(id: Uuid.UUID, colour: string): this {
+    this.rootEntity.applyChangeEvent(DeviceCreatedEvent.make(Uuid.createV4, { deviceId: id, colour }))
     return this
   }
 

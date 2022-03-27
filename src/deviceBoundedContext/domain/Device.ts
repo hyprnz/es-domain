@@ -11,19 +11,36 @@ import { DeviceCreatedEvent } from '../events/internal/DeviceCreatedEvent'
 import { DeviceSnapshotEvent } from '../events/internal/DeviceSnapshotEvent'
 import { AlarmSnapshotEvent } from '../events/internal/AlarmSnapshotEvent'
 
+export interface DeviceCreationParmaters  extends EntityConstructorPayload {
+  colour: string
+}
+
 export class Device extends EntityBase implements SnapshotEntity {
+  private readonly colour: string
   private alarms: Map<Uuid.UUID, Alarm> = new Map<Uuid.UUID, Alarm>()
 
-  constructor(observer: EntityChangedObserver, payload: EntityConstructorPayload, isLoading: boolean = false) {
+  constructor(observer: EntityChangedObserver, payload: DeviceCreationParmaters, isLoading: boolean = false) {
     super(observer)
 
+    this.colour = payload.colour
     if (!isLoading) {
-      this.applyChangeEvent(DeviceCreatedEvent.make(Uuid.createV4, { deviceId: payload.id }))
+      this.applyChangeEvent(DeviceCreatedEvent.make(
+        Uuid.createV4, 
+        { 
+          deviceId: payload.id, 
+          colour: payload.colour,
+        }
+      ))
     }
   }
 
-  static toCreationParameters(event: DeviceCreatedEvent): EntityConstructorPayload {
-    return { id: event.id }
+  static toCreationParameters(event: ChangeEvent): DeviceCreationParmaters {
+    if(DeviceCreatedEvent.isDeviceCreatedEvent(event)){
+      return { id: event.id, colour: event.colour }      
+    }
+
+    DeviceSnapshotEvent.assertIsDeviceSnapshotEvent(event)
+    return { id: event.id, colour: event.colour }      
   }
 
   snapshot(dateTimeOfEvent: string): ChangeEvent[] {

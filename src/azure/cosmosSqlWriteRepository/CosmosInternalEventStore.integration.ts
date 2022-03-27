@@ -30,7 +30,7 @@ describe('CosmosInternalEventStore', () => {
     const deviceId = Uuid.createV4()
     const alarmId = Uuid.createV4()
 
-    const deviceAggregate = new DeviceAggregate().withDevice(deviceId)
+    const deviceAggregate = new DeviceAggregate().withDevice(deviceId, 'red')
     deviceAggregate.addAlarm(alarmId)
 
     const uncommittedEvents = deviceAggregate.uncommittedChanges()
@@ -49,7 +49,7 @@ describe('CosmosInternalEventStore', () => {
     const deviceId = Uuid.createV4()
     const alarmId = Uuid.createV4()
 
-    const deviceAggregate = new DeviceAggregate().withDevice(deviceId)
+    const deviceAggregate = new DeviceAggregate().withDevice(deviceId, 'red')
     deviceAggregate.addAlarm(alarmId)
 
     const uncomittedEvents = deviceAggregate.uncommittedChanges()
@@ -66,7 +66,7 @@ describe('CosmosInternalEventStore', () => {
     const deviceId = Uuid.createV4()
     const alarmId = Uuid.createV4()
 
-    const deviceAggregate = new DeviceAggregate().withDevice(deviceId)
+    const deviceAggregate = new DeviceAggregate().withDevice(deviceId, 'red')
     deviceAggregate.addAlarm(alarmId)
     await repository.save(deviceAggregate)
 

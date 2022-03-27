@@ -3,7 +3,8 @@ import {ChangeEvent} from "../../../eventSourcing/MessageTypes";
 import {DeviceCreatedEvent} from "./DeviceCreatedEvent";
 
 export interface DeviceSnapshotEvent extends ChangeEvent {
-    eventType: 'DeviceSnapshotEvent'
+    eventType: 'DeviceSnapshotEvent',
+    colour: string,
 }
 
 export namespace DeviceSnapshotEvent {
@@ -24,12 +25,13 @@ export namespace DeviceSnapshotEvent {
         eventType: eventType,
         aggregateRootId: data.deviceId,
         entityId: data.deviceId,
-        dateTimeOfEvent: new Date().toISOString() // TODO: add opaque date type
+        dateTimeOfEvent: new Date().toISOString(), // TODO: add opaque date type
+        colour: 'red'
     })
 
-    export const isDeviceCreatedEvent = (e: ChangeEvent): e is DeviceCreatedEvent => e.eventType === eventType
-    export const assertDeviceCreatedEvent = (e: ChangeEvent): asserts e is DeviceCreatedEvent => {
-        if (isDeviceCreatedEvent(e)) return
-        throw new Error(`Unexpected EventType, Expected EventType: DeviceCreatedEvent, received ${typeof e}`)
+    export const isDeviceSnapshotEvent = (e: ChangeEvent): e is DeviceSnapshotEvent => e.eventType === eventType
+    export function assertIsDeviceSnapshotEvent(e: ChangeEvent): asserts e is DeviceSnapshotEvent {
+        if (isDeviceSnapshotEvent(e)) return
+        throw new Error(`Unexpected EventType, Expected EventType: DeviceCreatedEvent, received ${e.eventType}`)
     }
 }

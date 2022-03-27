@@ -4,9 +4,10 @@ import { UUID } from '../../eventSourcing/UUID'
 import { AggregateContainer } from '../../eventSourcing/AggregateContainer'
 import { ChangeEvent, EntityEvent } from '../../eventSourcing/MessageTypes'
 import { Aggregate, SnapshotAggregate } from '../../eventSourcing/Aggregate'
+import { DeviceCreationParmaters } from './Device'
 
 export class DeviceAggregate implements Aggregate, SnapshotAggregate {
-  constructor(private aggregate: AggregateContainer<Device> = new AggregateContainer(Device)) {}
+  constructor(private aggregate: AggregateContainer<Device, DeviceCreationParmaters> = new AggregateContainer(Device)) {}
 
   private get root(): Device {
     return this.aggregate.rootEntity
@@ -32,8 +33,8 @@ export class DeviceAggregate implements Aggregate, SnapshotAggregate {
     return this.aggregate.uncommittedChanges()
   }
 
-  withDevice(id: Uuid.UUID): this {
-    this.aggregate.createNewAggregateRoot({ id })
+  withDevice(id: Uuid.UUID, colour: string): this {
+    this.aggregate.createNewAggregateRoot({ id, colour })
     return this
   }
 
