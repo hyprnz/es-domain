@@ -1,7 +1,7 @@
 import { EntityBase } from './EntityBase'
 import { EntityChangedObserver } from './Aggregate'
 import { ChangeEvent } from './MessageTypes'
-import { EntityContructorPayload, SnapshotEntity } from './Entity'
+import { EntityConstructorPayload, SnapshotEntity } from './Entity'
 import { Uuid } from '..'
 
 export class TestEntity extends EntityBase implements SnapshotEntity {
@@ -9,7 +9,7 @@ export class TestEntity extends EntityBase implements SnapshotEntity {
   causationId1 = Uuid.createV4()
   correlationId1 = Uuid.createV4()
 
-  constructor(observer: EntityChangedObserver, payload: EntityContructorPayload, isLoading: boolean = false) {
+  constructor(observer: EntityChangedObserver, payload: EntityConstructorPayload, isLoading: boolean = false) {
     super(observer)
 
     if (!isLoading) {
@@ -25,7 +25,7 @@ export class TestEntity extends EntityBase implements SnapshotEntity {
     }
   }
 
-  static toCreationParameters(event: any): EntityContructorPayload {
+  static toCreationParameters(event: any): EntityConstructorPayload {
     return { id: event.id }
   }
 

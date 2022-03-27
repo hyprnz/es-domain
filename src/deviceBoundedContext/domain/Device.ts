@@ -3,7 +3,7 @@ import * as Uuid from '../../eventSourcing/UUID'
 import { AggregateError } from '../../eventSourcing/AggregateError'
 import { EntityBase } from '../../eventSourcing/EntityBase'
 import { ChangeEvent } from '../../eventSourcing/MessageTypes'
-import { EntityContructor, EntityContructorPayload, SnapshotEntity, StaticEventHandler } from '../../eventSourcing/Entity'
+import { EntityConstructorPayload, SnapshotEntity, StaticEventHandler } from '../../eventSourcing/Entity'
 import { EntityChangedObserver } from '../../eventSourcing/Aggregate'
 import { AlarmCreatedEvent } from '../events/internal/AlarmCreatedEvent'
 import { AlarmDestroyedEvent } from '../events/internal/AlarmDestroyedEvent'
@@ -14,17 +14,16 @@ import { AlarmSnapshotEvent } from '../events/internal/AlarmSnapshotEvent'
 export class Device extends EntityBase implements SnapshotEntity {
   private alarms: Map<Uuid.UUID, Alarm> = new Map<Uuid.UUID, Alarm>()
 
-  constructor(observer: EntityChangedObserver, payload: EntityContructorPayload, isLoading:boolean = false) {
+  constructor(observer: EntityChangedObserver, payload: EntityConstructorPayload, isLoading: boolean = false) {
     super(observer)
 
-    if(!isLoading){
+    if (!isLoading) {
       this.applyChangeEvent(DeviceCreatedEvent.make(Uuid.createV4, { deviceId: payload.id }))
     }
   }
 
-
-  static toCreationParameters(event: DeviceCreatedEvent): EntityContructorPayload {
-    return {id: event.id}
+  static toCreationParameters(event: DeviceCreatedEvent): EntityConstructorPayload {
+    return { id: event.id }
   }
 
   snapshot(dateTimeOfEvent: string): ChangeEvent[] {

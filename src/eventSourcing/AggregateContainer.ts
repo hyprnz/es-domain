@@ -3,68 +3,52 @@ import { AggregateError } from './AggregateError'
 import { ChangeEvent, EntityEvent, Message, UNINITIALISED_AGGREGATE_VERSION } from './MessageTypes'
 import { EntityBase } from './EntityBase'
 import { Aggregate } from './Aggregate'
-import { EntityContructor, EntityContructorPayload } from '..'
-export class AggregateContainer<T extends EntityBase, U extends EntityContructorPayload = EntityContructorPayload> implements Aggregate {
+import { EntityConstructor, EntityConstructorPayload } from '..'
+
+export class AggregateContainer<T extends EntityBase, U extends EntityConstructorPayload = EntityConstructorPayload>
+  implements Aggregate
+{
   public _rootEntity: T | undefined
   private events: Array<EntityEvent> = []
   private changes: Array<EntityEvent> = []
   private causationId?: Uuid.UUID
   private correlationId?: Uuid.UUID
-  
+
   get changeVersion(): number {
     return this.version
   }
 
   get rootEntity(): T {
-    if(!this._rootEntity) throw new Error("Root entity Not Created")
+    if (!this._rootEntity) throw new Error('Root entity not initialised')
     return this._rootEntity!
   }
 
   get id(): Uuid.UUID {
     if (!this._rootEntity) {
-      throw new Error("Not Found")
+      throw new Error('Not Found')
     }
     return this._rootEntity.id
   }
 
-
-  /** Asserts aggregateRoot is populated for the aggregate */
-  assertAggregateRootExists(): T {
-    if (!this.rootEntity) throw new AggregateError(AggregateContainer.name, "Aggregate root not found!")
-    return this.rootEntity
-  }
-
-
-
   constructor(
-    // public readonly id: Uuid.UUID,
-    // private aggregateRootProvider: (observer : EntityChangedObserver) => T, 
-    private activator: EntityContructor<T, U>,
-    private version = UNINITIALISED_AGGREGATE_VERSION) {
-  }
+    private activator: EntityConstructor<T, U>,
+    private version = UNINITIALISED_AGGREGATE_VERSION
+  ) {}
 
   createNewAggregateRoot(payload: U): T {
     if (this._rootEntity) {
-      throw new AggregateError(
-        `${AggregateContainer.name}:makeNewAggregateRoot`,
-        'AggregateRoot already exists'
-      )
+      throw new AggregateError(`${AggregateContainer.name}:makeNewAggregateRoot`, 'AggregateRoot already exists')
     }
     this._rootEntity = new this.activator(this.observe.bind(this), {
-      ...payload,
-      // id: this.id
+      ...payload
     } as U)
 
     return this._rootEntity
   }
 
-
   loadFromHistory(history: EntityEvent[]): void {
     if (this._rootEntity) {
-      throw new AggregateError(
-        `${AggregateContainer.name}:loadFromHistory`,
-        'AggregateRoot already exists'
-      )
+      throw new AggregateError(`${AggregateContainer.name}:loadFromHistory`, 'AggregateRoot already exists')
     }
     if (history.length) {
       this.events = this.events.concat(history)
@@ -80,14 +64,14 @@ export class AggregateContainer<T extends EntityBase, U extends EntityContructor
         }
 
         this.applyEvent(evt.event)
-        this.version = evt.version        
+        this.version = evt.version
       })
     }
   }
 
   // TODO : BLAIR Maybe use EntityEvent here and store snapshots with their version
   loadFromVersion(changeEvents: ChangeEvent[], version: number): void {
-    if(!this._rootEntity && changeEvents.length > 0){
+    if (!this._rootEntity && changeEvents.length > 0) {
       const params = this.activator.toCreationParameters(changeEvents[0])
       this._rootEntity = new this.activator(this.observe.bind(this), params, true)
     }
@@ -134,7 +118,7 @@ export class AggregateContainer<T extends EntityBase, U extends EntityContructor
   }
 
   /** Observes a new change to a Domain Object */
-  private observe(evt: ChangeEvent) {    
+  private observe(evt: ChangeEvent) {
     const entityEvent = {
       event: evt,
       version: this.currentVersionFromChanges() + 1
@@ -151,7 +135,6 @@ export class AggregateContainer<T extends EntityBase, U extends EntityContructor
   private applyEvent(evt: ChangeEvent) {
     this.rootEntity.handleChangeEvent(evt)
   }
-
 
   // These methods are not part of the aggregate contract
   latestDateTimeFromEvents(): string {
