@@ -1,10 +1,9 @@
 import 'reflect-metadata'
-import { UUID } from './UUID'
-import { AggregateError } from './AggregateError'
 import { Aggregate, Parent } from './Aggregate'
+import { AggregateError } from '../AggregateError'
+import { EntityEvent, UNINITIALISED_AGGREGATE_VERSION, ChangeEvent } from './MessageTypes'
+import { UUID } from '../UUID'
 import { EventSourcedEntity } from './Entity'
-import { EntityEvent, UNINITIALISED_AGGREGATE_VERSION } from './MessageTypes'
-import { ChangeEvent } from '..'
 
 export class EventSourcedAggregate<T extends EventSourcedEntity> implements Aggregate {
   id: UUID
@@ -40,10 +39,6 @@ export class EventSourcedAggregate<T extends EventSourcedEntity> implements Aggr
 
     this.rootEntity = makeRootEntity(id, this.thisAsParent)
   }
-
-  countOfEvents(): number {
-        throw new Error('Method not implemented.')
-    }
 
   get changeVersion(): number {
     return this.version
@@ -101,6 +96,4 @@ export class EventSourcedAggregate<T extends EventSourcedEntity> implements Aggr
 
     throw new AggregateError(typeof this, `Failed to find handler for event type: ${eventType}`)
   }
-
-  loadFromVersion(events: Array<ChangeEvent>, version: number): void {}
 }

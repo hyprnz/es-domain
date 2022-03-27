@@ -1,13 +1,17 @@
-import * as Uuid from '../../eventSourcing/UUID'
-import { Emits } from '../../eventSourcing/decorators';
-import { alarmArmedEvent, AlarmArmedPayload, alarmDisarmedEvent, alarmTriggeredEvent } from '../events/internal/DeviceEvents';
+import * as Uuid from '../../../UUID'
+import { Parent } from '../../Aggregate';
+import { Emits, Entity } from '../../decorators';
+import { AlarmArmedEvent, AlarmArmedPayload } from '../events/internal/AlarmArmedEvent';
+import { AlarmDisarmedEvent } from '../events/internal/AlarmDisarmedEvent';
+import { AlarmTriggeredEvent } from '../events/internal/AlarmTriggeredEvent';
 
+@Entity
 export class Alarm {
     private isArmed: boolean = false
     private threshold: number = 0;
     private isTriggered: boolean = false;
 
-    constructor(readonly id: Uuid.UUID) {}
+    constructor(readonly id: Uuid.UUID, readonly aggregate: Parent) {}
 
     armAlarm(alarmThreshold: number): void {
         if (alarmThreshold < 0 || alarmThreshold > 100) {
@@ -37,18 +41,18 @@ export class Alarm {
         return `Alarm: ${this.id}`
     }
 
-    @Emits(alarmArmedEvent)
+    @Emits(AlarmArmedEvent)
     private arm (payload: AlarmArmedPayload): void {
         this.isArmed = true
         this.threshold = payload.threshold
     }
 
-    @Emits(alarmDisarmedEvent)
+    @Emits(AlarmDisarmedEvent)
     private disarm(): void {
         this.isArmed = false
     }
 
-    @Emits(alarmTriggeredEvent)
+    @Emits(AlarmTriggeredEvent)
     private trigger(): void {
         this.isTriggered = true
     }

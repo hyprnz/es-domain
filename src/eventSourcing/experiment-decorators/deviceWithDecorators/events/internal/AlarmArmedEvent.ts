@@ -1,32 +1,25 @@
-import { Uuid } from '../../..'
-import { ChangeEvent } from '../../../eventSourcing/MessageTypes'
+import { Uuid } from '../../../../..'
+import { ChangeEventFactory, baseChangeEventBuilder, ChangeEvent, EventData } from '../../../MessageTypes'
 
 export interface AlarmArmedEvent extends ChangeEvent {
   eventType: 'AlarmArmedEvent'
   threshold: number
 }
 
+export interface AlarmArmedPayload {
+  threshold: number
+}
+
 export namespace AlarmArmedEvent {
   export const eventType = 'AlarmArmedEvent'
 
-  export const make = (
+  export const make: ChangeEventFactory<AlarmArmedEvent, AlarmArmedPayload> = (
     idProvider: () => Uuid.UUID,
-    data: {
-      alarmId: Uuid.UUID
-      deviceId: Uuid.UUID
-      threshold: number
-      correlationId?: Uuid.UUID
-      causationId?: Uuid.UUID
-    }
+    data: EventData & AlarmArmedPayload
   ): AlarmArmedEvent => ({
-    id: idProvider(),
-    correlationId: data.correlationId ?? idProvider(),
-    causationId: data.causationId ?? idProvider(),
+    ...baseChangeEventBuilder(idProvider, data),
     eventType,
-    aggregateRootId: data.deviceId,
-    entityId: data.alarmId,
     threshold: data.threshold,
-    dateTimeOfEvent: new Date().toISOString() // TODO: add opaque date type
   })
 
   export const isAlarmArmedEvent = (e: ChangeEvent): e is AlarmArmedEvent => e.eventType === eventType

@@ -1,12 +1,14 @@
 import {Alarm} from './Alarm'
-import * as Uuid from '../../eventSourcing/UUID'
-import { Emits } from '../../eventSourcing/decorators'
-import { AlarmCreated, AlarmCreatedPayload } from '../events/internal/AlarmCreatedEvent'
-import { AlarmDestroyedEvent } from '../events/internal/AlarmDestroyedEvent'
+import * as Uuid from '../../../UUID'
+import { Emits, Entity } from '../../decorators'
+import { AlarmCreatedEvent, AlarmCreatedPayload } from '../events/internal/AlarmCreatedEvent'
+import { AlarmDestroyedEvent, AlarmDestroyedPayload } from '../events/internal/AlarmDestroyedEvent'
+import { Parent } from '../../Aggregate'
 
+@Entity
 export class Device {
     private alarms: Map<Uuid.UUID, Alarm> = new Map<Uuid.UUID, Alarm>()
-    constructor(readonly id: Uuid.UUID) {}
+    constructor(readonly id: Uuid.UUID, readonly aggregate: Parent) {}
 
     addAlarm(id: Uuid.UUID): Alarm {
         const alarm = this.alarms.get(id)
@@ -33,14 +35,13 @@ export class Device {
         return `Device: ${this.id}`
     }
 
-
-    @Emits(AlarmCreated)
+    @Emits(AlarmCreatedEvent)
     private createAlarm(data: AlarmCreatedPayload) {
-        const alarm = new Alarm(data.alarmId)
+        const alarm = new Alarm(data.alarmId, this.aggregate)
         this.alarms.set(alarm.id, alarm)
     }
 
-    @Emits(AlarmDestroyedEvent.make)
+    @Emits(AlarmDestroyedEvent)
     private removeAlarm(payload: AlarmDestroyedPayload) {
         this.alarms.delete(payload.alarmId)
     }
