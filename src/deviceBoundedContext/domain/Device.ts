@@ -16,7 +16,7 @@ export interface DeviceCreationParmaters  extends EntityConstructorPayload {
 }
 
 export class Device extends EntityBase implements SnapshotEntity {
-  private readonly colour: string
+  private colour: string
   private alarms: Map<Uuid.UUID, Alarm> = new Map<Uuid.UUID, Alarm>()
 
   constructor(observer: EntityChangedObserver, payload: DeviceCreationParmaters, isLoading: boolean = false) {
@@ -51,7 +51,8 @@ export class Device extends EntityBase implements SnapshotEntity {
     return [
       DeviceSnapshotEvent.make(Uuid.createV4, {
         deviceId: this.id,
-        dateTimeOfEvent
+        dateTimeOfEvent,
+        colour: this.colour,
       }),
       ...alarmSnapshots
     ]
@@ -102,7 +103,9 @@ export class Device extends EntityBase implements SnapshotEntity {
   private static readonly eventHandlers: Record<string, Array<StaticEventHandler<Device>>> = {
     [DeviceCreatedEvent.eventType]: [
       (device, evt) => {
+        DeviceCreatedEvent.assertIsDeviceCreatedEvent(evt)
         device.id = evt.aggregateRootId
+        device.colour = evt.colour
       }
     ],
     [DeviceSnapshotEvent.eventType]: [(device, evt) => (device.id = evt.aggregateRootId)],

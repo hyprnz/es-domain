@@ -14,9 +14,10 @@ export namespace DeviceSnapshotEvent {
         idProvider: () => Uuid.UUID,
         data: {
             deviceId: Uuid.UUID
-            dateTimeOfEvent: string
+            dateTimeOfEvent: string,            
             correlationId?: Uuid.UUID
-            causationId?: Uuid.UUID
+            causationId?: Uuid.UUID,
+            colour: string
         }
     ): DeviceSnapshotEvent => ({
         id: idProvider(),
@@ -26,7 +27,7 @@ export namespace DeviceSnapshotEvent {
         aggregateRootId: data.deviceId,
         entityId: data.deviceId,
         dateTimeOfEvent: new Date().toISOString(), // TODO: add opaque date type
-        colour: 'red'
+        colour: data.colour
     })
 
     export const isDeviceSnapshotEvent = (e: ChangeEvent): e is DeviceSnapshotEvent => e.eventType === eventType
