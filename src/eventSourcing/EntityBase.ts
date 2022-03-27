@@ -12,19 +12,36 @@ export abstract class EntityBase implements Entity {
     }
     return this._id
   }
+
   set id(value) {
     this._id = value
   }
 
-  protected constructor(protected observer: EntityChangedObserver) {}
+  protected constructor(
+    protected observer: EntityChangedObserver,
+    private processor: EventProcessor = new EventProcessor(observer, e => this.makeEventHandler(e))
+  ) {}
+
+  protected abstract makeEventHandler(evt: ChangeEvent): (() => void) | undefined
+
+  handleChangeEvent(event: ChangeEvent): void {
+    this.processor.handleChangeEvent(event)
+  }
+
+  applyChangeEvent(event: ChangeEvent): void {
+    this.processor.applyChangeEvent(event)
+  }
+}
+
+export class EventProcessor {
+  constructor(
+    private observer: EntityChangedObserver,
+    private makeEventHandler: (evt: ChangeEvent) => (() => void) | undefined
+  ) {}
 
   /** Handles change event when loading through handlers */
   handleChangeEvent(evt: ChangeEvent): void {
     this.applyEvent(evt)
-  }
-
-  toString() {
-    return `Entity ${this.id}`
   }
 
   /** Applies a new change to the Domain Object */
@@ -39,6 +56,4 @@ export abstract class EntityBase implements Entity {
     if (!eventHandler) throw new AggregateError(this.toString(), `Event Handlers not found for eventType:${evt.eventType}`)
     eventHandler()
   }
-
-  protected abstract makeEventHandler(evt: ChangeEvent): (() => void) | undefined
 }
