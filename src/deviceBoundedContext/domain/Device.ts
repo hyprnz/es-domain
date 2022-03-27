@@ -34,7 +34,8 @@ export class Device extends EntityBase implements SnapshotEntity {
     }
   }
 
-  static toCreationParameters(event: ChangeEvent): DeviceCreationParmaters {
+  /** There are now 2 ways a device can be created, Snapshot or new device */
+  static toCreationParameters(event: ChangeEvent): DeviceCreationParmaters {    
     if(DeviceCreatedEvent.isDeviceCreatedEvent(event)){
       return { id: event.id, colour: event.colour }      
     }
