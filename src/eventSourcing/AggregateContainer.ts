@@ -30,10 +30,7 @@ export class AggregateContainer<T extends EntityBase, U extends EntityConstructo
     return this._rootEntity.id
   }
 
-  constructor(
-    private activator: EntityConstructor<T, U>,
-    private version = UNINITIALISED_AGGREGATE_VERSION
-  ) {}
+  constructor(private activator: EntityConstructor<T, U>, private version = UNINITIALISED_AGGREGATE_VERSION) {}
 
   createNewAggregateRoot(payload: U): T {
     if (this._rootEntity) {
@@ -85,7 +82,7 @@ export class AggregateContainer<T extends EntityBase, U extends EntityConstructo
       event: {
         ...x.event,
         causationId: this.causationId ?? x.event.causationId,
-        correlationId: this.correlationId ?? x.event.causationId
+        correlationId: this.correlationId ?? x.event.correlationId
       }
     }))
   }
