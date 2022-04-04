@@ -111,4 +111,17 @@ describe('AggregateRootRepository', () => {
       }
     )
   })
+
+  it('loads when no events', async () => {
+    const deviceId = Uuid.createV4()
+    const alarmId = Uuid.createV4()
+
+    const rehydratedAggregate = await repository.load(deviceId, new DeviceAggregate())    
+    const uncommittedEvents = rehydratedAggregate.uncommittedChanges()
+    // rehydration should not result in new events
+    assertThat(uncommittedEvents).is(match.array.length(0))
+
+    assertThat(() => rehydratedAggregate.id).throws(new Error('Not Found'))
+  })
+
 })

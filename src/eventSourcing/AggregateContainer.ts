@@ -57,7 +57,7 @@ export class AggregateContainer<T extends EntityBase, U extends EntityConstructo
 
         if (!this._rootEntity) {
           const params = this.activator.toCreationParameters(evt.event)
-          this._rootEntity = new this.activator(this.observe.bind(this), params, true) // This will emit an un wanted event
+          this._rootEntity = new this.activator(this.observe.bind(this), params, true) 
         }
 
         this.applyEvent(evt.event)
