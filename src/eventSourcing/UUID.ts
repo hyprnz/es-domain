@@ -13,8 +13,8 @@ export function assertValidUUID(input: string): asserts input is UUID {
 
 export function isValidUUID(input: string): input is UUID {
   const s = '' + input
-  const match = s.match('^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$')
-  return match === null
+  const match = /^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}$/.test(s)
+  return match
 }
 
 export function makeFromString(uuid: string): UUID {
