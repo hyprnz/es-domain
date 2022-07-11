@@ -22,13 +22,16 @@ describe('EventSourcedAggregate', () => {
             createV4,
             {
               aggregateRootId: id,
-              entityId: id, 
+              entityId: id,
               alarmId,
             }
           ),
           id: match.any(),
           correlationId: match.any(),
           causationId: match.any(),
+
+          // Match dates approximately, exact match fails on build server
+          dateTimeOfEvent: match.predicate( (date) =>  Math.abs(Date.now() - Date.parse(date)) < 1000  )
         },
         version: 0
       }
