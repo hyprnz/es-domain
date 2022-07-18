@@ -23,7 +23,6 @@
     "test:ci": "npm run test:micro --  --ci --watchAll=false --reporters=default --reporters=jest-junit"
   },
   "peerDependencies": {
-    "@azure/cosmos": "^3.14",
     "reflect-metadata": "^0.1.13",
     "uuid": "^8.3"
   },
