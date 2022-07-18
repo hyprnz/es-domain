@@ -13,7 +13,7 @@ pool:
 steps:
   - task: NodeTool@0
     inputs:
-      versionSpec: '14.x'
+      versionSpec: '16.x'
     displayName: 'Install Node.js'
 
   - script: |
@@ -44,5 +44,5 @@ steps:
       command: 'publish'
       verbose: true
       publishRegistry: 'useFeed'
-      publishFeed: 'a43d4cac-71f8-42fc-b942-cfa713da390e/980645ab-671b-4b1a-85a3-ad02df26f981'
+      publishFeed: '<put your feed id here>'
     displayName: 'Publish to artifact feed.'
