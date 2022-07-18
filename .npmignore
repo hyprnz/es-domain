@@ -1,15 +1,18 @@
-.nvmrc
+
 ci/
+src/
+docs/
+.husky/
+.vscode/
 deviceBoundedContext/
 junit.xml
 tsconfig.tsbuildinfo
 
-docs/
 
+.nvmrc
 .prettierrc
 .prettierignore
-.husky/
-src/**/*.test.ts
+
 dist/**/*.test.d.ts
 dist/**/*.test.d.ts.map
 dist/**/*.test.js
