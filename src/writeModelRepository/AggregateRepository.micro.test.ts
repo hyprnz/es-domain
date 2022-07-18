@@ -1,13 +1,13 @@
 import * as Uuid from '../eventSourcing/UUID'
 import { AggregateRepository } from './AggregateRepository'
 import { assertThat, match } from 'mismatched'
-import { EntityEvent } from '../eventSourcing/MessageTypes'
-import { AggregateContainer } from '../eventSourcing/AggregateContainer'
-import { Device } from '../deviceBoundedContext'
+import { ChangeEvent, EntityEvent } from '../eventSourcing/MessageTypes'
 import { WriteModelRepository } from './WriteModelRepository'
 import { OptimisticConcurrencyError } from './OptimisticConcurrencyError'
 import { InMemoryEventStore } from './InMemoryEventStore'
 import { DeviceAggregate } from '../deviceBoundedContext/domain/DeviceAggregate'
+import { AlarmCreatedEvent } from '../deviceBoundedContext/events/internal/AlarmCreatedEvent'
+import { DeviceCreatedEvent } from '../deviceBoundedContext/events/internal/DeviceCreatedEvent'
 
 describe('AggregateRootRepository', () => {
   let repository: WriteModelRepository
@@ -55,6 +55,94 @@ describe('AggregateRootRepository', () => {
     assertThat(uncommittedEvents).is(loadedEvents)
     assertThat(loadedEvents).is(match.array.length(2))
   })
+
+  describe('Event middleware', ()=>{
+
+    it('calls event middleware for configured events only', ()=>{
+      const id = Uuid.createV4()
+      const deviceId = Uuid.createV4()
+
+      const middleware = async (evt:ChangeEvent) => {
+        return {
+          ...evt,
+          "my-test-value": id
+        }
+      }
+
+      repository.addEventPostProcessor(AlarmCreatedEvent.eventType, middleware)
+
+      const deviceAggregate = new DeviceAggregate().withDevice(deviceId, 'red')
+      return repository.save(deviceAggregate)
+        .then(() =>   repository.loadEvents(deviceId))
+        .then(events => events.filter(x => DeviceCreatedEvent.isDeviceCreatedEvent(x.event)))
+        .then(events => {
+          assertThat(events).is(match.array.length(1))
+          assertThat(events[0].event)
+            .withMessage("Does not call middleware for other event types")
+            .isNot(match.obj.has({"my-test-value": id}))
+        })
+
+    })
+    it('calls event middleware after loading evens', ()=>{
+      const id = Uuid.createV4()
+      const deviceId = Uuid.createV4()
+
+      const middleware = async (evt:ChangeEvent) => {
+        return {
+          ...evt,
+          "my-test-value": id
+        }
+      }
+
+      repository.addEventPostProcessor(DeviceCreatedEvent.eventType, middleware)
+
+      const deviceAggregate = new DeviceAggregate().withDevice(deviceId, 'red')
+      return repository.save(deviceAggregate)
+        .then(() =>   repository.loadEvents(deviceId))
+        .then(events => events.filter(x => DeviceCreatedEvent.isDeviceCreatedEvent(x.event)))
+        .then(events => {
+          assertThat(events).is(match.array.length(1))
+          assertThat(events[0].event).is(match.obj.has({
+            "my-test-value": id
+          }))
+        })
+    })
+
+    it('registers multiple chained middleware after loading evens', ()=>{
+      const id = Uuid.createV4()
+      const deviceId = Uuid.createV4()
+
+      const middleware1 = async (evt:ChangeEvent) => {
+        return {
+          ...evt,
+          "my-test-value-1": id
+        }
+      }
+
+      const middleware2 = async (evt:ChangeEvent) => {
+        return {
+          ...evt,
+          "my-test-value-2": id
+        }
+      }
+
+      repository.addEventPostProcessor(DeviceCreatedEvent.eventType, middleware1)
+      repository.addEventPostProcessor(DeviceCreatedEvent.eventType, middleware2, true)
+
+      const deviceAggregate = new DeviceAggregate().withDevice(deviceId, 'red')
+      return repository.save(deviceAggregate)
+        .then(() =>   repository.loadEvents(deviceId))
+        .then(events => events.filter(x => DeviceCreatedEvent.isDeviceCreatedEvent(x.event)))
+        .then(events => {
+          assertThat(events).is(match.array.length(1))
+          assertThat(events[0].event).is(match.obj.has({
+            "my-test-value-1": id,
+            "my-test-value-2": id
+          }))
+        })
+    })
+  })
+
 
   it('loads entities from events', async () => {
     const deviceId = Uuid.createV4()
@@ -116,7 +204,7 @@ describe('AggregateRootRepository', () => {
     const deviceId = Uuid.createV4()
     const alarmId = Uuid.createV4()
 
-    const rehydratedAggregate = await repository.load(deviceId, new DeviceAggregate())    
+    const rehydratedAggregate = await repository.load(deviceId, new DeviceAggregate())
     const uncommittedEvents = rehydratedAggregate.uncommittedChanges()
     // rehydration should not result in new events
     assertThat(uncommittedEvents).is(match.array.length(0))

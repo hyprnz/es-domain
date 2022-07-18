@@ -1,6 +1,9 @@
 import { UUID } from '../eventSourcing/UUID'
 import { Aggregate, SnapshotAggregate } from '../eventSourcing/Aggregate'
-import { EntityEvent } from '../eventSourcing/MessageTypes'
+import { ChangeEvent, EntityEvent } from '../eventSourcing/MessageTypes'
+
+
+export type EventMiddleware = (evt: ChangeEvent) => Promise<ChangeEvent>
 
 /** Write model uses only 2 keys.
  *  For several reasons:
@@ -45,4 +48,21 @@ export interface WriteModelRepository {
 
   /** Utility function, not sure if its going to be needed or not but is useful */
   loadEvents(id: UUID): Promise<Array<EntityEvent>>
+
+  /**
+   * Register a handler that is invoked after the event is loded from persistence.
+   * This is a general purpose handler, that was initially designed as a centralaised deserilzation mechanisum
+   * @param eventType The event type that will trigger this handler
+   * @param handler The handler function to be triggered after an event of this type is loaded from persistence
+   */
+  addEventPostProcessor(eventType: string, handler: EventMiddleware) : void
+
+  /**
+   * Register a handler that is invoked after the event is loded from persistence.
+   * This is a general purpose handler, that was initially designed as a centralaised deserilzation mechanisum
+   * @param eventType The event type that will trigger this handler
+   * @param handler The handler function to be triggered after an event of this type is loaded from persistence
+   * @param appendIfExists If true new handlers are chained after existing, if false attempting to re-add throws an error, (default false)
+   */
+  addEventPostProcessor(eventType: string, handler: EventMiddleware, appendIfExists: boolean) : void
 }
