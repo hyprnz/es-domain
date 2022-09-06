@@ -8,7 +8,7 @@
  - From GitHub, create a new release and select the tag, created from the previous step
  - Creating a release triggers a Git Action which builds and publishes the package
     - Check that the new package built and was deployed succesfull
- 
+
 # Introduction
 
 An implementation of event sourcing making use of the following patterns:
@@ -151,7 +151,7 @@ CQRS recognizes the fact that:
 - The code styles and patterns for the write side of a system are quite different to the read side
 
 So why not separate our read and write models.
-EventStores are optimised for the write model, or we could say optimised for updates.  
+EventStores are optimised for the write model, or we could say optimised for updates.
 When we update something we make the assumption that we know its ID. So the write model is optimised for loading
 something by its id and then appending a state change.
 
@@ -204,7 +204,7 @@ The style of events we use to record these state changes of course is open to in
 ## Generic Events - May contain more data but less information
 
 We could represent state changes using a generic event that can contain any payload of essentially key value pairs.
-Our map reduce could simply reduce the values we received, and we would end up with the most recent value of each field.  
+Our map reduce could simply reduce the values we received, and we would end up with the most recent value of each field.
 This approach serves the purpose of storing some state changes over time, however our events are of little use other
 than for this use case as they do not describe intent.
 
@@ -236,3 +236,9 @@ It should read well using the language of the business and should be reasonably 
 By creating a model we can encapsulate the fields required in order to calculate this state.
 It is hidden inside the domain model. Data hiding means that we can change the way in which this state is represented
 without affecting code outside that owning object.
+
+
+# References
+## Event Sourcing
+- https://www.eventstore.com/blog/snapshotting-strategies (edited)
+- https://github.com/jet/equinox/blob/master/DOCUMENTATION.md#cosmos-access-strategy-overviews
