@@ -1,5 +1,5 @@
 import { ChangeEvent } from './MessageTypes'
-import { assertThat } from 'mismatched'
+import { assertThat, match } from 'mismatched'
 import { EntityBase } from './EntityBase'
 import { ChangeEventBuilder } from './ChangeEventBuilder'
 import { EntityChangedObserver } from './Aggregate'
@@ -24,7 +24,7 @@ describe('AggregateContainer', () => {
   })
 
   describe('loadFromVersion', () => {
-    
+
     it('multiple events', async () => {
       const id = Uuid.createV4()
       const event: ChangeEvent = ChangeEventBuilder.make()
@@ -40,12 +40,12 @@ describe('AggregateContainer', () => {
   })
 
   describe('loadFromHistory', () => {
-   
+
     it('multiple events', async () => {
       const id = Uuid.createV4()
       const event: ChangeEvent = ChangeEventBuilder.make()
-      .withAggregateRootId(id)
-      .to()
+        .withAggregateRootId(id)
+        .to()
 
       aggregate.loadFromHistory([
         { version: 0, event },
@@ -67,26 +67,58 @@ describe('AggregateContainer', () => {
     beforeEach(() => {
       const id = Uuid.createV4()
       event = ChangeEventBuilder.make()
-      .withAggregateRootId(id)
-      .withCorrelation(correlationId)
-      .withCausation(causationId)
-      .to()
+        .withAggregateRootId(id)
+        .withCorrelation(correlationId)
+        .to()
 
     })
+
     it('change', async () => {
-      aggregate        
-        .withCorrelation(correlationId)
-        .withCausation(causationId)
-        
       aggregate.loadFromHistory([{ version: 0, event }])
-      aggregate.rootEntity.applyChangeEvent(event)
+
+      const nextEvent = ChangeEventBuilder.make()
+        .withAggregateRootId(event.aggregateRootId)
+        .to()
+
+      aggregate.rootEntity.applyChangeEvent(nextEvent)
+
       assertThat(aggregate.id).is(event.aggregateRootId)
       assertThat(aggregate.changeVersion).is(0)
-      assertThat(aggregate.uncommittedChanges()).is([{ version: 1, event }])
+
+      assertThat(aggregate.uncommittedChanges()).is(match.array.length(1))
+      assertThat(aggregate.uncommittedChanges()).is([{ version: 1, event: match.obj.has({id:nextEvent.id}) }])
+      assertThat(aggregate.countOfEvents()).is(2)
+    })
+
+    it('correlated change', async () => {
+      aggregate.loadFromHistory([{ version: 0, event }])
+
+      const nextEvent = ChangeEventBuilder.make()
+        .withAggregateRootId(event.aggregateRootId)
+        .to()
+
+
+
+      aggregate.withCausationMessage(event)
+      aggregate.rootEntity.applyChangeEvent(nextEvent)
+
+      assertThat(aggregate.id).is(event.aggregateRootId)
+      assertThat(aggregate.changeVersion).is(0)
+
+
+      const correlatedEvent = {
+        ...nextEvent,
+        causationId: event.id,
+        correlationId: event.correlationId
+      }
+
+      assertThat(aggregate.uncommittedChanges()).is([
+        { version: 1, event: correlatedEvent }
+      ])
+
       assertThat(aggregate.countOfEvents()).is(2)
     })
     it('change which is committed', async () => {
-      aggregate.withCorrelation(correlationId).withCausation(causationId)
       aggregate.loadFromHistory([{ version: 0, event }])
       aggregate.rootEntity.applyChangeEvent(event)
       aggregate.markChangesAsCommitted(100)

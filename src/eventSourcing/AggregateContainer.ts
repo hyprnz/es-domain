@@ -57,7 +57,7 @@ export class AggregateContainer<T extends EntityBase, U extends EntityConstructo
 
         if (!this._rootEntity) {
           const params = this.activator.toCreationParameters(evt.event)
-          this._rootEntity = new this.activator(this.observe.bind(this), params, true) 
+          this._rootEntity = new this.activator(this.observe.bind(this), params, true)
         }
 
         this.applyEvent(evt.event)
@@ -94,18 +94,6 @@ export class AggregateContainer<T extends EntityBase, U extends EntityConstructo
 
   toString() {
     return `AggregateRoot:${this.id}, Version:${this.changeVersion}`
-  }
-
-  /** @deprecated use withCausationMessage instead */
-  withCausation(causationId: Uuid.UUID): this {
-    this.causationId = causationId
-    return this
-  }
-
-  /** @deprecated use withCausationMessage instead */
-  withCorrelation(correlationId: Uuid.UUID): this {
-    this.correlationId = correlationId
-    return this
   }
 
   withCausationMessage(causationMessage: Message): this {
