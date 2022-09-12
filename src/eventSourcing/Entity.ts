@@ -13,7 +13,7 @@ export interface SnapshotEntity {
 }
 
 export interface EntityConstructorPayload {
-  id: Uuid.UUID  
+  id: Uuid.UUID
 }
 
 export interface EntityConstructor<T extends Entity, U extends EntityConstructorPayload>{
@@ -22,3 +22,9 @@ export interface EntityConstructor<T extends Entity, U extends EntityConstructor
 }
 
 export type StaticEventHandler<E> = (entity: E, evt: ChangeEvent) => void
+
+
+export function isSnapshotableEntity(entity: unknown) : entity is SnapshotEntity {
+  const maybeSnapshotable = entity as Partial<SnapshotEntity>
+  return !!maybeSnapshotable.snapshot
+}

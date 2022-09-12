@@ -7,13 +7,18 @@ export interface Aggregate {
 
   loadFromHistory(events: Array<EntityEvent>): void
   uncommittedChanges(): Array<EntityEvent>
-  markChangesAsCommitted(version: number): void  
+  markChangesAsCommitted(version: number): void
 }
 
-export interface SnapshotAggregate extends Aggregate { 
+export interface SnapshotAggregate extends Aggregate {
   countOfEvents(): number
   loadFromVersion(events: Array<ChangeEvent>, version: number): void
-  snapshot(): ChangeEvent[]  
+  snapshot(): ChangeEvent[]
 }
 
 export type EntityChangedObserver = (event: ChangeEvent) => void
+
+export function isSnapshotableAggregate(aggregate: Aggregate) : aggregate is SnapshotAggregate {
+  const maybeSnapshotable = aggregate as Partial<SnapshotAggregate>
+  return !!maybeSnapshotable.snapshot
+}
