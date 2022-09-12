@@ -14,19 +14,20 @@ export namespace DeviceSnapshotEvent {
         idProvider: () => Uuid.UUID,
         data: {
             deviceId: Uuid.UUID
-            dateTimeOfEvent: string,            
+            dateTimeOfEvent: string,
+            colour: string
             correlationId?: Uuid.UUID
             causationId?: Uuid.UUID,
-            colour: string
+
         }
     ): DeviceSnapshotEvent => ({
         id: idProvider(),
-        correlationId: data.correlationId ?? idProvider(),
-        causationId: data.causationId ?? idProvider(),
+        correlationId: data.correlationId,
+        causationId: data.causationId,
         eventType: eventType,
         aggregateRootId: data.deviceId,
         entityId: data.deviceId,
-        dateTimeOfEvent: new Date().toISOString(), // TODO: add opaque date type
+        dateTimeOfEvent: data.dateTimeOfEvent,
         colour: data.colour
     })
 

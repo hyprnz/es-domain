@@ -4,8 +4,11 @@ export const UNINITIALISED_AGGREGATE_VERSION = -1;
 
 export interface Message {
   readonly id: Uuid.UUID;
-  readonly correlationId: Uuid.UUID;
-  readonly causationId: Uuid.UUID;
+
+
+  // This should be optional ?
+  readonly causationId?: Uuid.UUID;
+  readonly correlationId?: Uuid.UUID;
 }
 
 export interface ExternalEvent extends Message {
@@ -14,9 +17,18 @@ export interface ExternalEvent extends Message {
 }
 
 export interface ChangeEvent extends Message {
+  /** @description event type descriminator   */
   readonly eventType: string
-  readonly entityId: Uuid.UUID
+
+  /** @description Id of aggregate root */
   readonly aggregateRootId: Uuid.UUID
+
+  /** @description id of child entity within the aggregateRoot*/
+  readonly entityId: Uuid.UUID
+
+  /** @description time that the event occured
+   * (may be different from the time received)
+  */
   readonly dateTimeOfEvent: string
 }
 
@@ -24,15 +36,3 @@ export interface EntityEvent {
   version: number;
   readonly event: ChangeEvent;
 }
-
-export interface EventData {
-  aggregateRootId: Uuid.UUID,
-  entityId: Uuid.UUID,
-  correlationId?: Uuid.UUID,
-  causationId?: Uuid.UUID,
-}
-
-export type EventFactory<T extends ChangeEvent, D = {}> = (
-  idProvider: () => Uuid.UUID,
-  data: D & EventData
-  ) => T;

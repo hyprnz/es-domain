@@ -18,8 +18,8 @@ export namespace AlarmTriggeredEvent {
         }
     ): AlarmTriggeredEvent => ({
         id: idProvider(),
-        correlationId: data.correlationId ?? idProvider(),
-        causationId: data.causationId ?? idProvider(),
+        correlationId: data.correlationId,
+        causationId: data.causationId,
         eventType,
         aggregateRootId: data.deviceId,
         entityId: data.alarmId,

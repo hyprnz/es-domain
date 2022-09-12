@@ -13,14 +13,14 @@ export namespace DeviceCreatedEvent {
     idProvider: () => Uuid.UUID,
     data: {
       deviceId: Uuid.UUID
+      colour: string,
       correlationId?: Uuid.UUID
       causationId?: Uuid.UUID,
-      colour: string,
     }
   ): DeviceCreatedEvent => ({
     id: idProvider(),
-    correlationId: data.correlationId ?? idProvider(),
-    causationId: data.causationId ?? idProvider(),
+    correlationId: data.correlationId,
+    causationId: data.causationId,
     eventType,
     aggregateRootId: data.deviceId,
     entityId: data.deviceId,
