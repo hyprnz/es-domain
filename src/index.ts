@@ -18,12 +18,5 @@ export * from './writeModelRepository/WriteModelSnapshotRepository'
 export * from './writeModelRepository/OptimisticConcurrencyError'
 
 /** @deprecated */
-export * from './eventStoreExternal/ExternalEventStoreInMemoryRepository'
-
-/** @deprecated */
-export * from './eventStoreExternal/EventStoreExternal'
-
-/** @deprecated */
-export * from './eventStoreExternal/ExternalEventBuilder'
-
-export * as example from './deviceBoundedContext'
+export * as external from './eventStoreExternal/index'
+export * as example from './deviceBoundedContext/index'
