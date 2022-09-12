@@ -88,9 +88,7 @@ export class Alarm extends EntityBase implements SnapshotEntity {
     if (handler) handlers.push(() => handler.forEach(x => x.call(this, this, evt)))
 
     return handlers.length
-      ? () => {
-          handlers.forEach(x => x())
-        }
+      ? () => {handlers.forEach(x => x())}
       : undefined
   }
 

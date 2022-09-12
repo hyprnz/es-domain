@@ -6,7 +6,7 @@ import { ChangeEvent, EntityEvent } from '../../eventSourcing/MessageTypes'
 import { Aggregate, SnapshotAggregate } from '../../eventSourcing/Aggregate'
 import { DeviceCreationParmaters } from './Device'
 
-export class DeviceAggregate implements Aggregate, SnapshotAggregate {
+export class DeviceAggregate implements SnapshotAggregate {
   constructor(private aggregate: AggregateContainer<Device, DeviceCreationParmaters> = new AggregateContainer(Device)) {}
 
   private get root(): Device {

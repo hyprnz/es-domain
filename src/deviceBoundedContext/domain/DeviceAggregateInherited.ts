@@ -5,7 +5,8 @@ import { ChangeEvent } from '../../eventSourcing/MessageTypes'
 import { DeviceCreatedEvent } from '../events/internal/DeviceCreatedEvent'
 import { DeviceCreationParmaters } from './Device'
 
-export class DeviceAggregateInherited extends AggregateContainer<Device, DeviceCreationParmaters> {
+/** @deprecated Use Non inherited version */
+class DeviceAggregateInherited extends AggregateContainer<Device, DeviceCreationParmaters> {
   constructor(id: Uuid.UUID,) {
     super(Device)
   }
