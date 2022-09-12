@@ -1,10 +1,10 @@
-
-ci/
-src/
-docs/
+.github
 .husky/
 .vscode/
-deviceBoundedContext/
+ci/
+docs/
+src/
+
 junit.xml
 tsconfig.tsbuildinfo
 
