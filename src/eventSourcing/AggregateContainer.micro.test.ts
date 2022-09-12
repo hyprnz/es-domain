@@ -4,7 +4,7 @@ import { EntityBase } from './EntityBase'
 import { ChangeEventBuilder } from './ChangeEventBuilder'
 import { EntityChangedObserver } from './Aggregate'
 import { Uuid } from '..'
-import { TestAggregate } from './TestAggregate'
+import { TestSnapshotableAggregate } from './TestAggregate'
 
 describe('AggregateContainer', () => {
   class TestEntity extends EntityBase {
@@ -17,10 +17,10 @@ describe('AggregateContainer', () => {
     }
   }
 
-  let aggregate: TestAggregate
+  let aggregate: TestSnapshotableAggregate
 
   beforeEach(() => {
-    aggregate = new TestAggregate()
+    aggregate = new TestSnapshotableAggregate()
   })
 
   describe('loadFromVersion', () => {

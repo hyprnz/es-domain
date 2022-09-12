@@ -2,7 +2,7 @@ import * as Uuid from '../eventSourcing/UUID'
 import { assertThat } from 'mismatched'
 import { SnapshotRepository } from './SnapshotRepository'
 import { InMemorySnapshotEventStore } from './InMemorySnapshotEventStore'
-import { TestAggregate } from '../eventSourcing/TestAggregate'
+import { TestSnapshotableAggregate } from '../eventSourcing/TestAggregate'
 
 describe('AggregateSnapshotRepository', () => {
   let repository: SnapshotRepository
@@ -14,7 +14,7 @@ describe('AggregateSnapshotRepository', () => {
   it('saveSnapshot', async () => {
     const id = Uuid.createV4()
 
-    const aggregate = new TestAggregate()
+    const aggregate = new TestSnapshotableAggregate()
     aggregate.createNewAggregateRoot({id})
     const countEvents = await repository.saveSnapshot(aggregate)
 
@@ -24,7 +24,7 @@ describe('AggregateSnapshotRepository', () => {
   it('loadSnapshot', async () => {
     const id = Uuid.createV4()
 
-    const aggregate = new TestAggregate()
+    const aggregate = new TestSnapshotableAggregate()
     aggregate.createNewAggregateRoot({id})
 
     await repository.saveSnapshot(aggregate)

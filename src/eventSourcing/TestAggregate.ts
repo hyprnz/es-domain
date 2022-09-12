@@ -4,7 +4,7 @@ import { UUID } from './UUID'
 import { TestEntity } from './TestEntity'
 import { ChangeEvent, Uuid } from '..'
 
-export class TestAggregate extends AggregateContainer<TestEntity> implements SnapshotAggregate {
+export class TestSnapshotableAggregate extends AggregateContainer<TestEntity> implements SnapshotAggregate {
   eventType = 'some-event-type'
   causationId1 = Uuid.createV4()
   correlationId1 = Uuid.createV4()
@@ -13,7 +13,7 @@ export class TestAggregate extends AggregateContainer<TestEntity> implements Sna
     super(TestEntity)
   }
 
-  withRoot(id: UUID): TestAggregate {
+  withRoot(id: UUID): TestSnapshotableAggregate {
     this.rootEntity.applyChangeEvent({
       id: id,
       aggregateRootId: id,
