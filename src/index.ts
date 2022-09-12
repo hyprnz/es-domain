@@ -7,10 +7,8 @@ export * from './eventSourcing/Entity'
 export * from './eventSourcing/EntityBase'
 export * from './eventSourcing/MessageTypes'
 
-export * from './readModelRepository/Projection'
-export * from './readModelRepository/ReadModelRepository'
-export * from './readModelRepository/ReadModelMemoryRepository'
 
+export * from './readModelRepository/index'
 export * from './writeModelRepository/index'
 
 
