@@ -12,7 +12,7 @@ export interface CurrentAlarmsProjection extends Projection {
   threshold: number
 }
 
-const defaultValue = (id: Uuid.UUID): CurrentAlarmsProjection => ({ id, version: 0, isActive: false, threshold: 0 })
+const initialValue = (id: Uuid.UUID): CurrentAlarmsProjection => ({ id, version: 0, isActive: false, threshold: 0 })
 const eventHandlers: Record<string, StaticProjectionEventHandler<CurrentAlarmsProjection>> = {
   [AlarmCreatedEvent.eventType]: (state, evt) => {
     state.isActive = false
@@ -32,5 +32,5 @@ const eventHandlers: Record<string, StaticProjectionEventHandler<CurrentAlarmsPr
 export const alarmProjectionHandler = makeProjection<CurrentAlarmsProjection>(
   'alarmProjectionHandler',
   eventHandlers,
-  defaultValue
+  initialValue
 )

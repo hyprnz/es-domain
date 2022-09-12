@@ -40,30 +40,30 @@ export function persistReadModelState<T extends Projection>(
 export function makeProjection<T extends Projection>(
   projectionName: string,
   eventHandlers: Record<string, StaticProjectionEventHandler<T>>,
-  defaultValue: (id: UUID) => T,
+  initialValue: (id: UUID) => T,
   idFactory?: (evt: ChangeEvent) => UUID
 ): (events: Array<EntityEvent>, repository: ReadModelRepository) => Promise<void> {
   const projection = async (events: Array<EntityEvent>, repository: ReadModelRepository): Promise<void> => {
-    const cache: Record<string, ProjectionRow<T>> = {}
+    const localCache: Record<string, ProjectionRow<T>> = {}
 
     for (const evt of events) {
       const handler = eventHandlers[evt.event.eventType]
       if (handler) {
         const id = idFactory ? idFactory(evt.event) : evt.event.entityId
 
-        if (!cache[id]) {
+        if (!localCache[id]) {
           const record = await repository.find<T>(projectionName, id)
-          cache[id] = record ? { action: 'none', state: record } : { action: 'create', state: defaultValue(id) }
+          localCache[id] = record ? { action: 'none', state: record } : { action: 'create', state: initialValue(id) }
         }
 
-        const row = cache[id]
+        const row = localCache[id]
         const action = handler(row.state, evt.event)
         row.action = calculateNextAction(action, row.action)
         if (evt.version > row.state.version) row.state.version = evt.version
       }
     }
 
-    const rows = Object.values(cache)
+    const rows = Object.values(localCache)
     await persistReadModelState(projectionName, repository, rows)
   }
 
