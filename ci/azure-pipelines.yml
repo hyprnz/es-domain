@@ -17,7 +17,7 @@ steps:
     displayName: 'Install Node.js'
 
   - script: |
-      npm version  0.0.$(build.buildid) --no-git-tag-version
+      npm version  0.2.$(build.buildid) --no-git-tag-version
     displayName: 'Package Version'
 
   - task: Npm@1
