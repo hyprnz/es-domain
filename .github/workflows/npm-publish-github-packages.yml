@@ -30,7 +30,7 @@ jobs:
            echo -e "github.event\n"
            echo -e "${{toJSON(github.event)}}\n"
            echo -e "\n"
-           echo -e "imputs\n"
+           echo -e "inputs\n"
            echo -e "${{toJSON(inputs)}}"
 
   build:
