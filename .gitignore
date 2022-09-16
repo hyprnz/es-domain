@@ -108,7 +108,6 @@ local.settings.json
 #custom outputs
 build
 artifacts
-package-lock.json
 junit.xml
 *.gtz
 tsconfig.tsbuildinfo

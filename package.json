@@ -17,9 +17,7 @@
     "prepare": "husky install",
     "build": "tsc -p ./tsconfig.json",
     "clean": "rm -fr dist/** && rimraf build/** ",
-    "clean:build": "npm run clean && npm run build",
     "test:micro": "jest --testPathPattern=\\.micro\\.test\\.ts$",
-    "test:integration": "jest --testPathPattern=\\.integration\\.test\\.ts$",
     "test:ci": "npm run test:micro --  --ci --watchAll=false --reporters=default --reporters=jest-junit"
   },
   "peerDependencies": {

@@ -1,37 +1,82 @@
-# This workflow will run tests using node and then publish a package to GitHub Packages when a release is created
-# For more information see: https://help.github.com/actions/language-and-framework-guides/publishing-nodejs-packages
-
-name: Node.js Package
+name: Release New package
 
 on:
-  release:
-    types: [created]
+  push:
+    branches:
+      - main
+
+  # release:
+  #   types: [created]
+
+  workflow_dispatch:
+    inputs:
+      create_new_release:
+          required: true
+          type: boolean
+          description: "Set to TRUE to Confirm the creation of a new release"
+    branches:
+      - main
 
 jobs:
+  diagnotics:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Diagnostics
+        run: |
+           set -e
+           echo "event_name=${{ github.event_name }}"
+           echo "inputs.create_new_release=${{ inputs.create_new_release }}"
+
+           echo "github.event=${{ github.event }}"
+           echo "inputs=${{ inputs }}"
+
   build:
     runs-on: ubuntu-latest
+    needs: diagnotics
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
-        with:
-          node-version: 16
-      - run: npm i
-      - run: npm run test:micro
+      - name: Checkout
+        uses: actions/checkout@v3
 
-  publish-gpr:
-    needs: build
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-node@v2
+      - name: Setup
+        uses: actions/setup-node@v3
         with:
           node-version: 16
+          cache: 'npm'
           registry-url: https://npm.pkg.github.com/
-      - run: npm i
-      - run: npm run clean:build
-      - run: npm publish
+          scope: '@hyprnz'
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Install Dependencies
+        working-directory: .
+        run: npm ci
+
+      - name: Set Version
+        run: |
+          BUILD_VERSION=0.2.$GITHUB_RUN_NUMBER
+          BUILD_DATE=$(date +%Y-%m-%dT%H:%MZ)
+          npm version ${BUILD_VERSION} --no-git-tag-version
+          echo -e "BUILD_VERSION=$BUILD_VERSION\nBUILD_DATE=$BUILD_DATE\nSHA:$GITHUB_SHA\nGITHUB_REF_NAME=$GITHUB_REF_NAME" >> ./version.txt
+
+          echo "Verion File"
+          cat ./version.txt
+
+      - name: Build
+        run: npm run build
+
+      - name: Micro Test
+        run: npm run test:micro
+
+      - name: Publish Dry Run
+        if: ${{ success() && inputs.create_new_release != true }}
+        run: |
+          npm publish --dry-run
+        env:
+          NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+      - name: Publish
+        if: ${{ success() && github.event_name == 'workflow_dispatch' && inputs.create_new_release == true }}
+        run: |
+          npm publish
         env:
           NODE_AUTH_TOKEN: ${{secrets.GITHUB_TOKEN}}
