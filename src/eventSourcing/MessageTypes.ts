@@ -11,11 +11,6 @@ export interface Message {
   readonly correlationId?: Uuid.UUID;
 }
 
-export interface ExternalEvent extends Message {
-  eventId: string;
-  readonly eventType: string;
-}
-
 export interface ChangeEvent extends Message {
   /** @description event type descriminator   */
   readonly eventType: string

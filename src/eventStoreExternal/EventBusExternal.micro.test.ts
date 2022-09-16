@@ -1,8 +1,8 @@
-import { ExternalEvent } from '../eventSourcing/MessageTypes'
 import { ExternalEventBuilder } from './ExternalEventBuilder'
 import { Thespian, TMocked } from 'thespian'
 import { EventBusExternal } from './EventBusExternal'
 import { EventBusProcessor } from '../eventSourcing/EventBusProcessor'
+import { ExternalEvent } from './ExternalEvent'
 
 describe('EventBusExternal', () => {
   let processor: TMocked<EventBusProcessor<ExternalEvent>>

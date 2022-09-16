@@ -1,10 +1,10 @@
 import { ExternalEventStoreRepository } from './ExternalEventStoreRepository'
-import { ExternalEvent } from '../eventSourcing/MessageTypes'
 import { ExternalEventBuilder } from './ExternalEventBuilder'
 import { EventStoreExternal, ExternalEventStoreProcessingState } from './EventStoreExternal'
 import { Thespian, TMocked } from 'thespian'
 import { assertThat } from 'mismatched'
 import { IdempotencyError } from './IdempotencyError'
+import { ExternalEvent } from './ExternalEvent'
 
 describe('EventStoreExternal', () => {
   let repository: TMocked<ExternalEventStoreRepository>

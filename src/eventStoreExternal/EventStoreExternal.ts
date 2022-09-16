@@ -1,4 +1,3 @@
-import { ExternalEvent } from '../eventSourcing/MessageTypes'
 import { ExternalEventStoreRepository } from './ExternalEventStoreRepository'
 import { Logger, makeNoOpLogger } from '../eventSourcing/Logger'
 import { EventBusExternal, FailedExternalEvent } from './EventBusExternal'
@@ -6,6 +5,7 @@ import { retryOnSpecificErrors } from '../eventSourcing/Retry'
 import { OptimisticConcurrencyError } from '../writeModelRepository/OptimisticConcurrencyError'
 import { EventStoreExternalError } from './EventStoreExternalError'
 import { IdempotencyError } from './IdempotencyError'
+import { ExternalEvent } from './ExternalEvent'
 
 export enum ExternalEventStoreProcessingState {
   RECEIVED = 'RECEIVED',

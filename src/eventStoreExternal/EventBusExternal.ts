@@ -1,7 +1,7 @@
-import { ExternalEvent } from '../eventSourcing/MessageTypes'
 import { EventBus } from '../eventSourcing/EventBus'
 import { ExternalEventStoreProcessingState } from './EventStoreExternal'
 import { EventBusProcessor } from '../eventSourcing/EventBusProcessor'
+import { ExternalEvent } from './ExternalEvent'
 
 export interface FailedExternalEvent extends ExternalEvent {
   processingState: ExternalEventStoreProcessingState

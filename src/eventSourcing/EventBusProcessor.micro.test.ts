@@ -1,7 +1,7 @@
-import { ExternalEvent } from './MessageTypes'
 import { assertThat } from 'mismatched'
 import { EventBusProcessor } from './EventBusProcessor'
 import { ExternalEventBuilder } from '../eventStoreExternal/ExternalEventBuilder'
+import { ExternalEvent } from '../eventStoreExternal/ExternalEvent'
 
 describe('EventBusProcessor', () => {
   let bus: EventBusProcessor<ExternalEvent>

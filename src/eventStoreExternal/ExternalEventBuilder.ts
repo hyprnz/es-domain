@@ -1,5 +1,5 @@
-import { ExternalEvent } from '../eventSourcing/MessageTypes'
 import * as Uuid from '../eventSourcing/UUID'
+import { ExternalEvent } from './ExternalEvent'
 
 export class ExternalEventBuilder {
   private readonly externalEvent: ExternalEvent

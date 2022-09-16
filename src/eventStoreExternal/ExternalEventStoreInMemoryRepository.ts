@@ -1,4 +1,4 @@
-import { ExternalEvent } from '../eventSourcing/MessageTypes'
+import { ExternalEvent } from './ExternalEvent'
 import { ExternalEventStoreRepository } from './ExternalEventStoreRepository'
 import { IdempotencyError } from './IdempotencyError'
 

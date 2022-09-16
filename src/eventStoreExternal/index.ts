@@ -1,3 +1,5 @@
+export * from './ExternalEvent'
+
 /** @deprecated */
 export * from './ExternalEventStoreInMemoryRepository'
 

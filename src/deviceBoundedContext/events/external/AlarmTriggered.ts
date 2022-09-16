@@ -1,11 +1,8 @@
 import { UUID } from '../../../eventSourcing/UUID'
 import { DeviceService } from '../../service/DeviceService'
-import { ExternalEvent } from '../../../eventSourcing/MessageTypes'
+
 import { EventStoreExternal } from '../../../eventStoreExternal/EventStoreExternal'
-import { ExternalEventStoreInMemoryRepository } from '../../../eventStoreExternal/ExternalEventStoreInMemoryRepository'
-import { AggregateRepository } from '../../../writeModelRepository/AggregateRepository'
-import { InMemoryEventStore } from '../../../writeModelRepository/InMemoryEventStore'
-import { ExternalEventBuilder } from '../../../eventStoreExternal/ExternalEventBuilder'
+import { ExternalEvent } from '../../../eventStoreExternal/ExternalEvent'
 
 export interface AlarmTriggeredByExternalSystemEvent extends ExternalEvent {
   deviceId: UUID
