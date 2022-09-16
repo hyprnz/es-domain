@@ -1,9 +1,12 @@
 import { v4 as uuidv4 } from 'uuid'
 
-// Havr a look at ts-essentials
+// Have a look at ts-essentials
 declare const validUUID: unique symbol
 const nullUUID = '00000000-0000-0000-0000-000000000000'
-export type UUID = string & { [validUUID]: true }
+
+// Remove Opaque type
+// export type UUID = string & { [validUUID]: true }
+export type UUID = string
 
 export function assertValidUUID(input: string): asserts input is UUID {
   if (!isValidUUID(input)) {
