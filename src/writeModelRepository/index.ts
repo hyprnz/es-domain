@@ -1,4 +1,7 @@
-export * from './InternalEventStore'
+export * from './EventStore'
+/** @deprecated Re export so as to maintain backeard compatability, use EventStore instead */
+export {EventStore as InternalEventStore } from './EventStore'
+
 export * from './WriteModelRepository'
 
 

@@ -1,4 +1,8 @@
 {
+  "files.exclude": {
+    "node_modules": true
+  },
+  
   "jest.jestCommandLine": "npm run test --",
   "jestrunner.codeLensSelector": "**/*.{micro,integration,test,spec}.{js,jsx,ts,tsx}"
 }

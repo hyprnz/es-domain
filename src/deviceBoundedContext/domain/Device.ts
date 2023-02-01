@@ -49,6 +49,10 @@ export class Device extends EntityBase implements SnapshotEntity {
       (accum: ChangeEvent[], a: Alarm) => [...accum, ...a.snapshot(dateTimeOfEvent)],
       []
     )
+
+    const alarmSnapshots1 = Array.from(this.alarms.values())
+      .map( a => a.snapshot(dateTimeOfEvent))
+
     return [
       DeviceSnapshotEvent.make(Uuid.createV4, {
         deviceId: this.id,

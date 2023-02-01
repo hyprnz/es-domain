@@ -1,7 +1,7 @@
 import { UUID } from '../util/UUID'
 import { EntityEvent } from '../eventSourcing/MessageTypes'
 
-export interface InternalEventStore {
+export interface EventStore {
   /** Gets events greater than or equal to the specified date. Should throw optimistic concurrency error
    * if versions are incorrect.
    * @argument id The aggregate root id
