@@ -8,12 +8,13 @@ import { InMemoryEventStore } from './InMemoryEventStore'
 import { DeviceAggregate } from '../deviceBoundedContext/domain/DeviceAggregate'
 import { AlarmCreatedEvent } from '../deviceBoundedContext/events/internal/AlarmCreatedEvent'
 import { DeviceCreatedEvent } from '../deviceBoundedContext/events/internal/DeviceCreatedEvent'
+import { EventBusProducer } from '../eventBus/EventBusProducer'
 
 describe('AggregateRootRepository', () => {
   let repository: WriteModelRepository
 
   beforeEach(() => {
-    repository = new AggregateRepository(new InMemoryEventStore())
+    repository = new AggregateRepository(new InMemoryEventStore(), new EventBusProducer())
   })
 
   it('stores events', async () => {

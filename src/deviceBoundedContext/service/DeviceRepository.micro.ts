@@ -6,12 +6,13 @@ import { SnapshotRepository } from '../../writeModelRepository/SnapshotRepositor
 import { InMemorySnapshotEventStore } from '../../writeModelRepository/InMemorySnapshotEventStore'
 import { Uuid } from '../..'
 import { AggregateSnapshotRepository } from '../../writeModelRepository/AggregateSnapshotRepository'
+import { EventBusProducer } from '../../eventBus/EventBusProducer'
 
 describe('DeviceRepository', () => {
   let repository: DeviceRepository
 
   beforeEach(() => {
-    const aggregateRepository = new AggregateRepository(new InMemoryEventStore())
+    const aggregateRepository = new AggregateRepository(new InMemoryEventStore(), new EventBusProducer())
     const aggregateSnapshotRepository = new SnapshotRepository(new InMemorySnapshotEventStore())
     repository = new DeviceRepository(new AggregateSnapshotRepository(aggregateRepository, aggregateSnapshotRepository))
   })

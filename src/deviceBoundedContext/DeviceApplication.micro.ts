@@ -10,6 +10,8 @@ import { DeviceRepository } from './service/DeviceRepository'
 import { SnapshotRepository } from '../writeModelRepository/SnapshotRepository'
 import { InMemorySnapshotEventStore } from '../writeModelRepository/InMemorySnapshotEventStore'
 import { AggregateSnapshotRepository } from '../writeModelRepository/AggregateSnapshotRepository'
+import { EventBusProducer } from '../eventBus/EventBusProducer'
+
 
 describe('deviceApplication', () => {
   // Setup Read Side
@@ -20,7 +22,7 @@ describe('deviceApplication', () => {
   }
 
   // Setup Write side
-  const aggregateRepository = new AggregateRepository(new InMemoryEventStore())
+  const aggregateRepository = new AggregateRepository(new InMemoryEventStore(), new EventBusProducer())
   const aggregateSnapshotRepository = new SnapshotRepository(new InMemorySnapshotEventStore())
   aggregateRepository.subscribeToChangesSynchronously(eventBus)
   const deviceService = new DeviceService(

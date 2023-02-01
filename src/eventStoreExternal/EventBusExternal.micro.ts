@@ -1,38 +1,36 @@
 import { ExternalEventBuilder } from './ExternalEventBuilder'
-import { Thespian, TMocked } from 'thespian'
 import { EventBusExternal } from './EventBusExternal'
-import { EventBusProcessor } from '../eventBus/EventBusProcessor'
 import { ExternalEvent } from './ExternalEvent'
+import { assertThat } from 'mismatched'
 
 describe('EventBusExternal', () => {
-  let processor: TMocked<EventBusProcessor<ExternalEvent>>
   let bus: EventBusExternal
-  let thespian: Thespian
-  const handler = async (events: ExternalEvent[]): Promise<void> => {}
+
   beforeEach(() => {
-    thespian = new Thespian()
-    processor = thespian.mock()
-    bus = new EventBusExternal(processor.object)
+    bus = new EventBusExternal()
   })
 
   describe('callHandlers', () => {
     const event: ExternalEvent = ExternalEventBuilder.make().to()
     it('single event multiple times', async () => {
-      processor.setup(x => x.registerHandlerForEvents(handler))
-      processor
-        .setup(x => x.callHandlers([event]))
-        .returns(() => Promise.resolve())
-        .times(3)
+      let count = 0
+      const handler = async (events: ExternalEvent[]): Promise<void> => {count++}
+
       bus.registerHandlerForEvents(handler)
       await bus.callHandlers([event])
       await bus.callHandlers([event])
       await bus.callHandlers([event])
+
+      assertThat(count).is(3)
     })
     it('multiple events', async () => {
-      processor.setup(x => x.registerHandlerForEvents(handler))
-      processor.setup(x => x.callHandlers([event, event, event])).returns(() => Promise.resolve())
+      let count = 0
+      const handler = async (events: ExternalEvent[]): Promise<void> => {count+=events.length}
+
       bus.registerHandlerForEvents(handler)
       await bus.callHandlers([event, event, event])
+
+      assertThat(count).is(3)
     })
   })
 })

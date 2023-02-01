@@ -60,7 +60,8 @@ export class EventStoreExternal {
   }
 
   subscribeToFailureSynchronously(handler: (events: FailedExternalEvent[]) => Promise<void>) {
-    this.eventBusFailed.registerHandlerForEvents(handler)
+    const h = handler as (events: ExternalEvent[]) => Promise<void>
+    this.eventBusFailed.registerHandlerForEvents(h)
   }
 
   private async onAfterEventsStored(events: ExternalEvent[]): Promise<void> {

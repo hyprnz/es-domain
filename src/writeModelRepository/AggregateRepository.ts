@@ -1,10 +1,10 @@
+import { makeNoOpLogger } from '../util/Logger'
 import { UUID } from '../util/UUID'
 import { ChangeEvent, EntityEvent } from '../eventSourcing/MessageTypes'
 import { WriteModelRepository } from './WriteModelRepository'
 import { Aggregate } from '../eventSourcing/Aggregate'
 import { EventStore } from './EventStore'
-import { EventBusInternal } from '../eventBus/EventBusInternal'
-import { EventBus } from '../eventBus/EventBus'
+import { EventBus } from './EventBus'
 
 // type EventDeserializer<T extends ChangeEvent> = Record<string, (evt:ChangeEvent) => T>
 type EventMiddleware = (evt: ChangeEvent) => Promise<ChangeEvent>
@@ -15,7 +15,7 @@ type EventDeserializer = Record<string, EventMiddleware | undefined>
 export class AggregateRepository implements WriteModelRepository {
   private eventMiddleware: EventDeserializer = {}
 
-  constructor(private readonly eventRepository: EventStore, private readonly bus:EventBus<EntityEvent> = new EventBusInternal()) { }
+  constructor(private readonly eventRepository: EventStore, private readonly bus:EventBus<EntityEvent>) { }
 
 
   addEventPostProcessor(eventType: string, handler: EventMiddleware, appendIfExists: boolean = false): void {
