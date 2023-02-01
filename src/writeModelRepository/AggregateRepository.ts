@@ -1,10 +1,10 @@
-import { UUID } from '../eventSourcing/UUID'
+import { UUID } from '../util/UUID'
 import { ChangeEvent, EntityEvent } from '../eventSourcing/MessageTypes'
 import { WriteModelRepositoryError as WriteModelRepositoryError } from './WriteModelRepositoryError'
 import { WriteModelRepository } from './WriteModelRepository'
 import { Aggregate } from '../eventSourcing/Aggregate'
 import { InternalEventStore } from './InternalEventStore'
-import { EventBusInternal } from '../eventSourcing/EventBusInternal'
+import { EventBusInternal } from '../eventBus/EventBusInternal'
 
 // type EventDeserializer<T extends ChangeEvent> = Record<string, (evt:ChangeEvent) => T>
 type EventMiddleware = (evt: ChangeEvent) => Promise<ChangeEvent>

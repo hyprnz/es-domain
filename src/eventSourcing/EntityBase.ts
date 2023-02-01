@@ -1,4 +1,4 @@
-import * as Uuid from './UUID'
+import * as Uuid from '../util/UUID'
 import { AggregateError } from './AggregateError'
 import { ChangeEvent } from './MessageTypes'
 import { Entity } from './Entity'
@@ -7,9 +7,7 @@ import { EntityChangedObserver } from './Aggregate'
 export abstract class EntityBase implements Entity {
   private _id: Uuid.UUID | undefined
   get id(): Uuid.UUID {
-    if (!this._id) {
-      throw new Error(`Entity id not initialised`)
-    }
+    if (!this._id)throw new Error(`Entity id not initialised`)
     return this._id
   }
 

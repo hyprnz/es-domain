@@ -1,4 +1,4 @@
-import { UUID } from '../eventSourcing/UUID'
+import { UUID } from '../util/UUID'
 import { SnapshotAggregate } from '../eventSourcing/Aggregate'
 import { WriteModelSnapshotRepository } from './WriteModelSnapshotRepository'
 import { SnapshotEventStore } from './SnapshotEventStore'

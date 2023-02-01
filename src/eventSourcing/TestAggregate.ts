@@ -1,6 +1,6 @@
 import { AggregateContainer } from './AggregateContainer'
 import { SnapshotAggregate } from './Aggregate'
-import { UUID } from './UUID'
+import { UUID } from '../util/UUID'
 import { TestEntity } from './TestEntity'
 import { ChangeEvent, Uuid } from '..'
 

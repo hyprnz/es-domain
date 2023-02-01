@@ -1,4 +1,4 @@
-import { UUID } from '../../../eventSourcing/UUID'
+import { UUID } from '../../../util/UUID'
 import { DeviceService } from '../../service/DeviceService'
 
 import { EventStoreExternal } from '../../../eventStoreExternal/EventStoreExternal'

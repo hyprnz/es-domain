@@ -1,4 +1,4 @@
-import { UUID } from '../eventSourcing/UUID'
+import { UUID } from '../util/UUID'
 import { ChangeEvent } from '../eventSourcing/MessageTypes'
 import { AggregateSnapshot } from './InMemorySnapshotEventStore'
 

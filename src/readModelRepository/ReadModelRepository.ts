@@ -1,4 +1,4 @@
-import * as Uuid from '../eventSourcing/UUID'
+import * as Uuid from '../util/UUID'
 import { Projection } from './Projection'
 
 export interface ReadModelRepository {

@@ -1,4 +1,4 @@
-import * as Uuid from '../../../UUID'
+import * as Uuid from '../../../../util/UUID'
 import { Parent } from '../../Aggregate';
 import { Emits, Entity } from '../../decorators';
 import { AlarmArmedEvent, AlarmArmedPayload } from '../events/internal/AlarmArmedEvent';

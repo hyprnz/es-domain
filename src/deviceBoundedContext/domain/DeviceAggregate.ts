@@ -1,6 +1,6 @@
 import { Alarm, Device } from '..'
-import * as Uuid from '../../eventSourcing/UUID'
-import { UUID } from '../../eventSourcing/UUID'
+import * as Uuid from '../../util/UUID'
+import { UUID } from '../../util/UUID'
 import { AggregateContainer } from '../../eventSourcing/AggregateContainer'
 import { ChangeEvent, EntityEvent } from '../../eventSourcing/MessageTypes'
 import { Aggregate, SnapshotAggregate } from '../../eventSourcing/Aggregate'

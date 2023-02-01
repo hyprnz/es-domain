@@ -1,5 +1,5 @@
 import { InternalEventStore } from './InternalEventStore'
-import { UUID } from '../eventSourcing/UUID'
+import { UUID } from '../util/UUID'
 import { EntityEvent } from '../eventSourcing/MessageTypes'
 import { OptimisticConcurrencyError } from './OptimisticConcurrencyError'
 

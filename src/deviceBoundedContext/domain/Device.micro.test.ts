@@ -1,6 +1,6 @@
 import {assertThat, match} from 'mismatched'
 import {ChangeEvent, EntityEvent, UNINITIALISED_AGGREGATE_VERSION} from '../../eventSourcing/MessageTypes'
-import * as Uuid from '../../eventSourcing/UUID'
+import * as Uuid from '../../util/UUID'
 import {Entity} from '../../eventSourcing/Entity'
 import {Aggregate} from '../../eventSourcing/Aggregate'
 import {DeviceAggregate} from './DeviceAggregate'
@@ -22,7 +22,7 @@ describe('Device', () => {
       it('Create New Device', () => {
         const id = Uuid.createV4()
         const aggregate = new DeviceAggregate().withDevice(id, 'red')
-        
+
         const events = aggregate.uncommittedChanges()
         assertThat(events).is([
           makeEntityEventMatcher(DeviceCreatedEvent.make(() => id, { deviceId: id, colour:'red' }),0)
@@ -32,7 +32,7 @@ describe('Device', () => {
 
       it('Load from History', () => {
         const id = Uuid.createV4()
-        const aggregate = new DeviceAggregate()        
+        const aggregate = new DeviceAggregate()
         const history = [{ event: DeviceCreatedEvent.make(() => id, { deviceId: id, colour: 'blue' }), version: 0 }]
         aggregate.loadFromHistory(history)
         assertThat(aggregate.id).is(id)

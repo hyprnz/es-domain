@@ -1,5 +1,5 @@
 import {Alarm} from './Alarm'
-import * as Uuid from '../../../UUID'
+import * as Uuid from '../../../../util/UUID'
 import { Emits, Entity } from '../../decorators'
 import { AlarmCreatedEvent, AlarmCreatedPayload } from '../events/internal/AlarmCreatedEvent'
 import { AlarmDestroyedEvent, AlarmDestroyedPayload } from '../events/internal/AlarmDestroyedEvent'

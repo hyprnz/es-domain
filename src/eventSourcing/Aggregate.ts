@@ -1,4 +1,4 @@
-import * as Uuid from './UUID'
+import * as Uuid from '../util/UUID'
 import { ChangeEvent, EntityEvent } from './MessageTypes'
 
 export interface Aggregate {

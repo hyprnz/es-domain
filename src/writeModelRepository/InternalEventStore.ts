@@ -1,4 +1,4 @@
-import { UUID } from '../eventSourcing/UUID'
+import { UUID } from '../util/UUID'
 import { EntityEvent } from '../eventSourcing/MessageTypes'
 
 export interface InternalEventStore {

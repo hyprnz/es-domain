@@ -1,4 +1,4 @@
-import * as Uuid from "./UUID";
+import * as Uuid from "../util/UUID";
 
 export const UNINITIALISED_AGGREGATE_VERSION = -1;
 

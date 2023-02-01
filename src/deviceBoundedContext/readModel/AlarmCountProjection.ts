@@ -1,4 +1,4 @@
-import * as Uuid from '../../eventSourcing/UUID'
+import * as Uuid from '../../util/UUID'
 import { makeProjection, Projection, StaticProjectionEventHandler } from '../../readModelRepository/Projection'
 import {AlarmCreatedEvent} from "../events/internal/AlarmCreatedEvent";
 import {AlarmDestroyedEvent} from "../events/internal/AlarmDestroyedEvent";

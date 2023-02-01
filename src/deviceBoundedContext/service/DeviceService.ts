@@ -1,4 +1,4 @@
-import * as Uuid from '../../eventSourcing/UUID'
+import * as Uuid from '../../util/UUID'
 import { DeviceRepository } from './DeviceRepository'
 
 export class DeviceService {

@@ -1,4 +1,4 @@
-import * as Uuid from '../../eventSourcing/UUID'
+import * as Uuid from '../../util/UUID'
 import { Thespian, TMocked } from 'thespian'
 import { alarmCountProjection } from '..'
 import { EntityEvent } from '../../eventSourcing/MessageTypes'

@@ -1,4 +1,4 @@
-import * as Uuid from '../eventSourcing/UUID'
+import * as Uuid from '../util/UUID'
 import { EntityEvent } from '../eventSourcing/MessageTypes'
 import { ReadModelMemoryRepository } from '../readModelRepository/ReadModelMemoryRepository'
 import { AggregateRepository } from '../writeModelRepository/AggregateRepository'

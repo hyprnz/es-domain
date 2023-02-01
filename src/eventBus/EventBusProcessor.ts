@@ -1,4 +1,4 @@
-import { makeNoOpLogger } from './Logger'
+import { makeNoOpLogger } from '../util/Logger'
 import { EventBusError } from './EventBusError'
 import { isString } from './EventBus'
 

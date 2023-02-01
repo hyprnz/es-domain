@@ -1,6 +1,6 @@
 import { ChangeEvent, EntityEvent } from '../eventSourcing/MessageTypes'
 import { ReadModelRepository } from './ReadModelRepository'
-import { UUID } from '../eventSourcing/UUID'
+import { UUID } from '../util/UUID'
 
 export interface Projection {
   id: UUID

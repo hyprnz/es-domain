@@ -1,4 +1,4 @@
-import * as Uuid from '../eventSourcing/UUID'
+import * as Uuid from '../util/UUID'
 import { AggregateRepository } from './AggregateRepository'
 import { AggregateSnapshotRepository } from './AggregateSnapshotRepository'
 import { SnapshotRepository } from './SnapshotRepository'

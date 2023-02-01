@@ -1,4 +1,4 @@
-import * as Uuid from './UUID'
+import * as Uuid from '../util/UUID'
 import { AggregateError } from './AggregateError'
 import { ChangeEvent, EntityEvent, Message, UNINITIALISED_AGGREGATE_VERSION } from './MessageTypes'
 import { EntityBase } from './EntityBase'
@@ -121,7 +121,7 @@ export class AggregateContainer<T extends EntityBase, U extends EntityConstructo
     this.rootEntity.handleChangeEvent(evt)
   }
 
-  // These methods are not part of the aggregate contract
+  // These methods are not part of the aggregate contract ?
   latestDateTimeFromEvents(): string {
     return this.events.reduce(
       (accum: string, curr) =>

@@ -1,4 +1,4 @@
-import * as Uuid from '../../eventSourcing/UUID'
+import * as Uuid from '../../util/UUID'
 import { EntityBase } from '../../eventSourcing/EntityBase'
 import { ChangeEvent } from '../../eventSourcing/MessageTypes'
 import { DeviceDomainError } from '../events/internal/DeviceDomainError'

@@ -1,6 +1,6 @@
 import { assertThat } from 'mismatched'
 import { delay, retryOnSpecificErrors } from './Retry'
-import { makeNoOpLogger } from './Logger'
+import { makeNoOpLogger } from '../util/Logger'
 import { OptimisticConcurrencyError } from '../writeModelRepository/OptimisticConcurrencyError'
 import { WriteModelRepositoryError } from '../writeModelRepository/WriteModelRepositoryError'
 

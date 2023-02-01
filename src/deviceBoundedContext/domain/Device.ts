@@ -1,5 +1,5 @@
 import { Alarm } from '..'
-import * as Uuid from '../../eventSourcing/UUID'
+import * as Uuid from '../../util/UUID'
 import { AggregateError } from '../../eventSourcing/AggregateError'
 import { EntityBase } from '../../eventSourcing/EntityBase'
 import { ChangeEvent } from '../../eventSourcing/MessageTypes'
@@ -25,9 +25,9 @@ export class Device extends EntityBase implements SnapshotEntity {
     this.colour = payload.colour
     if (!isLoading) {
       this.applyChangeEvent(DeviceCreatedEvent.make(
-        Uuid.createV4, 
-        { 
-          deviceId: payload.id, 
+        Uuid.createV4,
+        {
+          deviceId: payload.id,
           colour: payload.colour,
         }
       ))
@@ -35,13 +35,13 @@ export class Device extends EntityBase implements SnapshotEntity {
   }
 
   /** There are now 2 ways a device can be created, Snapshot or new device */
-  static toCreationParameters(event: ChangeEvent): DeviceCreationParmaters {    
+  static toCreationParameters(event: ChangeEvent): DeviceCreationParmaters {
     if(DeviceCreatedEvent.isDeviceCreatedEvent(event)){
-      return { id: event.id, colour: event.colour }      
+      return { id: event.id, colour: event.colour }
     }
 
     DeviceSnapshotEvent.assertIsDeviceSnapshotEvent(event)
-    return { id: event.id, colour: event.colour }      
+    return { id: event.id, colour: event.colour }
   }
 
   snapshot(dateTimeOfEvent: string): ChangeEvent[] {

@@ -1,5 +1,5 @@
 import { ChangeEvent } from './MessageTypes'
-import * as Uuid from './UUID'
+import * as Uuid from '../util/UUID'
 
 export class ChangeEventBuilder {
   private constructor(private event: ChangeEvent) {}

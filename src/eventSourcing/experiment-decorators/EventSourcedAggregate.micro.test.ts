@@ -1,7 +1,7 @@
 import { assertThat, match } from 'mismatched'
 import { Parent } from './Aggregate'
 import { EventSourcedAggregate } from './EventSourcedAggregate'
-import { createV4, UUID } from '../UUID'
+import { createV4, UUID } from '../../util/UUID'
 import { Device } from './deviceWithDecorators/domain/Device'
 import { AlarmCreatedEvent } from './deviceWithDecorators/events/internal/AlarmCreatedEvent'
 

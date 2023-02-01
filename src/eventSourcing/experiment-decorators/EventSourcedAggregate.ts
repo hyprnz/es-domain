@@ -2,7 +2,7 @@ import 'reflect-metadata'
 import { Aggregate, Parent } from './Aggregate'
 import { AggregateError } from '../AggregateError'
 import { EntityEvent, UNINITIALISED_AGGREGATE_VERSION, ChangeEvent } from './MessageTypes'
-import { UUID } from '../UUID'
+import { UUID } from '../../util/UUID'
 import { EventSourcedEntity } from './Entity'
 
 export class EventSourcedAggregate<T extends EventSourcedEntity> implements Aggregate {

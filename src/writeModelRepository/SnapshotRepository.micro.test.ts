@@ -1,4 +1,4 @@
-import * as Uuid from '../eventSourcing/UUID'
+import * as Uuid from '../util/UUID'
 import { assertThat } from 'mismatched'
 import { SnapshotRepository } from './SnapshotRepository'
 import { InMemorySnapshotEventStore } from './InMemorySnapshotEventStore'

@@ -1,4 +1,4 @@
-import { ChangeEvent, EntityEvent } from './MessageTypes'
+import { ChangeEvent, EntityEvent } from '../eventSourcing/MessageTypes'
 import { EventBus } from './EventBus'
 import { EventBusProcessor } from './EventBusProcessor'
 

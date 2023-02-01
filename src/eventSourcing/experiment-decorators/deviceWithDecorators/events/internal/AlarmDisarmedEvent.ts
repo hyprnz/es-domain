@@ -1,5 +1,5 @@
 import {baseChangeEventBuilder, ChangeEvent, ChangeEventFactory, EventData} from "../../../MessageTypes";
-import * as Uuid from "../../../../UUID";
+import * as Uuid from "../../../../../util/UUID";
 
 export interface AlarmDisarmedEvent extends ChangeEvent {
     eventType: 'AlarmDisarmedEvent'

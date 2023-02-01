@@ -1,7 +1,7 @@
 import { ExternalEventBuilder } from './ExternalEventBuilder'
 import { Thespian, TMocked } from 'thespian'
 import { EventBusExternal } from './EventBusExternal'
-import { EventBusProcessor } from '../eventSourcing/EventBusProcessor'
+import { EventBusProcessor } from '../eventBus/EventBusProcessor'
 import { ExternalEvent } from './ExternalEvent'
 
 describe('EventBusExternal', () => {
