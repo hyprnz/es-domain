@@ -1,6 +1,6 @@
 import { EntityBase } from './EntityBase'
 import { EntityChangedObserver } from './Aggregate'
-import { ChangeEvent } from './MessageTypes'
+import { ChangeEvent } from './contracts/MessageTypes'
 import { EntityConstructorPayload, SnapshotEntity } from './Entity'
 import { Uuid } from '..'
 

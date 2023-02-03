@@ -1,13 +1,9 @@
 import { assertThat, match } from 'mismatched'
-import { DeviceRepository } from './DeviceRepository'
 import { InMemoryEventStore } from '../../writeModelRepository/InMemoryEventStore'
-import { SnapshotRepository } from '../../writeModelRepository/SnapshotRepository'
 import { InMemorySnapshotEventStore } from '../../writeModelRepository/InMemorySnapshotEventStore'
 import { Uuid } from '../..'
-import { AggregateSnapshotRepository } from '../../writeModelRepository/AggregateSnapshotRepository'
 import { EventBusProducer } from '../../eventBus/EventBusProcessor'
 import { AggregateRepository, AggregateRootRepositoryBuilder } from '../../eventSourcing/AggregateRootRepo'
-import { DeviceAggregate } from '../domain/DeviceAggregate'
 import { Device, DeviceCreationParmaters } from '../domain/Device'
 
 describe('DeviceRepository', () => {

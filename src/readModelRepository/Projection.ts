@@ -1,4 +1,4 @@
-import { ChangeEvent, EntityEvent } from '../eventSourcing/MessageTypes'
+import { ChangeEvent, EntityEvent } from '../eventSourcing/contracts/MessageTypes'
 import { ReadModelRepository } from './ReadModelRepository'
 import { UUID } from '../util/UUID'
 

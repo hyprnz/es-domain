@@ -1,4 +1,4 @@
-import { EntityEvent } from "..";
+import { EntityEvent } from "../..";
 
 export interface EventBus<E> {
   callHandlers(events: E[]): Promise<void>

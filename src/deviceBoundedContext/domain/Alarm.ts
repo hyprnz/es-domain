@@ -1,6 +1,6 @@
 import * as Uuid from '../../util/UUID'
 import { EntityBase } from '../../eventSourcing/EntityBase'
-import { ChangeEvent } from '../../eventSourcing/MessageTypes'
+import { ChangeEvent } from '../../eventSourcing/contracts/MessageTypes'
 import { DeviceDomainError } from '../events/internal/DeviceDomainError'
 import { SnapshotEntity, StaticEventHandler } from '../../eventSourcing/Entity'
 import { EntityChangedObserver } from '../../eventSourcing/Aggregate'

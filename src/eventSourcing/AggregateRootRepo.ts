@@ -1,8 +1,8 @@
 import { EntityEvent, EntityBase, EntityConstructorPayload, EntityConstructor, AggregateContainer, Entity, Aggregate, isSnapshotableEntity } from "."
 import { EventStoreRepository, SnapshotEventStore} from ".."
 import { UUID } from "../util/UUID"
-import { EventBus } from "../writeModelRepository/EventBus"
-import { EventStore } from "../writeModelRepository/EventStore"
+import { EventBus } from "./contracts/EventBus"
+import { EventStore } from "./EventStore"
 
 export interface PersistableEntity {
     save():  Promise<number>,

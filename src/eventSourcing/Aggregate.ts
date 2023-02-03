@@ -1,5 +1,5 @@
 import * as Uuid from '../util/UUID'
-import { ChangeEvent, EntityEvent } from './MessageTypes'
+import { ChangeEvent, EntityEvent } from './contracts/MessageTypes'
 
 export interface Aggregate {
   readonly id: Uuid.UUID

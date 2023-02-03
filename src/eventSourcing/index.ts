@@ -4,5 +4,7 @@ export * from './AggregateError'
 export * from './ChangeEventBuilder'
 export * from './Entity'
 export * from './EntityBase'
-export * from './MessageTypes'
+
+export * from "./contracts"
+
 

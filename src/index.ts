@@ -1,7 +1,7 @@
 export * from './util/index'
-export * from './eventSourcing/index'
-export * from './readModelRepository/index'
-export * from './writeModelRepository/index'
+export * from './eventSourcing'
+export * from './readModelRepository'
+export * from './writeModelRepository'
 
 
 /** @deprecated */

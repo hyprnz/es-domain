@@ -1,6 +1,6 @@
-import { EventStoreRepository } from ".";
-import { ChangeEvent, EntityEvent } from "../eventSourcing";
-import { EventBus } from "./EventBus";
+
+import { ChangeEvent, EntityEvent, EventStoreRepository } from ".";
+import { EventBus } from "./contracts/EventBus";
 
 type EventMiddleware = (evt: ChangeEvent) => Promise<ChangeEvent>
 type EventDeserializer = Record<string, EventMiddleware | undefined>

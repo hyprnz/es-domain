@@ -2,7 +2,7 @@ import { Alarm, Device } from '..'
 import * as Uuid from '../../util/UUID'
 import { UUID } from '../../util/UUID'
 import { AggregateContainer } from '../../eventSourcing/AggregateContainer'
-import { ChangeEvent, EntityEvent } from '../../eventSourcing/MessageTypes'
+import { ChangeEvent, EntityEvent } from '../../eventSourcing/contracts/MessageTypes'
 import { Aggregate, SnapshotAggregate } from '../../eventSourcing/Aggregate'
 import { DeviceCreationParmaters } from './Device'
 

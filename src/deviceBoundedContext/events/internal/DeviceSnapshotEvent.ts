@@ -1,5 +1,5 @@
 import * as Uuid from "../../../util/UUID";
-import {ChangeEvent} from "../../../eventSourcing/MessageTypes";
+import {ChangeEvent} from "../../../eventSourcing/contracts/MessageTypes";
 import {DeviceCreatedEvent} from "./DeviceCreatedEvent";
 
 export interface DeviceSnapshotEvent extends ChangeEvent {

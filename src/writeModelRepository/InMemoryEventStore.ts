@@ -1,7 +1,7 @@
-import { EventStoreRepository } from './EventStoreRepository'
 import { UUID } from '../util/UUID'
-import { EntityEvent } from '../eventSourcing/MessageTypes'
-import { OptimisticConcurrencyError } from './OptimisticConcurrencyError'
+import { EntityEvent } from '../eventSourcing/contracts/MessageTypes'
+import { EventStoreRepository } from '../eventSourcing/contracts/EventStoreRepository'
+import { OptimisticConcurrencyError } from '../eventSourcing/contracts/OptimisticConcurrencyError'
 
 export class InMemoryEventStore implements EventStoreRepository {
   constructor(private readonly store = new Map<UUID, Array<EntityEvent>>()) {}

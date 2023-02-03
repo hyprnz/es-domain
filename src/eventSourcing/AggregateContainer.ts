@@ -1,6 +1,6 @@
 import * as Uuid from '../util/UUID'
 import { AggregateError } from './AggregateError'
-import { ChangeEvent, EntityEvent, Message, UNINITIALISED_AGGREGATE_VERSION } from './MessageTypes'
+import { ChangeEvent, EntityEvent, Message, UNINITIALISED_AGGREGATE_VERSION } from './contracts/MessageTypes'
 import { EntityBase } from './EntityBase'
 import { Aggregate } from './Aggregate'
 import { EntityConstructor, EntityConstructorPayload } from '..'

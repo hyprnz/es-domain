@@ -1,5 +1,5 @@
 import * as Uuid from '../util/UUID'
-import { ChangeEvent } from './MessageTypes'
+import { ChangeEvent } from './contracts/MessageTypes'
 import { EntityChangedObserver } from './Aggregate'
 
 export interface Entity {

@@ -1,15 +1,12 @@
 import * as Uuid from '../util/UUID'
-import { EntityEvent } from '../eventSourcing/MessageTypes'
+import { EntityEvent } from '../eventSourcing/contracts/MessageTypes'
 import { ReadModelMemoryRepository } from '../readModelRepository/ReadModelMemoryRepository'
 
 import { allAlarmCountProjection, deviceAlarmCountProjection } from './readModel/AlarmCountProjection'
 import { DeviceService } from './service/DeviceService'
 import { alarmProjectionHandler, Device } from '.'
 import { InMemoryEventStore } from '../writeModelRepository/InMemoryEventStore'
-import { DeviceRepository } from './service/DeviceRepository'
-import { SnapshotRepository } from '../writeModelRepository/SnapshotRepository'
 import { InMemorySnapshotEventStore } from '../writeModelRepository/InMemorySnapshotEventStore'
-import { AggregateSnapshotRepository } from '../writeModelRepository/AggregateSnapshotRepository'
 import { EventBusProducer } from '../eventBus/EventBusProcessor'
 import { AggregateRootRepositoryBuilder } from '../eventSourcing/AggregateRootRepo'
 

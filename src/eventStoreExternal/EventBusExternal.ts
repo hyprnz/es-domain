@@ -1,4 +1,4 @@
-import { EventBus } from '../writeModelRepository/EventBus'
+import { EventBus } from '../eventSourcing/contracts/EventBus'
 import { ExternalEventStoreProcessingState } from './EventStoreExternal'
 import { ExternalEvent } from './ExternalEvent'
 import { makeNoOpLogger } from '../util'

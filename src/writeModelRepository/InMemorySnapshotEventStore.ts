@@ -1,6 +1,6 @@
 import { UUID } from '../util/UUID'
-import { ChangeEvent, UNINITIALISED_AGGREGATE_VERSION } from '../eventSourcing/MessageTypes'
-import { SnapshotEventStore } from './SnapshotEventStore'
+import { ChangeEvent, UNINITIALISED_AGGREGATE_VERSION } from '../eventSourcing/contracts/MessageTypes'
+import { SnapshotEventStore } from '../eventSourcing/contracts/SnapshotEventStore'
 
 export interface AggregateSnapshot {
   id: UUID

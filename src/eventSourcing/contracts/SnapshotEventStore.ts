@@ -1,6 +1,6 @@
-import { UUID } from '../util/UUID'
-import { ChangeEvent } from '../eventSourcing/MessageTypes'
-import { AggregateSnapshot } from './InMemorySnapshotEventStore'
+import { UUID } from '../../util/UUID'
+import { ChangeEvent } from './MessageTypes'
+import { AggregateSnapshot } from '../../writeModelRepository/InMemorySnapshotEventStore'
 
 export interface SnapshotEventStore {
   /** Load snapshot events for aggregate

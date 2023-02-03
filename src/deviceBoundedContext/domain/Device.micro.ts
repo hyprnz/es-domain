@@ -1,5 +1,5 @@
 import {assertThat, match} from 'mismatched'
-import {ChangeEvent, EntityEvent, UNINITIALISED_AGGREGATE_VERSION} from '../../eventSourcing/MessageTypes'
+import {ChangeEvent, EntityEvent, UNINITIALISED_AGGREGATE_VERSION} from '../../eventSourcing/contracts/MessageTypes'
 import * as Uuid from '../../util/UUID'
 import {Entity} from '../../eventSourcing/Entity'
 import {Aggregate} from '../../eventSourcing/Aggregate'

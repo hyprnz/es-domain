@@ -1,6 +1,6 @@
 import { EntityEvent } from '../eventSourcing'
 import { makeNoOpLogger } from '../util/Logger'
-import { EventBus } from '../writeModelRepository/EventBus'
+import { EventBus } from '../eventSourcing/contracts/EventBus'
 import { EventBusError } from './EventBusError'
 
 export class EventBusProducer  implements EventBus<EntityEvent> {

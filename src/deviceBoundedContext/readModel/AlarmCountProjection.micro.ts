@@ -1,7 +1,7 @@
 import * as Uuid from '../../util/UUID'
 import { Thespian, TMocked } from 'thespian'
 import { alarmCountProjection } from '..'
-import { EntityEvent } from '../../eventSourcing/MessageTypes'
+import { EntityEvent } from '../../eventSourcing/contracts/MessageTypes'
 import { ReadModelRepository } from '../../readModelRepository/ReadModelRepository'
 import {AlarmCreatedEvent} from "../events/internal/AlarmCreatedEvent";
 import {AlarmArmedEvent} from "../events/internal/AlarmArmedEvent";

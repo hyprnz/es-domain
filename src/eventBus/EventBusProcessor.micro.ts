@@ -1,6 +1,6 @@
 import { assertThat } from 'mismatched'
 import { EventBusProducer } from './EventBusProcessor'
-import { EventBus } from '../writeModelRepository/EventBus'
+import { EventBus } from '../eventSourcing/contracts/EventBus'
 import { ChangeEventBuilder, EntityEvent } from '../eventSourcing'
 
 describe('EventBusProcessor', () => {

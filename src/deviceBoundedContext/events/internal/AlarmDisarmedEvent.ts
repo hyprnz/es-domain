@@ -1,4 +1,4 @@
-import {ChangeEvent} from "../../../eventSourcing/MessageTypes";
+import {ChangeEvent} from "../../../eventSourcing/contracts/MessageTypes";
 import * as Uuid from "../../../util/UUID";
 
 export interface AlarmDisarmedEvent extends ChangeEvent {

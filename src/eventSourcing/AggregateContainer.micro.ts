@@ -1,4 +1,4 @@
-import { ChangeEvent } from './MessageTypes'
+import { ChangeEvent } from './contracts/MessageTypes'
 import { assertThat, match } from 'mismatched'
 import { EntityBase } from './EntityBase'
 import { ChangeEventBuilder } from './ChangeEventBuilder'

@@ -1,5 +1,5 @@
 import { Uuid } from '../../..'
-import { ChangeEvent } from '../../../eventSourcing/MessageTypes'
+import { ChangeEvent } from '../../../eventSourcing/contracts/MessageTypes'
 
 export interface AlarmArmedEvent extends ChangeEvent {
   eventType: 'AlarmArmedEvent'

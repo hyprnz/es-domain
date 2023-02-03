@@ -1,4 +1,4 @@
-import { ChangeEvent } from './MessageTypes'
+import { ChangeEvent } from './contracts/MessageTypes'
 import * as Uuid from '../util/UUID'
 
 export class ChangeEventBuilder {

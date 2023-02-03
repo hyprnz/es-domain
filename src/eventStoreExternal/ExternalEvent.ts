@@ -1,4 +1,4 @@
-import { Message } from "../eventSourcing/MessageTypes";
+import { Message } from "../eventSourcing/contracts/MessageTypes";
 
 export interface ExternalEvent extends Message {
     eventId: string;

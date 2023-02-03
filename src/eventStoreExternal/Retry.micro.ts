@@ -1,7 +1,7 @@
 import { assertThat } from 'mismatched'
 import { delay, retryOnSpecificErrors } from './Retry'
 import { makeNoOpLogger } from '../util/Logger'
-import { OptimisticConcurrencyError } from '../writeModelRepository/OptimisticConcurrencyError'
+import { OptimisticConcurrencyError } from '../eventSourcing/contracts/OptimisticConcurrencyError'
 import { WriteModelRepositoryError } from '../writeModelRepository/WriteModelRepositoryError'
 
 const logger = makeNoOpLogger()
