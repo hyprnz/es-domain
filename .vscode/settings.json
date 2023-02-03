@@ -2,7 +2,17 @@
   "files.exclude": {
     "node_modules": true
   },
-  
+
   "jest.jestCommandLine": "npm run test --",
-  "jestrunner.codeLensSelector": "**/*.{micro,integration,test,spec}.{js,jsx,ts,tsx}"
+  "jestrunner.codeLensSelector": "**/*.{micro,integration,test,spec}.{js,jsx,ts,tsx}",
+  "jestrunner.runOptions": ["--detectOpenHandles", "--forceExit"],
+  "jestrunner.configPath": "./jest.config.ts",
+  
+  "prettier.enable": true,
+
+  "editor.formatOnSave": false,
+  "editor.formatOnPaste": false,
+  "editor.defaultFormatter": "esbenp.prettier-vscode",
+  "editor.codeActionsOnSave": ["source.organizeImports", "source.fixAll.eslint"],
+
 }

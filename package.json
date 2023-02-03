@@ -17,8 +17,9 @@
     "prepare": "husky install",
     "build": "tsc -p ./tsconfig.json",
     "clean": "rm -fr dist/** && rimraf build/** ",
+    "lint": "eslint .",
     "test:micro": "jest  --selectProjects micro",
-    "test:ci": "npm run test:micro --  --ci --watchAll=false --reporters=default --reporters=jest-junit"
+    "test:ci": "npm run test:micro --  --ci --watchAll=false --reporters=jest-junit"
   },
   "peerDependencies": {
     "reflect-metadata": "^0.1.13",
@@ -28,7 +29,12 @@
     "@types/jest": "~29.2.5",
     "@types/node": "~17.0.22",
     "@types/uuid": "~8.3.1",
+    "@typescript-eslint/eslint-plugin": "^5.47.1",
+    "@typescript-eslint/parser": "^5.47.1",
     "husky": "^7.0.4",
+    "eslint": "8.32.0",
+    "eslint-config-prettier": "8.6.0",
+    "eslint-plugin-prettier": "^4.2.1",
     "jest": "~29.3.1",
     "jest-junit": "~15.0.0",
     "mismatched": "~2.11.1",
