@@ -1,6 +1,7 @@
 import { v4 as uuidv4 } from 'uuid'
 
 // Have a look at ts-essentials
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 declare const validUUID: unique symbol
 const nullUUID = '00000000-0000-0000-0000-000000000000'
 

@@ -1,8 +1,8 @@
+import { EventBusError } from '../eventBus/EventBusError'
 import { EventBus } from '../eventSourcing/contracts/EventBus'
+import { makeNoOpLogger } from '../util'
 import { ExternalEventStoreProcessingState } from './EventStoreExternal'
 import { ExternalEvent } from './ExternalEvent'
-import { makeNoOpLogger } from '../util'
-import { EventBusError } from '../eventBus/EventBusError'
 
 export interface FailedExternalEvent extends ExternalEvent {
   processingState: ExternalEventStoreProcessingState

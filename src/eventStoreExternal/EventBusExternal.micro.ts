@@ -1,7 +1,7 @@
-import { ExternalEventBuilder } from './ExternalEventBuilder'
+import { assertThat } from 'mismatched'
 import { EventBusExternal } from './EventBusExternal'
 import { ExternalEvent } from './ExternalEvent'
-import { assertThat } from 'mismatched'
+import { ExternalEventBuilder } from './ExternalEventBuilder'
 
 describe('EventBusExternal', () => {
   let bus: EventBusExternal
@@ -14,7 +14,9 @@ describe('EventBusExternal', () => {
     const event: ExternalEvent = ExternalEventBuilder.make().to()
     it('single event multiple times', async () => {
       let count = 0
-      const handler = async (events: ExternalEvent[]): Promise<void> => {count++}
+      const handler = async (events: ExternalEvent[]): Promise<void> => {
+        count++
+      }
 
       bus.registerHandlerForEvents(handler)
       await bus.callHandlers([event])
@@ -25,7 +27,9 @@ describe('EventBusExternal', () => {
     })
     it('multiple events', async () => {
       let count = 0
-      const handler = async (events: ExternalEvent[]): Promise<void> => {count+=events.length}
+      const handler = async (events: ExternalEvent[]): Promise<void> => {
+        count += events.length
+      }
 
       bus.registerHandlerForEvents(handler)
       await bus.callHandlers([event, event, event])

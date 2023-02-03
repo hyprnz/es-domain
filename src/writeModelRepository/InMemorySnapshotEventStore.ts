@@ -1,6 +1,6 @@
-import { UUID } from '../util/UUID'
 import { ChangeEvent, UNINITIALISED_AGGREGATE_VERSION } from '../eventSourcing/contracts/MessageTypes'
 import { SnapshotEventStore } from '../eventSourcing/contracts/SnapshotEventStore'
+import { UUID } from '../util/UUID'
 
 export interface AggregateSnapshot {
   id: UUID
@@ -13,9 +13,7 @@ export class InMemorySnapshotEventStore implements SnapshotEventStore {
 
   async getAggregateSnapshot(id: UUID): Promise<AggregateSnapshot> {
     const aggregateSnapshot = this.snapShotStore.get(id)
-    return aggregateSnapshot
-      ? aggregateSnapshot
-      : this.makeEmptySnapshot(id)
+    return aggregateSnapshot ? aggregateSnapshot : this.makeEmptySnapshot(id)
   }
 
   async appendSnapshotEvents(id: UUID, changeVersion: number, snapshots: ChangeEvent[]): Promise<void> {
@@ -29,6 +27,4 @@ export class InMemorySnapshotEventStore implements SnapshotEventStore {
       changeVersion: UNINITIALISED_AGGREGATE_VERSION
     }
   }
-
-
 }

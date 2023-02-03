@@ -1,4 +1,4 @@
-import { ExternalEvent } from "./ExternalEvent";
+import { ExternalEvent } from './ExternalEvent'
 
 export interface ExternalEventStoreRepository {
   appendEvent(externalEvent: ExternalEvent): Promise<void>

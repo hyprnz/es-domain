@@ -1,15 +1,15 @@
-import { EntityBase } from './EntityBase'
+import { Uuid } from '..'
 import { EntityChangedObserver } from './Aggregate'
 import { ChangeEvent } from './contracts/MessageTypes'
 import { EntityConstructorPayload, SnapshotEntity } from './Entity'
-import { Uuid } from '..'
+import { EntityBase } from './EntityBase'
 
 export class TestEntity extends EntityBase implements SnapshotEntity {
   eventType = 'some-event-type'
   causationId1 = Uuid.createV4()
   correlationId1 = Uuid.createV4()
 
-  constructor(observer: EntityChangedObserver, payload: EntityConstructorPayload, isLoading: boolean = false) {
+  constructor(observer: EntityChangedObserver, payload: EntityConstructorPayload, isLoading = false) {
     super(observer)
 
     if (!isLoading) {
@@ -34,14 +34,16 @@ export class TestEntity extends EntityBase implements SnapshotEntity {
   }
 
   snapshot(dateTimeOfEvent: string): ChangeEvent[] {
-    return [{
-      id: this.id,
-      aggregateRootId: this.id,
-      entityId: this.id,
-      dateTimeOfEvent,
-      eventType: this.eventType,
-      causationId: this.causationId1,
-      correlationId: this.correlationId1
-    }]
+    return [
+      {
+        id: this.id,
+        aggregateRootId: this.id,
+        entityId: this.id,
+        dateTimeOfEvent,
+        eventType: this.eventType,
+        causationId: this.causationId1,
+        correlationId: this.correlationId1
+      }
+    ]
   }
 }

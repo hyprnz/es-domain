@@ -1,9 +1,9 @@
 import { assertThat } from 'mismatched'
+import { ExternalEvent } from './ExternalEvent'
+import { ExternalEventBuilder } from './ExternalEventBuilder'
 import { ExternalEventStoreInMemoryRepository } from './ExternalEventStoreInMemoryRepository'
 import { ExternalEventStoreRepository } from './ExternalEventStoreRepository'
-import { ExternalEventBuilder } from './ExternalEventBuilder'
 import { IdempotencyError } from './IdempotencyError'
-import { ExternalEvent } from './ExternalEvent'
 
 describe('ExternalEventStoreInMemoryRepository', () => {
   let externalEventStoreRepository: ExternalEventStoreRepository = new ExternalEventStoreInMemoryRepository()

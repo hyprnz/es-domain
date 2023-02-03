@@ -1,14 +1,13 @@
-import * as Uuid from "../../util/UUID";
+import * as Uuid from '../../util/UUID'
 
-export const UNINITIALISED_AGGREGATE_VERSION = -1;
+export const UNINITIALISED_AGGREGATE_VERSION = -1
 
 export interface Message {
-  readonly id: Uuid.UUID;
-
+  readonly id: Uuid.UUID
 
   // This should be optional ?
-  readonly causationId?: Uuid.UUID;
-  readonly correlationId?: Uuid.UUID;
+  readonly causationId?: Uuid.UUID
+  readonly correlationId?: Uuid.UUID
 }
 
 export interface ChangeEvent extends Message {
@@ -23,11 +22,11 @@ export interface ChangeEvent extends Message {
 
   /** @description time that the event occured
    * (may be different from the time received)
-  */
+   */
   readonly dateTimeOfEvent: string
 }
 
 export interface EntityEvent {
-  version: number;
-  readonly event: ChangeEvent;
+  version: number
+  readonly event: ChangeEvent
 }

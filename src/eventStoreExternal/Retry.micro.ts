@@ -1,8 +1,8 @@
 import { assertThat } from 'mismatched'
-import { delay, retryOnSpecificErrors } from './Retry'
-import { makeNoOpLogger } from '../util/Logger'
 import { OptimisticConcurrencyError } from '../eventSourcing/contracts/OptimisticConcurrencyError'
+import { makeNoOpLogger } from '../util/Logger'
 import { WriteModelRepositoryError } from '../writeModelRepository/WriteModelRepositoryError'
+import { delay, retryOnSpecificErrors } from './Retry'
 
 const logger = makeNoOpLogger()
 
@@ -50,14 +50,28 @@ describe('retry and retryOnTimeout', () => {
     })
 
     it('error retries then catches on specific error', () => {
-      return retryOnSpecificErrors(() => test.runWithOptimisticError(100), logger, [OptimisticConcurrencyError], 2, 1, 'act').catch(e => {
+      return retryOnSpecificErrors(
+        () => test.runWithOptimisticError(100),
+        logger,
+        [OptimisticConcurrencyError],
+        2,
+        1,
+        'act'
+      ).catch(e => {
         assertThat(e.message).is('Optimistic concurrency error for aggregate root id: 1, version: 2')
         assertThat(test.counter).is(3)
       })
     })
 
     it('error does not retry when different specific error', () => {
-      return retryOnSpecificErrors(() => test.runWithOptimisticError(100), logger, [WriteModelRepositoryError], 2, 1, 'act').catch(e => {
+      return retryOnSpecificErrors(
+        () => test.runWithOptimisticError(100),
+        logger,
+        [WriteModelRepositoryError],
+        2,
+        1,
+        'act'
+      ).catch(e => {
         assertThat(e.message).is('Optimistic concurrency error for aggregate root id: 1, version: 2')
         assertThat(test.counter).is(1)
       })

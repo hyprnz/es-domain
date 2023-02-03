@@ -1,9 +1,9 @@
+import { EntityConstructor, EntityConstructorPayload } from '..'
 import * as Uuid from '../util/UUID'
+import { Aggregate } from './Aggregate'
 import { AggregateError } from './AggregateError'
 import { ChangeEvent, EntityEvent, Message, UNINITIALISED_AGGREGATE_VERSION } from './contracts/MessageTypes'
 import { EntityBase } from './EntityBase'
-import { Aggregate } from './Aggregate'
-import { EntityConstructor, EntityConstructorPayload } from '..'
 
 export class AggregateContainer<T extends EntityBase, U extends EntityConstructorPayload = EntityConstructorPayload>
   implements Aggregate
@@ -20,7 +20,7 @@ export class AggregateContainer<T extends EntityBase, U extends EntityConstructo
 
   get rootEntity(): T {
     if (!this._rootEntity) throw new Error('Root entity not initialised')
-    return this._rootEntity!
+    return this._rootEntity
   }
 
   get id(): Uuid.UUID {
