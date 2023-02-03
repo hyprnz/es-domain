@@ -1,5 +1,5 @@
 import { assertThat } from 'mismatched'
-import { EventBusProducer } from './EventBusProducer'
+import { EventBusProducer } from './EventBusProcessor'
 import { EventBus } from '../writeModelRepository/EventBus'
 import { ChangeEventBuilder, EntityEvent } from '../eventSourcing'
 

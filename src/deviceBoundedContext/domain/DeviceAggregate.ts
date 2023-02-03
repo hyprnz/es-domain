@@ -6,11 +6,23 @@ import { ChangeEvent, EntityEvent } from '../../eventSourcing/MessageTypes'
 import { Aggregate, SnapshotAggregate } from '../../eventSourcing/Aggregate'
 import { DeviceCreationParmaters } from './Device'
 
-//BJ I think thi is a bad use of the aggregate container, this wraps the aggrgate container unnecesarily
+// BJ I think thi is a bad use of the aggregate container, this wraps the aggrgate container unnecesarily
 // We seperated the Aggregate container and aggregate root intentionally as people preffered composition over inheritiance
 // These types of classes (more oop) are attempting to bring these 2 things back togeather so they can be accessed as one
 // However this introduces A LOT of unnecesary boiler plate code !!!!!
 
+/** @deprecated
+ * This is an example of an Aggregate Root that uses composition to inject the aggregate container and then all the properties
+ * and methods of the container are exposed
+ *
+ * BJ I think thi is a bad use of the aggregate container, this wraps the aggrgate container unnecesarily
+ * We seperated the Aggregate container and aggregate root intentionally as people preffered composition over inheritiance
+ * These types of classes (more oop) are attempting to bring these 2 things back togeather so they can be accessed as one
+ * However this introduces A LOT of unnecesary boiler plate code !!!!!
+ *
+ * Aggregate
+ * Use Non inherited version where
+ * */
 export class DeviceAggregate implements SnapshotAggregate {
   constructor(private aggregate: AggregateContainer<Device, DeviceCreationParmaters> = new AggregateContainer(Device)) {}
 

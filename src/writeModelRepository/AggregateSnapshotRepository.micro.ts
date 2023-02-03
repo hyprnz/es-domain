@@ -1,13 +1,13 @@
 import * as Uuid from '../util/UUID'
-import { AggregateRepository } from './AggregateRepository'
 import { AggregateSnapshotRepository } from './AggregateSnapshotRepository'
 import { SnapshotRepository } from './SnapshotRepository'
 import { TestSnapshotableAggregate } from '../eventSourcing/TestAggregate'
 import { Thespian, TMocked } from 'thespian'
 import { EntityEvent } from '../eventSourcing/MessageTypes'
+import { WriteModelRepository } from './WriteModelRepository'
 
 describe('AggregateSnapshotRepository', () => {
-  let aggregateRepository: TMocked<AggregateRepository>
+  let aggregateRepository: TMocked<WriteModelRepository>
   let snapshotRepository: TMocked<SnapshotRepository>
   let repository: AggregateSnapshotRepository
   let thespian: Thespian

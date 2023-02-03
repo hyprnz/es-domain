@@ -1,16 +1,17 @@
 import * as Uuid from '../util/UUID'
 import { EntityEvent } from '../eventSourcing/MessageTypes'
 import { ReadModelMemoryRepository } from '../readModelRepository/ReadModelMemoryRepository'
-import { AggregateRepository } from '../writeModelRepository/AggregateRepository'
+
 import { allAlarmCountProjection, deviceAlarmCountProjection } from './readModel/AlarmCountProjection'
 import { DeviceService } from './service/DeviceService'
-import { alarmProjectionHandler } from '.'
+import { alarmProjectionHandler, Device } from '.'
 import { InMemoryEventStore } from '../writeModelRepository/InMemoryEventStore'
 import { DeviceRepository } from './service/DeviceRepository'
 import { SnapshotRepository } from '../writeModelRepository/SnapshotRepository'
 import { InMemorySnapshotEventStore } from '../writeModelRepository/InMemorySnapshotEventStore'
 import { AggregateSnapshotRepository } from '../writeModelRepository/AggregateSnapshotRepository'
-import { EventBusProducer } from '../eventBus/EventBusProducer'
+import { EventBusProducer } from '../eventBus/EventBusProcessor'
+import { AggregateRootRepositoryBuilder } from '../eventSourcing/AggregateRootRepo'
 
 
 describe('deviceApplication', () => {
@@ -22,12 +23,16 @@ describe('deviceApplication', () => {
   }
 
   // Setup Write side
-  const aggregateRepository = new AggregateRepository(new InMemoryEventStore(), new EventBusProducer())
-  const aggregateSnapshotRepository = new SnapshotRepository(new InMemorySnapshotEventStore())
-  aggregateRepository.subscribeToChangesSynchronously(eventBus)
-  const deviceService = new DeviceService(
-    new DeviceRepository(new AggregateSnapshotRepository(aggregateRepository, aggregateSnapshotRepository))
-  )
+  const eventStore = AggregateRootRepositoryBuilder
+    .makeEventStore(new InMemoryEventStore(), new EventBusProducer())
+    .registerCallback(eventBus)
+
+    const inMemoryEventStore = AggregateRootRepositoryBuilder.makeEventStore(new InMemoryEventStore(), new EventBusProducer())
+    const inMemorySnapshotStore = new InMemorySnapshotEventStore()
+    const repository = AggregateRootRepositoryBuilder.makeSnapshotRepo(inMemoryEventStore, Device, inMemorySnapshotStore)
+
+    const deviceService = new DeviceService(repository)
+
 
   it('Updates entities and read models', async () => {
     // Perform actions

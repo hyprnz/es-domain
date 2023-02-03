@@ -9,7 +9,7 @@ export interface Entity {
 }
 
 export interface SnapshotEntity {
-  snapshot(dateTimeOfEvent: string): void
+  snapshot(dateTimeOfEvent: string): ChangeEvent[]
 }
 
 export interface EntityConstructorPayload {

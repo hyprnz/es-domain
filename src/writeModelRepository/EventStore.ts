@@ -1,22 +1,61 @@
-import { UUID } from '../util/UUID'
-import { EntityEvent } from '../eventSourcing/MessageTypes'
+import { EventStoreRepository } from ".";
+import { ChangeEvent, EntityEvent } from "../eventSourcing";
+import { EventBus } from "./EventBus";
 
-export interface EventStore {
-  /** Gets events greater than or equal to the specified date. Should throw optimistic concurrency error
-   * if versions are incorrect.
-   * @argument id The aggregate root id
-   * @argument events - the events to append.
-   */
-  appendEvents(id: UUID, changeVersion: number, events: EntityEvent[]): Promise<void>
+type EventMiddleware = (evt: ChangeEvent) => Promise<ChangeEvent>
+type EventDeserializer = Record<string, EventMiddleware | undefined>
 
-  /** Gets all events for an aggregate
-   * @argument id The aggregate root id
-   */
-  getEvents(id: UUID): Promise<EntityEvent[]>
+export class EventStore implements EventStoreRepository{
+    private eventMiddleware: EventDeserializer = {}
 
-  /** Gets events greater than or equal to the specified date
-   * @argument id - The aggregate root id
-   * @argument version - The starting event version number events must be greater than
-   */
-  getEventsAfterVersion(id: UUID, version: number): Promise<EntityEvent[]>
+    constructor(private readonly eventStoreRepo: EventStoreRepository, private readonly bus: EventBus<EntityEvent>) { }
+    async appendEvents(id: string, changeVersion: number, events: EntityEvent[]): Promise<void> {
+        await this.eventStoreRepo.appendEvents(id, changeVersion, events)
+        await this.onAfterEventsStored(events)
+    }
+    getEvents(id: string): Promise<EntityEvent[]> {
+        return this.eventStoreRepo.getEvents(id)
+        .then(rawEvents => rawEvents.map(x =>this.deserialize(x)))
+        .then(x => Promise.all(x))
+    }
+    getEventsAfterVersion(id: string, version: number): Promise<EntityEvent[]> {
+        return this.eventStoreRepo.getEventsAfterVersion(id, version)
+            .then(rawEvents => rawEvents.map(x =>this.deserialize(x)))
+            .then(x => Promise.all(x))
+    }
+
+    registerCallback(handler: (changes: Array<EntityEvent>) => Promise<void>): this {
+        this.bus.registerHandlerForEvents(handler)
+        return this
+    }
+
+    registerEventDeserializer(eventType: string, handler: EventMiddleware, appendIfExists: boolean = false): void {
+      const existingHandler = this.eventMiddleware[eventType]
+
+      if (existingHandler) {
+        if (appendIfExists) {
+          this.eventMiddleware[eventType] = (e) => existingHandler(e).then(handler)
+          return
+        }
+        throw new Error(`Handler for eventType:${eventType} already registered`)
+      }
+
+
+      this.eventMiddleware[eventType] = handler
+    }
+
+    private async deserialize(event: EntityEvent): Promise<EntityEvent> {
+      const { eventType } = event.event
+      const middleware = this.eventMiddleware[eventType];
+
+      return ({
+        version: event.version,
+        event:  middleware ? await middleware(event.event) : event.event
+      })
+    }
+
+    private async onAfterEventsStored(changes: Array<EntityEvent>): Promise<void> {
+        if (changes.length === 0) return
+        await this.bus.callHandlers(changes)
+      }
 }

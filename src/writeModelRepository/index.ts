@@ -1,13 +1,13 @@
 export {
-    EventStore,
+    EventStoreRepository,
     /** @deprecated Use EventStore instead */
-    EventStore as InternalEventStore,
-} from './EventStore'
+    EventStoreRepository as InternalEventStore,
+} from './EventStoreRepository'
 
 export * from './WriteModelRepository'
 
 
-export * from './AggregateRepository'
+
 export * from './InMemoryEventStore'
 
 // Snapshotting

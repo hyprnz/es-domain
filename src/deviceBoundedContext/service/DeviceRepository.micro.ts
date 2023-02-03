@@ -1,29 +1,32 @@
-import { assertThat } from 'mismatched'
+import { assertThat, match } from 'mismatched'
 import { DeviceRepository } from './DeviceRepository'
-import { AggregateRepository } from '../../writeModelRepository/AggregateRepository'
 import { InMemoryEventStore } from '../../writeModelRepository/InMemoryEventStore'
 import { SnapshotRepository } from '../../writeModelRepository/SnapshotRepository'
 import { InMemorySnapshotEventStore } from '../../writeModelRepository/InMemorySnapshotEventStore'
 import { Uuid } from '../..'
 import { AggregateSnapshotRepository } from '../../writeModelRepository/AggregateSnapshotRepository'
-import { EventBusProducer } from '../../eventBus/EventBusProducer'
+import { EventBusProducer } from '../../eventBus/EventBusProcessor'
+import { AggregateRepository, AggregateRootRepositoryBuilder } from '../../eventSourcing/AggregateRootRepo'
+import { DeviceAggregate } from '../domain/DeviceAggregate'
+import { Device, DeviceCreationParmaters } from '../domain/Device'
 
 describe('DeviceRepository', () => {
-  let repository: DeviceRepository
+  let repository: AggregateRepository<Device, DeviceCreationParmaters>
 
   beforeEach(() => {
-    const aggregateRepository = new AggregateRepository(new InMemoryEventStore(), new EventBusProducer())
-    const aggregateSnapshotRepository = new SnapshotRepository(new InMemorySnapshotEventStore())
-    repository = new DeviceRepository(new AggregateSnapshotRepository(aggregateRepository, aggregateSnapshotRepository))
+    const inMemoryEventStore = AggregateRootRepositoryBuilder.makeEventStore(new InMemoryEventStore(), new EventBusProducer())
+    const inMemorySnapshotStore = new InMemorySnapshotEventStore()
+    repository = AggregateRootRepositoryBuilder.makeSnapshotRepo(inMemoryEventStore, Device, inMemorySnapshotStore)
   })
 
   describe('create', () => {
     const id = Uuid.createV4()
     it('new', async () => {
-      await repository.create(id)
-      const result = await repository.load(id)
-      assertThat(result.id).is(id)
-      assertThat(result.changeVersion).is(0)
+      const [newDevice] = await repository.create({id, colour:"red"})
+      await newDevice.save()
+
+      const [result] = await repository.get(id)
+      assertThat(result).is(match.obj.has({id, colour:"red"}))
     })
   })
 
@@ -31,29 +34,34 @@ describe('DeviceRepository', () => {
     const id = Uuid.createV4()
     const alarmId = Uuid.createV4()
     it('with a change that does not create a snapshot', async () => {
-      await repository.create(id)
-      const aggregate = await repository.load(id)
-      aggregate.addAlarm(alarmId)
-      await repository.save(aggregate, 100)
-      assertThat(aggregate.id).is(id)
-      assertThat(aggregate.changeVersion).is(1)
-      assertThat(aggregate.uncommittedChanges()).is([])
+      const [newDevice] = await repository.create({id, colour:"red"})
+      await newDevice.save()
+
+      const [device, container] = await repository.get(id)
+      device.addAlarm(alarmId)
+      assertThat(container.uncommittedChanges()).is(match.array.length(1))
+      await device.save()
+
+      assertThat(container.uncommittedChanges()).is([])
     })
     it('with a change that creates a snapshot', async () => {
-      await repository.create(id)
-      const aggregate = await repository.load(id)
-      aggregate.addAlarm(Uuid.createV4())
-      aggregate.addAlarm(Uuid.createV4())
-      aggregate.addAlarm(Uuid.createV4())
-      await repository.save(aggregate, 1)
-      assertThat(aggregate.id).is(id)
-      assertThat(aggregate.countOfEvents()).is(4)
-      assertThat(aggregate.changeVersion).is(3)
-      assertThat(aggregate.uncommittedChanges()).is([])
-      const aggregateFromSnapshot = await repository.load(id)
-      assertThat(aggregateFromSnapshot.id).is(id)
-      assertThat(aggregateFromSnapshot.changeVersion).is(3)
-      assertThat(aggregateFromSnapshot.uncommittedChanges()).is([])
+      const [newDevice] = await repository.create({id, colour:"red"})
+      await newDevice.save()
+
+      const [device, deviceContainer] = await repository.get(id)
+      device.addAlarm(Uuid.createV4())
+      device.addAlarm(Uuid.createV4())
+      device.addAlarm(Uuid.createV4())
+      await device.save()
+
+      assertThat(device.id).is(id)
+      assertThat(deviceContainer.changeVersion).is(3)
+      assertThat(deviceContainer.uncommittedChanges()).is([])
+
+      const [loadedDevice, loadedContainer] = await repository.get(id)
+      assertThat(loadedDevice.id).is(id)
+      assertThat(loadedContainer.changeVersion).is(3)
+      assertThat(loadedContainer.uncommittedChanges()).is([])
     })
   })
 })

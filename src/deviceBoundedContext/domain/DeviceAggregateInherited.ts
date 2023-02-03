@@ -5,7 +5,10 @@ import { ChangeEvent } from '../../eventSourcing/MessageTypes'
 import { DeviceCreatedEvent } from '../events/internal/DeviceCreatedEvent'
 import { DeviceCreationParmaters } from './Device'
 
-/** @deprecated Use Non inherited version */
+/** @deprecated
+ * This is an example of an Aggregate Root that uses inheratance so that all the Aggregate Containers properties appepar on the aggregate root
+ * Use Non inherited version
+ * */
 class DeviceAggregateInherited extends AggregateContainer<Device, DeviceCreationParmaters> {
   constructor(id: Uuid.UUID,) {
     super(Device)

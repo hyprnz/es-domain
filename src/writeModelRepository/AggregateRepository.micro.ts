@@ -1,39 +1,41 @@
 import * as Uuid from '../util/UUID'
-import { AggregateRepository } from './AggregateRepository'
 import { assertThat, match } from 'mismatched'
 import { ChangeEvent, EntityEvent } from '../eventSourcing/MessageTypes'
-import { WriteModelRepository } from './WriteModelRepository'
 import { OptimisticConcurrencyError } from './OptimisticConcurrencyError'
 import { InMemoryEventStore } from './InMemoryEventStore'
-import { DeviceAggregate } from '../deviceBoundedContext/domain/DeviceAggregate'
 import { AlarmCreatedEvent } from '../deviceBoundedContext/events/internal/AlarmCreatedEvent'
 import { DeviceCreatedEvent } from '../deviceBoundedContext/events/internal/DeviceCreatedEvent'
-import { EventBusProducer } from '../eventBus/EventBusProducer'
+import { EventBusProducer } from '../eventBus/EventBusProcessor'
+import { AggregateRepository, AggregateRootRepositoryBuilder } from '../eventSourcing/AggregateRootRepo'
+import { Device, DeviceCreationParmaters } from '../deviceBoundedContext/domain/Device'
+import { EventStore } from './EventStore'
 
 describe('AggregateRootRepository', () => {
-  let repository: WriteModelRepository
+  let eventStore: EventStore
+  let repository: AggregateRepository<Device, DeviceCreationParmaters>
 
   beforeEach(() => {
-    repository = new AggregateRepository(new InMemoryEventStore(), new EventBusProducer())
+    eventStore = AggregateRootRepositoryBuilder.makeEventStore(new InMemoryEventStore(), new EventBusProducer())
+    repository = AggregateRootRepositoryBuilder.makeRepo(eventStore, Device)
   })
 
   it('stores events', async () => {
     const deviceId = Uuid.createV4()
     const alarmId = Uuid.createV4()
 
-    const deviceAggregate = new DeviceAggregate().withDevice(deviceId, 'red')
-    deviceAggregate.addAlarm(alarmId)
-
-    const uncommittedEvents = deviceAggregate.uncommittedChanges()
-
     let emittedEvents: Array<EntityEvent> = []
     const handler = async (changes: Array<EntityEvent>) => {
       emittedEvents = emittedEvents.concat(changes)
       return
     }
-    repository.subscribeToChangesSynchronously(changes => handler(changes))
+    eventStore.registerCallback(changes => handler(changes))
 
-    const countEvents = await repository.save(deviceAggregate)
+
+    const [device, container] =  await repository.create({id: deviceId, colour:'red'})
+    device.addAlarm(alarmId)
+
+    const uncommittedEvents = container.uncommittedChanges()
+    const countEvents = await device.save()
 
     assertThat(countEvents).withMessage('Stored Event count').is(2)
     assertThat(emittedEvents).withMessage('Emitted Events').is(match.array.length(2))
@@ -44,14 +46,14 @@ describe('AggregateRootRepository', () => {
     const deviceId = Uuid.createV4()
     const alarmId = Uuid.createV4()
 
-    const deviceAggregate = new DeviceAggregate().withDevice(deviceId, 'red')
-    deviceAggregate.addAlarm(alarmId)
+    const [device, deviceContainer] =  await repository.create({id: deviceId, colour:'red'})
+    device.addAlarm(alarmId)
 
-    const uncommittedEvents = deviceAggregate.uncommittedChanges()
-    await repository.save(deviceAggregate)
+    const uncommittedEvents = deviceContainer.uncommittedChanges()
+    await device.save()
 
     // Compare Saved event to loaded make sure they are thesame
-    const loadedEvents = await repository.loadEvents(deviceId)
+    const loadedEvents = await eventStore.getEvents(deviceId)
 
     assertThat(uncommittedEvents).is(loadedEvents)
     assertThat(loadedEvents).is(match.array.length(2))
@@ -59,7 +61,7 @@ describe('AggregateRootRepository', () => {
 
   describe('Event middleware', ()=>{
 
-    it('calls event middleware for configured events only', ()=>{
+    it('calls event middleware for configured events only', async ()=>{
       const id = Uuid.createV4()
       const deviceId = Uuid.createV4()
 
@@ -70,11 +72,11 @@ describe('AggregateRootRepository', () => {
         }
       }
 
-      repository.addEventPostProcessor(AlarmCreatedEvent.eventType, middleware)
+      eventStore.registerEventDeserializer(AlarmCreatedEvent.eventType, middleware)
 
-      const deviceAggregate = new DeviceAggregate().withDevice(deviceId, 'red')
-      return repository.save(deviceAggregate)
-        .then(() =>   repository.loadEvents(deviceId))
+      const [deviceAggregate] = await repository.create({id: deviceId, colour:'red'})
+      return deviceAggregate.save()
+        .then(() =>   eventStore.getEvents(deviceId))
         .then(events => events.filter(x => DeviceCreatedEvent.isDeviceCreatedEvent(x.event)))
         .then(events => {
           assertThat(events).is(match.array.length(1))
@@ -84,7 +86,7 @@ describe('AggregateRootRepository', () => {
         })
 
     })
-    it('calls event middleware after loading evens', ()=>{
+    it('calls event middleware after loading evens', async ()=>{
       const id = Uuid.createV4()
       const deviceId = Uuid.createV4()
 
@@ -95,11 +97,11 @@ describe('AggregateRootRepository', () => {
         }
       }
 
-      repository.addEventPostProcessor(DeviceCreatedEvent.eventType, middleware)
+      eventStore.registerEventDeserializer(DeviceCreatedEvent.eventType, middleware)
 
-      const deviceAggregate = new DeviceAggregate().withDevice(deviceId, 'red')
-      return repository.save(deviceAggregate)
-        .then(() =>   repository.loadEvents(deviceId))
+      const [device] = await repository.create({id: deviceId, colour:'red'})
+      return device.save()
+        .then(() =>   eventStore.getEvents(deviceId))
         .then(events => events.filter(x => DeviceCreatedEvent.isDeviceCreatedEvent(x.event)))
         .then(events => {
           assertThat(events).is(match.array.length(1))
@@ -109,7 +111,7 @@ describe('AggregateRootRepository', () => {
         })
     })
 
-    it('registers multiple chained middleware after loading evens', ()=>{
+    it('registers multiple chained middleware after loading evens', async ()=>{
       const id = Uuid.createV4()
       const deviceId = Uuid.createV4()
 
@@ -127,12 +129,12 @@ describe('AggregateRootRepository', () => {
         }
       }
 
-      repository.addEventPostProcessor(DeviceCreatedEvent.eventType, middleware1)
-      repository.addEventPostProcessor(DeviceCreatedEvent.eventType, middleware2, true)
+      eventStore.registerEventDeserializer(DeviceCreatedEvent.eventType, middleware1)
+      eventStore.registerEventDeserializer(DeviceCreatedEvent.eventType, middleware2, true)
 
-      const deviceAggregate = new DeviceAggregate().withDevice(deviceId, 'red')
-      return repository.save(deviceAggregate)
-        .then(() =>   repository.loadEvents(deviceId))
+      const [deviceAggregate] = await repository.create({id: deviceId, colour:'red'})
+      return deviceAggregate.save()
+        .then(() =>   eventStore.getEvents(deviceId))
         .then(events => events.filter(x => DeviceCreatedEvent.isDeviceCreatedEvent(x.event)))
         .then(events => {
           assertThat(events).is(match.array.length(1))
@@ -149,14 +151,13 @@ describe('AggregateRootRepository', () => {
     const deviceId = Uuid.createV4()
     const alarmId = Uuid.createV4()
 
-    const deviceAggregate = new DeviceAggregate().withDevice(deviceId, 'red')
-
+    const [deviceAggregate] = await repository.create({id: deviceId, colour:'red'})
     deviceAggregate.addAlarm(alarmId)
 
     const alarm = deviceAggregate.findAlarm(alarmId)
-    await repository.save(deviceAggregate)
+    await deviceAggregate.save()
 
-    const rehydratedAggregate = await repository.load(deviceId, new DeviceAggregate())
+    const [rehydratedAggregate] = await repository.get(deviceId)
     const foundAlarm = rehydratedAggregate.findAlarm(alarmId)
     assertThat(foundAlarm).isNot(undefined)
     assertThat(foundAlarm).is(alarm)
@@ -166,14 +167,14 @@ describe('AggregateRootRepository', () => {
     const deviceId = Uuid.createV4()
     const alarmId = Uuid.createV4()
 
-    const deviceAggregate = new DeviceAggregate().withDevice(deviceId, 'red')
-    deviceAggregate.addAlarm(alarmId)
+    const [device] = await repository.create({id: deviceId, colour:'red'})
+    device.addAlarm(alarmId)
 
     // changes stored, uncommitted changes cleared
-    await repository.save(deviceAggregate)
+    await device.save()
 
-    const rehydratedAggregate = await repository.load(deviceId, new DeviceAggregate())
-    const uncommittedEvents = rehydratedAggregate.uncommittedChanges()
+    const [rehydrateddevice, aggregatecontainer] = await repository.get(deviceId)
+    const uncommittedEvents = aggregatecontainer.uncommittedChanges()
     // rehydration should not result in new events
     assertThat(uncommittedEvents).is(match.array.length(0))
   })
@@ -182,17 +183,17 @@ describe('AggregateRootRepository', () => {
     const deviceId = Uuid.createV4()
     const alarmId = Uuid.createV4()
 
-    const deviceAggregate = new DeviceAggregate().withDevice(deviceId, 'red')
+    const [deviceAggregate] = await repository.create({id: deviceId, colour:'red'})
     deviceAggregate.addAlarm(alarmId)
-    await repository.save(deviceAggregate)
+    await deviceAggregate.save()
 
-    const anotherDeviceAggregate = await repository.load(deviceId, new DeviceAggregate())
+    const [anotherDeviceAggregate] = await repository.get(deviceId)
 
     deviceAggregate.addAlarm(Uuid.createV4())
     anotherDeviceAggregate.addAlarm(Uuid.createV4())
 
-    await repository.save(deviceAggregate)
-    await repository.save(anotherDeviceAggregate).then(
+    await deviceAggregate.save()
+    await anotherDeviceAggregate.save().then(
       () => fail('Expected Optimistic concurrency error here!!'),
       (e: any) => {
         assertThat(e instanceof OptimisticConcurrencyError).is(true)
@@ -201,16 +202,17 @@ describe('AggregateRootRepository', () => {
     )
   })
 
-  it('loads when no events', async () => {
-    const deviceId = Uuid.createV4()
-    const alarmId = Uuid.createV4()
+  it('get, throws when no events', async () => {
+    return repository.get(Uuid.createV4())
+      .then(
+        success => fail("should not get here"),
+        fail => assertThat(fail).is(new Error("Not Found"))
+      )
+  })
 
-    const rehydratedAggregate = await repository.load(deviceId, new DeviceAggregate())
-    const uncommittedEvents = rehydratedAggregate.uncommittedChanges()
-    // rehydration should not result in new events
-    assertThat(uncommittedEvents).is(match.array.length(0))
-
-    assertThat(() => rehydratedAggregate.id).throws(new Error('Not Found'))
+  it('find, returns undefined when no events', async () => {
+    const device = await repository.find(Uuid.createV4())
+    assertThat(device).is(undefined)
   })
 
 })
