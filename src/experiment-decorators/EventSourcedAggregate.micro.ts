@@ -1,9 +1,9 @@
 import { assertThat, match } from 'mismatched'
+import { createV4, UUID } from '../util/UUID'
 import { Parent } from './Aggregate'
-import { EventSourcedAggregate } from './EventSourcedAggregate'
-import { createV4, UUID } from '../../util/UUID'
 import { Device } from './deviceWithDecorators/domain/Device'
 import { AlarmCreatedEvent } from './deviceWithDecorators/events/internal/AlarmCreatedEvent'
+import { EventSourcedAggregate } from './EventSourcedAggregate'
 
 describe('EventSourcedAggregate', () => {
   const makeDevice = (id: UUID, aggregate: Parent) => new Device(id, aggregate)
@@ -18,20 +18,17 @@ describe('EventSourcedAggregate', () => {
     assertThat(uncommitted).is([
       {
         event: {
-          ...AlarmCreatedEvent.make(
-            createV4,
-            {
-              aggregateRootId: id,
-              entityId: id,
-              alarmId,
-            }
-          ),
+          ...AlarmCreatedEvent.make(createV4, {
+            aggregateRootId: id,
+            entityId: id,
+            alarmId
+          }),
           id: match.any(),
           correlationId: match.any(),
           causationId: match.any(),
 
           // Match dates approximately, exact match fails on build server
-          dateTimeOfEvent: match.predicate( (date) =>  Math.abs(Date.now() - Date.parse(date)) < 1000  )
+          dateTimeOfEvent: match.predicate(date => Math.abs(Date.now() - Date.parse(date)) < 1000)
         },
         version: 0
       }

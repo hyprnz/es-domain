@@ -1,5 +1,5 @@
-import { Uuid } from '../../../../..'
-import { ChangeEventFactory, baseChangeEventBuilder, ChangeEvent, EventData } from '../../../MessageTypes'
+import { Uuid } from '../../../..'
+import { baseChangeEventBuilder, ChangeEvent, ChangeEventFactory, EventData } from '../../../MessageTypes'
 
 export interface AlarmArmedEvent extends ChangeEvent {
   eventType: 'AlarmArmedEvent'
@@ -19,7 +19,7 @@ export namespace AlarmArmedEvent {
   ): AlarmArmedEvent => ({
     ...baseChangeEventBuilder(idProvider, data),
     eventType,
-    threshold: data.threshold,
+    threshold: data.threshold
   })
 
   export const isAlarmArmedEvent = (e: ChangeEvent): e is AlarmArmedEvent => e.eventType === eventType

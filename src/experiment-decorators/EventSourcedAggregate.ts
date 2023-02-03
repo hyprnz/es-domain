@@ -1,9 +1,9 @@
 import 'reflect-metadata'
+import { UUID } from '../util/UUID'
+import { AggregateError } from '../eventSourcing/AggregateError'
 import { Aggregate, Parent } from './Aggregate'
-import { AggregateError } from '../AggregateError'
-import { EntityEvent, UNINITIALISED_AGGREGATE_VERSION, ChangeEvent } from './MessageTypes'
-import { UUID } from '../../util/UUID'
 import { EventSourcedEntity } from './Entity'
+import { ChangeEvent, EntityEvent, UNINITIALISED_AGGREGATE_VERSION } from './MessageTypes'
 
 export class EventSourcedAggregate<T extends EventSourcedEntity> implements Aggregate {
   id: UUID
@@ -82,7 +82,7 @@ export class EventSourcedAggregate<T extends EventSourcedEntity> implements Aggr
     return this
   }
 
-  withCausationMessage(message: { causationId: UUID, correlationId: UUID}): this {
+  withCausationMessage(message: { causationId: UUID; correlationId: UUID }): this {
     this.causationId = message.causationId
     this.correlationId = message.correlationId
     return this

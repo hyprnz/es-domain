@@ -1,6 +1,6 @@
 import { ChangeEvent, EntityEvent } from './MessageTypes'
 import { EventSourcedEntity } from './Entity'
-import { Uuid } from '../..'
+import { Uuid } from '..'
 
 export interface Aggregate {
   readonly id: Uuid.UUID
@@ -19,6 +19,5 @@ export interface Parent {
   causationId(): Uuid.UUID | undefined
 
   addChangeEvent(event: ChangeEvent): void
-
   registerEntity(entity: EventSourcedEntity): void
 }
