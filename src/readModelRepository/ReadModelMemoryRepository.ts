@@ -1,5 +1,5 @@
-import { Projection } from './Projection'
 import { UUID } from '../util/UUID'
+import { Projection } from './Projection'
 import { ReadModelRepository } from './ReadModelRepository'
 
 export class ReadModelMemoryRepository implements ReadModelRepository {

@@ -3,8 +3,9 @@ import { Thespian, TMocked } from 'thespian'
 import { alarmProjectionHandler } from './AlarmsProjection'
 import { EntityEvent } from '../../eventSourcing/contracts/MessageTypes'
 import { ReadModelRepository } from '../../readModelRepository/ReadModelRepository'
-import {AlarmCreatedEvent} from "../events/internal/AlarmCreatedEvent";
-import {AlarmArmedEvent} from "../events/internal/AlarmArmedEvent";
+import { AlarmCreatedEvent } from '../events/internal/AlarmCreatedEvent'
+import { AlarmArmedEvent } from '../events/internal/AlarmArmedEvent'
+
 
 describe('AlarmsProjection', () => {
   let mocks: Thespian
