@@ -29,16 +29,4 @@ export class TestSnapshotableAggregate extends AggregateContainer<TestEntity> im
   snapshot(): ChangeEvent[] {
     return this.rootEntity.snapshot(new Date().toISOString())
   }
-
-  doSomething() {
-    this.rootEntity.applyChangeEvent({
-      id: this.id,
-      aggregateRootId: this.id,
-      entityId: this.id,
-      dateTimeOfEvent: new Date().toISOString(),
-      eventType: this.eventType,
-      causationId: this.causationId1,
-      correlationId: this.correlationId1
-    })
-  }
 }

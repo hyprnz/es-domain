@@ -1,10 +1,10 @@
 import { Device } from '..'
-import { AggregateRepository } from '../../eventSourcing/AggregateRootRepo'
+import { AggregateRootRepository } from '../../eventSourcing/AggregateRootRepository'
 import * as Uuid from '../../util/UUID'
 import { DeviceCreationParmaters } from '../domain/Device'
 
 export class DeviceService {
-  constructor(private repository: AggregateRepository<Device, DeviceCreationParmaters>) {}
+  constructor(private repository: AggregateRootRepository<Device, DeviceCreationParmaters>) {}
 
   async addNewDeviceToNetwork(deviceId: Uuid.UUID): Promise<void> {
     const [device] = await this.repository.create({id:deviceId, colour:"red"})

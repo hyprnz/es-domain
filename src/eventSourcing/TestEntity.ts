@@ -25,6 +25,18 @@ export class TestEntity extends EntityBase implements SnapshotEntity {
     }
   }
 
+  doSomething() {
+    this.applyChangeEvent({
+      id: this.id,
+      aggregateRootId: this.id,
+      entityId: this.id,
+      dateTimeOfEvent: new Date().toISOString(),
+      eventType: this.eventType,
+      causationId: this.causationId1,
+      correlationId: this.correlationId1
+    })
+  }
+
   static toCreationParameters(event: any): EntityConstructorPayload {
     return { id: event.id }
   }

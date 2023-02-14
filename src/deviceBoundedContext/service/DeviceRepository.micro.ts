@@ -1,28 +1,37 @@
 import { assertThat, match } from 'mismatched'
-import { InMemoryEventStore } from '../../writeModelRepository/InMemoryEventStore'
-import { InMemorySnapshotEventStore } from '../../writeModelRepository/InMemorySnapshotEventStore'
 import { Uuid } from '../..'
 import { EventBusProducer } from '../../eventBus/EventBusProcessor'
-import { AggregateRepository, AggregateRootRepositoryBuilder } from '../../eventSourcing/AggregateRootRepo'
+import { AggregateRootRepository, AggregateRootRepositoryBuilder } from '../../eventSourcing/AggregateRootRepository'
+import { SnapshotStrategyBuilder } from '../../eventSourcing/snapshotStrategyBuilder'
+import { InMemoryEventStore } from '../../writeModelRepository/InMemoryEventStore'
+import { InMemorySnapshotEventStore } from '../../writeModelRepository/InMemorySnapshotEventStore'
 import { Device, DeviceCreationParmaters } from '../domain/Device'
 
 describe('DeviceRepository', () => {
-  let repository: AggregateRepository<Device, DeviceCreationParmaters>
+  let repository: AggregateRootRepository<Device, DeviceCreationParmaters>
 
   beforeEach(() => {
     const inMemoryEventStore = AggregateRootRepositoryBuilder.makeEventStore(new InMemoryEventStore(), new EventBusProducer())
+
+    const snapshotStrategy = SnapshotStrategyBuilder.afterCountOfEvents(100)
     const inMemorySnapshotStore = new InMemorySnapshotEventStore()
-    repository = AggregateRootRepositoryBuilder.makeSnapshotRepo(inMemoryEventStore, Device, inMemorySnapshotStore)
+
+    repository = AggregateRootRepositoryBuilder.makeSnapshotRepo(
+      inMemoryEventStore,
+      Device,
+      inMemorySnapshotStore,
+      snapshotStrategy
+    )
   })
 
   describe('create', () => {
     const id = Uuid.createV4()
     it('new', async () => {
-      const [newDevice] = await repository.create({id, colour:"red"})
+      const [newDevice] = await repository.create({ id, colour: 'red' })
       await newDevice.save()
 
       const [result] = await repository.get(id)
-      assertThat(result).is(match.obj.has({id, colour:"red"}))
+      assertThat(result).is(match.obj.has({ id, colour: 'red' }))
     })
   })
 
@@ -30,7 +39,7 @@ describe('DeviceRepository', () => {
     const id = Uuid.createV4()
     const alarmId = Uuid.createV4()
     it('with a change that does not create a snapshot', async () => {
-      const [newDevice] = await repository.create({id, colour:"red"})
+      const [newDevice] = await repository.create({ id, colour: 'red' })
       await newDevice.save()
 
       const [device, container] = await repository.get(id)
@@ -41,7 +50,7 @@ describe('DeviceRepository', () => {
       assertThat(container.uncommittedChanges()).is([])
     })
     it('with a change that creates a snapshot', async () => {
-      const [newDevice] = await repository.create({id, colour:"red"})
+      const [newDevice] = await repository.create({ id, colour: 'red' })
       await newDevice.save()
 
       const [device, deviceContainer] = await repository.get(id)

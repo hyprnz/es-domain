@@ -11,6 +11,7 @@ import {
 import { EventStoreRepository, SnapshotEventStore } from '..'
 import { UUID } from '../util/UUID'
 import { EventBus } from './contracts/EventBus'
+import { SnapshotStrategy } from './contracts/SnapshotStrategy'
 import { EventStore } from './EventStore'
 
 export interface PersistableEntity {
@@ -24,7 +25,7 @@ type EntityContainerPair<T extends EntityBase, U extends EntityConstructorPayloa
   AggregateContainer<T, U>
 ]
 
-export interface AggregateRepository<T extends EntityBase, U extends EntityConstructorPayload> {
+export interface AggregateRootRepository<T extends EntityBase, U extends EntityConstructorPayload> {
   get(id: UUID): Promise<EntityContainerPair<T, U>>
   find(id: UUID): Promise<EntityContainerPair<T, U> | undefined>
   create(creationEvent: U): Promise<EntityContainerPair<T, U>>
@@ -42,16 +43,17 @@ export class AggregateRootRepositoryBuilder {
   static makeRepo<T extends EntityBase, U extends EntityConstructorPayload>(
     eventStore: EventStore,
     activator: EntityConstructor<T, U>
-  ): AggregateRepository<T, U> {
-    return new SpecialisedAggregateRootRepository(eventStore, activator)
+  ): AggregateRootRepository<T, U> {
+    return new NonsnapshotAggregateRootRepository(eventStore, activator)
   }
 
   static makeSnapshotRepo<T extends EntityBase, U extends EntityConstructorPayload>(
     eventStore: EventStore,
     activator: EntityConstructor<T, U>,
-    snapshotStore: SnapshotEventStore
-  ): AggregateRepository<T, U> {
-    return new SnapshotingAggregateRootRepository(eventStore, activator, snapshotStore)
+    snapshotStore: SnapshotEventStore,
+    snapshotStrategy: SnapshotStrategy
+  ): AggregateRootRepository<T, U> {
+    return new SnapshotingAggregateRootRepository(eventStore, activator, snapshotStore, snapshotStrategy)
   }
 }
 
@@ -120,8 +122,8 @@ class GenericAggregateRootRepository {
   }
 }
 
-class SpecialisedAggregateRootRepository<T extends EntityBase, U extends EntityConstructorPayload>
-  implements AggregateRepository<T, U>
+class NonsnapshotAggregateRootRepository<T extends EntityBase, U extends EntityConstructorPayload>
+  implements AggregateRootRepository<T, U>
 {
   private genericRepo: GenericAggregateRootRepository
   constructor(readonly eventStore: EventStore, private activator: EntityConstructor<T, U>) {
@@ -143,14 +145,14 @@ class SpecialisedAggregateRootRepository<T extends EntityBase, U extends EntityC
 }
 
 class SnapshotingAggregateRootRepository<T extends EntityBase, U extends EntityConstructorPayload>
-  implements AggregateRepository<T, U>
+  implements AggregateRootRepository<T, U>
 {
   private genericRepo: GenericAggregateRootRepository
   constructor(
     private readonly eventStore: EventStore,
     private activator: EntityConstructor<T, U>,
     private snapshotStore: SnapshotEventStore,
-    snapshotInterval = 1000
+    private snapshotStrategy: SnapshotStrategy
   ) {
     this.genericRepo = new GenericAggregateRootRepository(eventStore)
   }
@@ -190,8 +192,8 @@ class SnapshotingAggregateRootRepository<T extends EntityBase, U extends EntityC
 
     const snapShotSave = this.makeSnapshotSave(entity, container)
     const updatedentity = Object.assign(entity, {
-      save: () => snapShotSave(100),
-      uncommittedChanges: () => container.uncommittedChanges()
+      save: () => snapShotSave(this.snapshotStrategy)
+      // uncommittedChanges: () => container.uncommittedChanges()
     })
 
     return [updatedentity, container]
@@ -199,12 +201,17 @@ class SnapshotingAggregateRootRepository<T extends EntityBase, U extends EntityC
 
   private makeSnapshotSave(entity: T & PersistableEntity, container: AggregateContainer<T, U>) {
     const originalSave = entity.save.bind(entity)
-    return async (snapshotLmit: number): Promise<void> => {
-      const count = await originalSave()
-      if (count > snapshotLmit && isSnapshotableEntity(entity)) {
-        const snapshots = entity.snapshot(new Date().toISOString())
-        this.snapshotStore.appendSnapshotEvents(entity.id, container.changeVersion, snapshots)
+
+    return async (strategy: SnapshotStrategy): Promise<void> => {
+      if (isSnapshotableEntity(entity)) {
+        const clock = Date.now()
+        const shouldSnapshot = strategy.shouldSnapshot(container, { clock })
+        if (shouldSnapshot) {
+          const snapshots = entity.snapshot(new Date(clock).toISOString())
+          this.snapshotStore.appendSnapshotEvents(entity.id, container.changeVersion, snapshots)
+        }
       }
+      await originalSave()
     }
   }
 }
