@@ -9,6 +9,7 @@ export class AggregateContainer<T extends EntityBase, U extends EntityConstructo
   implements Aggregate
 {
   public _rootEntity: T | undefined
+  /** Not sure why we keep this this is dangerous!! */
   private events: Array<EntityEvent> = []
   private changes: Array<EntityEvent> = []
   private causationId?: Uuid.UUID
@@ -88,6 +89,9 @@ export class AggregateContainer<T extends EntityBase, U extends EntityConstructo
   }
 
   markChangesAsCommitted(version: number): void {
+    const expectedVersion = this.changes[this.changes.length - 1].version
+    if (expectedVersion != version) throw new AggregateError(typeof this, 'Failed to commit unexpected event version')
+
     this.changes = []
     this.version = version
   }

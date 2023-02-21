@@ -4,7 +4,7 @@ import { EventBus } from './contracts/EventBus'
 export type EventMiddleware = (evt: ChangeEvent) => Promise<ChangeEvent>
 type EventDeserializer = Record<string, EventMiddleware | undefined>
 
-export class EventStore implements EventStoreRepository {
+export class EventStore {
   private eventMiddleware: EventDeserializer = {}
 
   constructor(private readonly eventStoreRepo: EventStoreRepository, private readonly bus: EventBus<EntityEvent>) {}

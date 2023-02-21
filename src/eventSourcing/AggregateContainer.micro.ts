@@ -100,8 +100,8 @@ describe('AggregateContainer', () => {
     it('change which is committed', async () => {
       aggregate.loadFromHistory([{ version: 0, event }])
       aggregate.rootEntity.applyChangeEvent(event)
-      aggregate.markChangesAsCommitted(100)
-      assertThat(aggregate.changeVersion).is(100)
+      aggregate.markChangesAsCommitted(1)
+      assertThat(aggregate.changeVersion).is(1)
       assertThat(aggregate.uncommittedChanges()).is([])
       assertThat(aggregate.countOfEvents()).is(2)
     })

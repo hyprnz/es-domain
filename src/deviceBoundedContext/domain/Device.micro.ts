@@ -1,14 +1,14 @@
-import {assertThat, match} from 'mismatched'
-import {ChangeEvent, EntityEvent, UNINITIALISED_AGGREGATE_VERSION} from '../../eventSourcing/contracts/MessageTypes'
+import { assertThat, match } from 'mismatched'
+import { Aggregate } from '../../eventSourcing/Aggregate'
+import { ChangeEvent, EntityEvent, UNINITIALISED_AGGREGATE_VERSION } from '../../eventSourcing/contracts/MessageTypes'
+import { Entity } from '../../eventSourcing/Entity'
 import * as Uuid from '../../util/UUID'
-import {Entity} from '../../eventSourcing/Entity'
-import {Aggregate} from '../../eventSourcing/Aggregate'
-import {DeviceAggregate} from './DeviceAggregate'
-import {AlarmCreatedEvent} from "../events/internal/AlarmCreatedEvent";
-import {AlarmArmedEvent} from "../events/internal/AlarmArmedEvent";
-import {AlarmTriggeredEvent} from "../events/internal/AlarmTriggeredEvent";
-import {AlarmDestroyedEvent} from "../events/internal/AlarmDestroyedEvent";
-import {DeviceCreatedEvent} from "../events/internal/DeviceCreatedEvent";
+import { AlarmArmedEvent } from '../events/internal/AlarmArmedEvent'
+import { AlarmCreatedEvent } from '../events/internal/AlarmCreatedEvent'
+import { AlarmDestroyedEvent } from '../events/internal/AlarmDestroyedEvent'
+import { AlarmTriggeredEvent } from '../events/internal/AlarmTriggeredEvent'
+import { DeviceCreatedEvent } from '../events/internal/DeviceCreatedEvent'
+import { DeviceAggregate } from './DeviceAggregate'
 
 describe('Device', () => {
   describe('GenericAggregateRoot', () => {
@@ -25,7 +25,10 @@ describe('Device', () => {
 
         const events = aggregate.uncommittedChanges()
         assertThat(events).is([
-          makeEntityEventMatcher(DeviceCreatedEvent.make(() => id, { deviceId: id, colour:'red' }),0)
+          makeEntityEventMatcher(
+            DeviceCreatedEvent.make(() => id, { deviceId: id, colour: 'red' }),
+            0
+          )
         ])
         assertThat(aggregate.changeVersion).is(UNINITIALISED_AGGREGATE_VERSION)
       })
@@ -49,11 +52,12 @@ describe('Device', () => {
         alarm.armAlarm(20) //+1 Event
 
         const events = aggregate.uncommittedChanges()
-        aggregate.markChangesAsCommitted(events.length - 1)
+        const lastVersion = events[events.length - 1].version
+        aggregate.markChangesAsCommitted(lastVersion)
 
         assertThat(events).is(match.array.length(3))
         assertThat(events).is([
-          makeEntityEventMatcher(DeviceCreatedEvent.make(Uuid.createV4, { deviceId, colour:'green' }), 0),
+          makeEntityEventMatcher(DeviceCreatedEvent.make(Uuid.createV4, { deviceId, colour: 'green' }), 0),
           makeEntityEventMatcher(AlarmCreatedEvent.make(Uuid.createV4, { deviceId, alarmId }), 1),
           makeEntityEventMatcher(AlarmArmedEvent.make(Uuid.createV4, { deviceId, alarmId, threshold: 20 }), 2)
         ])
@@ -65,7 +69,10 @@ describe('Device', () => {
         hydratedAggregate.telemetryReceived(21)
         const uncommitted = hydratedAggregate.uncommittedChanges()
         assertThat(uncommitted).is([
-          makeEntityEventMatcher(AlarmTriggeredEvent.make(Uuid.createV4, { deviceId: hydratedAggregate.id, alarmId: alarm.id }), 3)
+          makeEntityEventMatcher(
+            AlarmTriggeredEvent.make(Uuid.createV4, { deviceId: hydratedAggregate.id, alarmId: alarm.id }),
+            3
+          )
         ])
       })
 
@@ -77,7 +84,8 @@ describe('Device', () => {
         assertThat(aggregate.findAlarm(alarm.id)).isNot(undefined)
 
         const lastChange = aggregate.uncommittedChanges()
-        aggregate.markChangesAsCommitted(lastChange.length)
+        const lastVersion = lastChange[lastChange.length - 1].version
+        aggregate.markChangesAsCommitted(lastVersion)
 
         aggregate.destroyAlarm(alarm.id) //+1
         assertThat(aggregate.findAlarm(alarm.id)).is(undefined)
@@ -91,7 +99,10 @@ describe('Device', () => {
   const makeEventMatcher = <T extends ChangeEvent>(event: T): ChangeEvent => {
     return { ...event, id: match.any(), causationId: match.any(), correlationId: match.any(), dateTimeOfEvent: match.any() }
   }
-  const makeEntityEventMatcher = <T extends ChangeEvent>(event: T, version: number = UNINITIALISED_AGGREGATE_VERSION): EntityEvent => {
+  const makeEntityEventMatcher = <T extends ChangeEvent>(
+    event: T,
+    version: number = UNINITIALISED_AGGREGATE_VERSION
+  ): EntityEvent => {
     return { event: makeEventMatcher(event), version }
   }
 

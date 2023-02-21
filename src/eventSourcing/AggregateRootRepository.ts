@@ -114,8 +114,8 @@ class GenericAggregateRootRepository {
     container: AggregateContainer<T, U>
   ): EntityContainerPair<T, U> {
     const persistable = Object.assign(container.rootEntity, {
-      save: () => save(this.eventStore, container),
-      uncommittedChanges: () => container.uncommittedChanges()
+      save: () => save(this.eventStore, container)
+      // uncommittedChanges: () => container.uncommittedChanges()
     })
 
     return [persistable, container]

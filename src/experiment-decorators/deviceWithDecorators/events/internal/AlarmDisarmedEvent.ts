@@ -1,4 +1,4 @@
-import * as Uuid from '../../../../../util/UUID'
+import { Uuid } from '../../../../util'
 import { baseChangeEventBuilder, ChangeEvent, ChangeEventFactory, EventData } from '../../../MessageTypes'
 
 export interface AlarmDisarmedEvent extends ChangeEvent {
