@@ -88,12 +88,18 @@ export class AggregateContainer<T extends EntityBase, U extends EntityConstructo
     }))
   }
 
-  markChangesAsCommitted(version: number): void {
+  /**
+   * Mark changes as commited and update aggregate version, to the version of the last event
+   * @param  version - Deprecated: this parameter is ignored and will be removed in future versions
+   */
+  markChangesAsCommitted(version?: number): void {
+    if (this.changes.length === 0) return
+
     const expectedVersion = this.changes[this.changes.length - 1].version
-    if (expectedVersion != version) throw new AggregateError(typeof this, 'Failed to commit unexpected event version')
+    if (version && expectedVersion !== version) throw new AggregateError(typeof this, 'Failed to commit unexpected event version')
 
     this.changes = []
-    this.version = version
+    this.version = expectedVersion
   }
 
   toString() {

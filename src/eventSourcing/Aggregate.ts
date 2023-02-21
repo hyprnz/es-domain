@@ -7,7 +7,7 @@ export interface Aggregate {
 
   loadFromHistory(events: Array<EntityEvent>): void
   uncommittedChanges(): Array<EntityEvent>
-  markChangesAsCommitted(version: number): void
+  markChangesAsCommitted(version?: number): void
 }
 
 export interface SnapshotAggregate extends Aggregate {
