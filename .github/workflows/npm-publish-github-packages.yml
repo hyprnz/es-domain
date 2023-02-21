@@ -33,7 +33,7 @@ jobs:
            echo -e "inputs\n"
            echo -e "${{toJSON(inputs)}}"
 
-  build:
+  buildv3:
     runs-on: ubuntu-latest
     needs: diagnotics
     steps:
@@ -56,7 +56,7 @@ jobs:
 
       - name: Set Version
         run: |
-          BUILD_VERSION=0.2.$GITHUB_RUN_NUMBER
+          BUILD_VERSION=0.3.$GITHUB_RUN_NUMBER
           BUILD_DATE=$(date +%Y-%m-%dT%H:%MZ)
           npm version ${BUILD_VERSION} --no-git-tag-version
           echo -e "BUILD_VERSION=$BUILD_VERSION\nBUILD_DATE=$BUILD_DATE\nSHA:$GITHUB_SHA\nGITHUB_REF_NAME=$GITHUB_REF_NAME" >> ./version.txt
