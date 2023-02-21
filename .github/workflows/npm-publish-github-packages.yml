@@ -28,13 +28,13 @@ jobs:
            echo "inputs.create_new_release=${{ inputs.create_new_release }}"
 
            echo -e "===================\n"
+           echo -e "inputs\n"
+           echo "${{toJSON(inputs)}}"
+
+           echo -e "===================\n"
            echo -e "github.event\n"
            echo "${{toJSON(github.event)}}"
            echo -e "\n"
-
-           echo -e "===================\n"
-           echo -e "inputs\n"
-           echo "${{toJSON(inputs)}}"
 
   buildv3:
     runs-on: ubuntu-latest
@@ -69,6 +69,11 @@ jobs:
 
       - name: Build
         run: npm run build
+
+      - name: Npm Audit
+        run: |
+          set -e
+          npm audit --omit=dev --audit-level=high
 
       - name: Micro Test
         run: npm run test:micro
