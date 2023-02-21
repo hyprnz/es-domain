@@ -27,11 +27,14 @@ jobs:
            echo "event_name=${{ github.event_name }}"
            echo "inputs.create_new_release=${{ inputs.create_new_release }}"
 
+           echo -e "===================\n"
            echo -e "github.event\n"
-           echo -e "${{toJSON(github.event)}}\n"
+           echo "${{toJSON(github.event)}}"
            echo -e "\n"
+
+           echo -e "===================\n"
            echo -e "inputs\n"
-           echo -e "${{toJSON(inputs)}}"
+           echo "${{toJSON(inputs)}}"
 
   buildv3:
     runs-on: ubuntu-latest
