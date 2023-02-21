@@ -1,6 +1,7 @@
 import { alarmProjectionHandler, Device } from '.'
 import { EventBusProducer } from '../eventBus/EventBusProcessor'
-import { AggregateRootRepositoryBuilder } from '../eventSourcing/AggregateRootRepository'
+import { EventStoreBuilder } from '../eventSourcing'
+import { AggregateRootRepositoryFactory } from '../eventSourcing/AggregateRootRepository'
 import { EntityEvent } from '../eventSourcing/contracts/MessageTypes'
 import { SnapshotStrategyBuilder } from '../eventSourcing/snapshotStrategyBuilder'
 import { ReadModelMemoryRepository } from '../readModelRepository/ReadModelMemoryRepository'
@@ -11,23 +12,13 @@ import { allAlarmCountProjection, deviceAlarmCountProjection } from './readModel
 import { DeviceService } from './service/DeviceService'
 
 describe('deviceApplication', () => {
-  // Setup Read Side
-  const readModelRepo = new ReadModelMemoryRepository()
-  const eventBus = async (changes: Array<EntityEvent>) => {
-    const projections = [alarmProjectionHandler, deviceAlarmCountProjection, allAlarmCountProjection]
-    projections.forEach(x => x(changes, readModelRepo))
-  }
+  const inMemoryEventStore = EventStoreBuilder.withRepository(new InMemoryEventStore())
+    .withEventBus(new EventBusProducer())
+    .make()
 
-  // Setup Write side
-  const eventStore = AggregateRootRepositoryBuilder.makeEventStore(
-    new InMemoryEventStore(),
-    new EventBusProducer()
-  ).registerCallback(eventBus)
-
-  const inMemoryEventStore = AggregateRootRepositoryBuilder.makeEventStore(new InMemoryEventStore(), new EventBusProducer())
   const inMemorySnapshotStore = new InMemorySnapshotEventStore()
   const snapshotStrategy = SnapshotStrategyBuilder.afterCountOfEvents(100)
-  const repository = AggregateRootRepositoryBuilder.makeSnapshotRepo(
+  const repository = AggregateRootRepositoryFactory.makeSnapshotRepo(
     inMemoryEventStore,
     Device,
     inMemorySnapshotStore,

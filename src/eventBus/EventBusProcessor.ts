@@ -1,9 +1,9 @@
 import { EntityEvent } from '../eventSourcing'
-import { makeNoOpLogger } from '../util/Logger'
 import { EventBus } from '../eventSourcing/contracts/EventBus'
+import { makeNoOpLogger } from '../util/Logger'
 import { EventBusError } from './EventBusError'
 
-export class EventBusProducer  implements EventBus<EntityEvent> {
+export class EventBusProducer implements EventBus<EntityEvent> {
   private eventHandlerFor: Array<(events: Array<EntityEvent>) => Promise<void>> = []
 
   constructor(private logger = makeNoOpLogger()) {}
@@ -28,4 +28,3 @@ const messageFrom = (e: any): string => {
   const isString = (s: any): s is string => typeof s === 'string'
   return isString(e?.message) ? e.message : 'Unknown error message'
 }
-

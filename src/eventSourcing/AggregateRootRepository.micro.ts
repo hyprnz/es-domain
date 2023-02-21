@@ -2,13 +2,12 @@ import { assertThat, match } from 'mismatched'
 import { Device, DeviceCreationParmaters } from '../deviceBoundedContext/domain/Device'
 import { AlarmCreatedEvent } from '../deviceBoundedContext/events/internal/AlarmCreatedEvent'
 import { DeviceCreatedEvent } from '../deviceBoundedContext/events/internal/DeviceCreatedEvent'
-import { EventBusProducer } from '../eventBus/EventBusProcessor'
 import * as Uuid from '../util/UUID'
 import { InMemoryEventStore } from '../writeModelRepository/InMemoryEventStore'
-import { AggregateRootRepository, AggregateRootRepositoryBuilder } from './AggregateRootRepository'
+import { AggregateRootRepository, AggregateRootRepositoryFactory } from './AggregateRootRepository'
 import { ChangeEvent, EntityEvent } from './contracts/MessageTypes'
 import { OptimisticConcurrencyError } from './contracts/OptimisticConcurrencyError'
-import { EventStore } from './EventStore'
+import { EventStore, EventStoreBuilder } from './EventStore'
 
 describe('AggregateRootRepository', () => {
   describe('Memory Repos', () => {
@@ -16,8 +15,8 @@ describe('AggregateRootRepository', () => {
     let repository: AggregateRootRepository<Device, DeviceCreationParmaters>
 
     beforeEach(() => {
-      eventStore = AggregateRootRepositoryBuilder.makeEventStore(new InMemoryEventStore(), new EventBusProducer())
-      repository = AggregateRootRepositoryBuilder.makeRepo(eventStore, Device)
+      eventStore = EventStoreBuilder.withRepository(new InMemoryEventStore()).make()
+      repository = AggregateRootRepositoryFactory.makeRepo(eventStore, Device)
     })
 
     it('stores events', async () => {

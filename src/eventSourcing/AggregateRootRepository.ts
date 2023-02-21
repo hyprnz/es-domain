@@ -31,11 +31,8 @@ export interface AggregateRootRepository<T extends EntityBase, U extends EntityC
   create(creationEvent: U): Promise<EntityContainerPair<T, U>>
 }
 
-export class AggregateRootRepositoryBuilder {
-  static makeEventStore(eventStoreRepo: EventStoreRepository, eventBus: EventBus<EntityEvent>): EventStore {
-    return new EventStore(eventStoreRepo, eventBus)
-  }
-
+export class AggregateRootRepositoryFactory {
+  
   // static makeGenericRepo<T extends EntityBase, U extends EntityConstructorPayload>(eventStore: EventStore): GenericAggregateRootRepository {
   //   return new GenericAggregateRootRepository( eventStore )
   // }
@@ -67,9 +64,9 @@ async function save<T extends Aggregate>(eventStore: EventStore, aggregate: T): 
   if (changes.length === 0) {
     return Promise.resolve(0)
   }
-  await eventStore.appendEvents(aggregate.id, changes[0].version, changes)
-  aggregate.markChangesAsCommitted(changes[changes.length - 1].version)
-  // await this.onAfterEventsStored(changes)
+  const firstEventVersion = changes[0].version
+  await eventStore.appendEvents(aggregate.id, firstEventVersion, changes)
+  aggregate.markChangesAsCommitted()
   return changes.length
 }
 

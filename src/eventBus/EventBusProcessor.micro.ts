@@ -1,7 +1,7 @@
 import { assertThat } from 'mismatched'
-import { EventBusProducer } from './EventBusProcessor'
-import { EventBus } from '../eventSourcing/contracts/EventBus'
 import { ChangeEventBuilder, EntityEvent } from '../eventSourcing'
+import { EventBus } from '../eventSourcing/contracts/EventBus'
+import { EventBusProducer } from './EventBusProcessor'
 
 describe('EventBusProcessor', () => {
   let bus: EventBus<EntityEvent>
@@ -20,7 +20,7 @@ describe('EventBusProcessor', () => {
   })
 
   describe('callHandlers', () => {
-    const entityEvent: EntityEvent = {version: 0, event: ChangeEventBuilder.make().to()}
+    const entityEvent: EntityEvent = { version: 0, event: ChangeEventBuilder.make().to() }
     it('multiple events single handle', async () => {
       bus.registerHandlerForEvents(handler)
       await bus.callHandlers([entityEvent, entityEvent, entityEvent])

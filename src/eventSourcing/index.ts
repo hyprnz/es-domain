@@ -1,6 +1,7 @@
 export * from './Aggregate'
 export * from './AggregateContainer'
 export * from './AggregateError'
+export * from './AggregateRootRepository'
 export * from './ChangeEventBuilder'
 export * from './contracts'
 export * from './Entity'

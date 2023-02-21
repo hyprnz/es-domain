@@ -1,7 +1,6 @@
 import { assertThat, match } from 'mismatched'
-import { Uuid } from '../..'
-import { EventBusProducer } from '../../eventBus/EventBusProcessor'
-import { AggregateRootRepository, AggregateRootRepositoryBuilder } from '../../eventSourcing/AggregateRootRepository'
+import { EventStoreBuilder, Uuid } from '../..'
+import { AggregateRootRepository, AggregateRootRepositoryFactory } from '../../eventSourcing/AggregateRootRepository'
 import { SnapshotStrategyBuilder } from '../../eventSourcing/snapshotStrategyBuilder'
 import { InMemoryEventStore } from '../../writeModelRepository/InMemoryEventStore'
 import { InMemorySnapshotEventStore } from '../../writeModelRepository/InMemorySnapshotEventStore'
@@ -11,12 +10,12 @@ describe('DeviceRepository', () => {
   let repository: AggregateRootRepository<Device, DeviceCreationParmaters>
 
   beforeEach(() => {
-    const inMemoryEventStore = AggregateRootRepositoryBuilder.makeEventStore(new InMemoryEventStore(), new EventBusProducer())
+    const inMemoryEventStore = EventStoreBuilder.withRepository(new InMemoryEventStore()).make()
 
     const snapshotStrategy = SnapshotStrategyBuilder.afterCountOfEvents(100)
     const inMemorySnapshotStore = new InMemorySnapshotEventStore()
 
-    repository = AggregateRootRepositoryBuilder.makeSnapshotRepo(
+    repository = AggregateRootRepositoryFactory.makeSnapshotRepo(
       inMemoryEventStore,
       Device,
       inMemorySnapshotStore,
