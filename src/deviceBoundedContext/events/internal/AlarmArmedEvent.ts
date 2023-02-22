@@ -6,6 +6,7 @@ export interface AlarmArmedEvent extends ChangeEvent {
   threshold: number
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace AlarmArmedEvent {
   export const eventType = 'AlarmArmedEvent'
 

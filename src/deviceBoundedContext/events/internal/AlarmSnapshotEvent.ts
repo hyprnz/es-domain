@@ -9,6 +9,7 @@ export interface AlarmSnapshotEvent extends ChangeEvent {
   isTriggered: boolean
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace AlarmSnapshotEvent {
   export const eventType = 'AlarmSnapshotEvent'
 

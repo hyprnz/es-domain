@@ -6,6 +6,7 @@ export interface DeviceCreatedEvent extends ChangeEvent {
   colour: string
 }
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 export namespace DeviceCreatedEvent {
   export const eventType = 'DeviceCreatedEvent'
 
