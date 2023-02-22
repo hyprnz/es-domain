@@ -1,6 +1,6 @@
 import 'reflect-metadata'
-import { UUID } from '../util/UUID'
 import { AggregateError } from '../eventSourcing/AggregateError'
+import { UUID } from '../util/UUID'
 import { Aggregate, Parent } from './Aggregate'
 import { EventSourcedEntity } from './Entity'
 import { ChangeEvent, EntityEvent, UNINITIALISED_AGGREGATE_VERSION } from './MessageTypes'
@@ -90,6 +90,8 @@ export class EventSourcedAggregate<T extends EventSourcedEntity> implements Aggr
 
   private getEventHandler(eventType: string): (event: ChangeEvent) => void {
     for (const entity of this.entities) {
+      // This is convineient however i don't like this pattern as over time as events chnage we will need to think up more obscure names
+      // for these events so that they don't collide with legacy event names. Maybe rather than event type, event schema could be a better implmentation
       const handler = Reflect.getMetadata(`${eventType}Handler`, entity)
       if (handler) return payload => handler.call(entity, payload)
     }
