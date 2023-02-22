@@ -8,9 +8,8 @@ import {
   EntityEvent,
   isSnapshotableEntity
 } from '.'
-import { EventStoreRepository, SnapshotEventStore } from '..'
+import { SnapshotEventStore } from '..'
 import { UUID } from '../util/UUID'
-import { EventBus } from './contracts/EventBus'
 import { SnapshotStrategy } from './contracts/SnapshotStrategy'
 import { EventStore } from './EventStore'
 
@@ -32,7 +31,6 @@ export interface AggregateRootRepository<T extends EntityBase, U extends EntityC
 }
 
 export class AggregateRootRepositoryFactory {
-  
   // static makeGenericRepo<T extends EntityBase, U extends EntityConstructorPayload>(eventStore: EventStore): GenericAggregateRootRepository {
   //   return new GenericAggregateRootRepository( eventStore )
   // }

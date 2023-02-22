@@ -1,15 +1,15 @@
-import * as Uuid from '../../util/UUID'
-import { EntityBase } from '../../eventSourcing/EntityBase'
-import { ChangeEvent } from '../../eventSourcing/contracts/MessageTypes'
-import { DeviceDomainError } from '../events/internal/DeviceDomainError'
-import { SnapshotEntity, StaticEventHandler } from '../../eventSourcing/Entity'
 import { EntityChangedObserver } from '../../eventSourcing/Aggregate'
-import { AlarmCreatedEvent } from '../events/internal/AlarmCreatedEvent'
+import { ChangeEvent } from '../../eventSourcing/contracts/MessageTypes'
+import { SnapshotEntity, StaticEventHandler } from '../../eventSourcing/Entity'
+import { EntityBase } from '../../eventSourcing/EntityBase'
+import * as Uuid from '../../util/UUID'
 import { AlarmArmedEvent } from '../events/internal/AlarmArmedEvent'
-import { AlarmDisarmedEvent } from '../events/internal/AlarmDisarmedEvent'
-import { AlarmTriggeredEvent } from '../events/internal/AlarmTriggeredEvent'
+import { AlarmCreatedEvent } from '../events/internal/AlarmCreatedEvent'
 import { AlarmDestroyedEvent } from '../events/internal/AlarmDestroyedEvent'
+import { AlarmDisarmedEvent } from '../events/internal/AlarmDisarmedEvent'
 import { AlarmSnapshotEvent } from '../events/internal/AlarmSnapshotEvent'
+import { AlarmTriggeredEvent } from '../events/internal/AlarmTriggeredEvent'
+import { DeviceDomainError } from '../events/internal/DeviceDomainError'
 
 export class Alarm extends EntityBase implements SnapshotEntity {
   private _deviceId: Uuid.UUID | undefined
@@ -24,9 +24,9 @@ export class Alarm extends EntityBase implements SnapshotEntity {
     this._deviceId = value
   }
 
-  private isArmed: boolean = false
-  private threshold: number = 0
-  private isTriggered: boolean = false
+  private isArmed = false
+  private threshold = 0
+  private isTriggered = false
 
   constructor(observer: EntityChangedObserver) {
     super(observer)
@@ -88,7 +88,9 @@ export class Alarm extends EntityBase implements SnapshotEntity {
     if (handler) handlers.push(() => handler.forEach(x => x.call(this, this, evt)))
 
     return handlers.length
-      ? () => {handlers.forEach(x => x())}
+      ? () => {
+          handlers.forEach(x => x())
+        }
       : undefined
   }
 
